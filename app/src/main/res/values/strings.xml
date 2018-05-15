@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">MSP_ProjectKickOff_SS188</string>
+    <string name="introInfo">Do you wish to be a presenter or a spectator?</string>
+    <string name="presenter">Presenter</string>
+    <string name="spectator">Spectator</string>
 </resources>
