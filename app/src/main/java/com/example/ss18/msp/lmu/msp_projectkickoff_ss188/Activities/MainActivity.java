@@ -25,12 +25,15 @@ public class MainActivity extends AppCompatActivity {
     private static User userRole;
 
     private static ConnectionDataBase connectionDataBase;
+    private static String userName = "UnknownUser";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         connectionDataBase = ConnectionDataBase.getInstance(); //Singleton
+        connectionDataBase.setUpConnectionsClient(this);
+        connectionDataBase.setServiceId(getPackageName());
     }
 
     /**
@@ -40,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public void presenterButtonClicked(View view) {
         Log.i(TAG,"User chose to be a PRESENTER.");
-        userRole = new Presenter();
+        userRole = new Presenter(userName);
     }
     /**
      * Gets executed if the user chooses to be a "Spectator"  by pressing
@@ -49,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public void spectatorButtonClicked(View view) {
         Log.i(TAG,"User chose to be a SPECTATOR.");
-        userRole = new Spectator();
+        userRole = new Spectator(userName);
     }
 
     /**
@@ -57,12 +60,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void startAdvertising(){ connectionDataBase.startAdvertising(); }
 
-    /**
-     * Calls stopAdvertising() on the connectionDataBase
-     */
-    private void stopAdvertising(){ connectionDataBase.stopAdvertising(); }
-
-    /**
+     /**
      * Calls startDiscovering() on the connectionDataBase
      */
     private void startDiscovering(){ connectionDataBase.startDiscovering(); }
