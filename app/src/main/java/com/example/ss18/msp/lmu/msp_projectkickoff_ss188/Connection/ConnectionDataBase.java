@@ -169,7 +169,7 @@ public class ConnectionDataBase {
      */
     public void startDiscovering() {
         Log.i(TAG, "Starting discovering...");
-        //Clear list everytime we try to re-discover
+        //Clear list every time we try to re-discover
         discoveredEndpoints.clear();
         //Callbacks for finding devices
         //Finds nearby devices and stores them in "discoveredEndpoints"
@@ -190,6 +190,18 @@ public class ConnectionDataBase {
                 };
         //Start discovering
         connectionsClient.startDiscovery(serviceID, endpointDiscoveryCallback, new DiscoveryOptions(STRATEGY));
+    }
+
+    /**
+     * Stops looking for new devices/endpoints to connect to
+     */
+    public void stopDiscovering() {
+    }
+
+    /**
+     * Stops advertising to new discoverers
+     */
+    public void stopAdvertising() {
     }
 
     public ConnectionsClient getConnectionsClient() {

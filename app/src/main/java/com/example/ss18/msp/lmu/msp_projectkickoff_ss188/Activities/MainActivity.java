@@ -1,9 +1,18 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.support.annotation.CallSuper;
+import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
@@ -14,6 +23,19 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import java.lang.annotation.Target;
 
 public class MainActivity extends AppCompatActivity {
+
+    /**
+     * ACCESS_COARSE_LOCATION is considered dangerous, so we need to explicitly
+     * grant the permission every time we start the app
+     */
+    private static final String[] REQUIRED_PERMISSIONS =
+            new String[]{
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.BLUETOOTH,
+                    Manifest.permission.BLUETOOTH_ADMIN,
+                    Manifest.permission.ACCESS_WIFI_STATE,
+                    Manifest.permission.CHANGE_WIFI_STATE,
+            };
 
     /**
      * Tag for Logging/Debugging
@@ -27,6 +49,24 @@ public class MainActivity extends AppCompatActivity {
     private static ConnectionDataBase connectionDataBase;
     private static String userName = "UnknownUser";
 
+    /**
+     * Called when our Activity has been made visible to the user.
+     * This is only needed for newer devices
+     */
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //Check if we have all permissions, if not, then add!
+        for (String permission : REQUIRED_PERMISSIONS) {
+            if (ContextCompat.checkSelfPermission(this, permission)
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(REQUIRED_PERMISSIONS, 1);
+                return;
+            }
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,34 +77,81 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Called when the user has accepted (or denied) our permission request.
+     */
+    @CallSuper
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1) {
+            for (int grantResult : grantResults) {
+                if (grantResult == PackageManager.PERMISSION_DENIED) {
+                    Toast.makeText(this, R.string.missingPermission, Toast.LENGTH_LONG).show();
+                    Log.e(TAG, "Permission error");
+                    finish();
+                    return;
+                }
+            }
+            recreate();
+        }
+    }
+
+    /**
      * Gets executed if the user chooses to be a "Presenter"  by pressing
      * the corresponding button
+     *
      * @param view
      */
     public void presenterButtonClicked(View view) {
-        Log.i(TAG,"User chose to be a PRESENTER.");
+        Log.i(TAG, "User chose to be a PRESENTER.");
         userRole = new Presenter(userName);
+        startDiscovering();
     }
+
     /**
      * Gets executed if the user chooses to be a "Spectator"  by pressing
      * the corresponding button
+     *
      * @param view
      */
     public void spectatorButtonClicked(View view) {
-        Log.i(TAG,"User chose to be a SPECTATOR.");
+        Log.i(TAG, "User chose to be a SPECTATOR.");
         userRole = new Spectator(userName);
+        startAdvertising();
     }
 
     /**
      * Calls startAdvertising() on the connectionDataBase
      */
-    private void startAdvertising(){ connectionDataBase.startAdvertising(); }
+    private void startAdvertising() {
+        Snackbar snackbar = Snackbar.make(findViewById(R.id.mainActivityLayout),
+                R.string.startAdvertising,Snackbar.LENGTH_LONG);
+        snackbar.show();
+        connectionDataBase.startAdvertising();
+    }
 
-     /**
+    /**
+     * Calls stopAdvertising() on the connectionDataBase
+     */
+    private void stopAdvertising() {
+        connectionDataBase.stopAdvertising();
+    }
+    /**
      * Calls startDiscovering() on the connectionDataBase
      */
-    private void startDiscovering(){ connectionDataBase.startDiscovering(); }
-
+    private void startDiscovering() {
+        Snackbar snackbar = Snackbar.make(findViewById(R.id.mainActivityLayout),
+                R.string.startDiscovering, Snackbar.LENGTH_LONG);
+        snackbar.show();
+        connectionDataBase.startDiscovering();
+    }
+    /**
+     * Calls stopDiscovering() on the connectionDataBase
+     */
+    private void stopDiscovering() {
+        connectionDataBase.stopDiscovering();
+    }
 
     //Getters and Setters
     public static User getUserRole() {
@@ -72,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static void setUserRole(User userRole) {
-        Log.i(TAG,"User changed his role to: " + userRole.getRoleType().toString());
+        Log.i(TAG, "User changed his role to: " + userRole.getRoleType().toString());
         MainActivity.userRole = userRole;
     }
 }

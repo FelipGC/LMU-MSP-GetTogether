@@ -1,6 +1,9 @@
 <resources>
-    <string name="app_name">MSP_ProjectKickOff_SS188</string>
+    <string name="app_name">ViewPresent</string>
     <string name="introInfo">Do you wish to be a presenter or a spectator?</string>
     <string name="presenter">Presenter</string>
     <string name="spectator">Spectator</string>
+    <string name="missingPermission">Insufficient permissions granted</string>
+    <string name="startDiscovering">Looking for audience members...</string>
+    <string name="startAdvertising">Scanning environment...</string>
 </resources>
