@@ -9,7 +9,7 @@ import java.util.ArrayList;
 /**
  * Organizes fragments to (later) display them as tabs
  */
-public class TabOrganizer extends FragmentPagerAdapter {
+public class TabPageAdapter extends FragmentPagerAdapter {
 
     /**
      * A list storing all fragments / tabs
@@ -20,7 +20,7 @@ public class TabOrganizer extends FragmentPagerAdapter {
      */
     private final ArrayList<String> fragmentTitleList = new ArrayList<>();
 
-    public TabOrganizer(FragmentManager fm) {
+    public TabPageAdapter(FragmentManager fm) {
         super(fm);
     }
     public void addFragment(Fragment f,String tabName){
@@ -36,4 +36,10 @@ public class TabOrganizer extends FragmentPagerAdapter {
     public int getCount() {
         return fragmentList.size();
     }
+
+    @Override
+    public CharSequence getPageTitle(int position) {
+        return fragmentTitleList.get(position);
+    }
+
 }

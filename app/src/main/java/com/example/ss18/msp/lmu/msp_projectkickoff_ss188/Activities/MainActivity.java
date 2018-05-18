@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void createSecondaryActivity(){
         Intent intent = new Intent(this, SecondaryActivity.class);
-        intent.putExtra("RoleType", getUserRole().getRoleType());
+        //intent.putExtra("RoleType", getUserRole().getRoleType());
         startActivity(intent);
     }
     //Getters and Setters
