@@ -1,12 +1,12 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -125,10 +125,9 @@ public class MainActivity extends AppCompatActivity {
      * Calls startAdvertising() on the connectionDataBase
      */
     private void startAdvertising() {
-        Snackbar snackbar = Snackbar.make(findViewById(R.id.mainActivityLayout),
-                R.string.startAdvertising,Snackbar.LENGTH_LONG);
-        snackbar.show();
+        Toast.makeText(this, R.string.startAdvertising, Toast.LENGTH_LONG).show();
         connectionDataBase.startAdvertising();
+        createSecondaryActivity();
     }
 
     /**
@@ -141,10 +140,9 @@ public class MainActivity extends AppCompatActivity {
      * Calls startDiscovering() on the connectionDataBase
      */
     private void startDiscovering() {
-        Snackbar snackbar = Snackbar.make(findViewById(R.id.mainActivityLayout),
-                R.string.startDiscovering, Snackbar.LENGTH_LONG);
-        snackbar.show();
+        Toast.makeText(this, R.string.startDiscovering, Toast.LENGTH_LONG).show();
         connectionDataBase.startDiscovering();
+        createSecondaryActivity();
     }
     /**
      * Calls stopDiscovering() on the connectionDataBase
@@ -153,6 +151,14 @@ public class MainActivity extends AppCompatActivity {
         connectionDataBase.stopDiscovering();
     }
 
+    /**
+     * Creates a new (secondary) activity
+     */
+    private void createSecondaryActivity(){
+        Intent intent = new Intent(this, SecondaryActivity.class);
+        intent.putExtra("RoleType", getUserRole().getRoleType());
+        startActivity(intent);
+    }
     //Getters and Setters
     public static User getUserRole() {
         return userRole;
