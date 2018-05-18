@@ -12,6 +12,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionDataBase;
@@ -71,6 +73,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Animation logoMoveAnimation = AnimationUtils.loadAnimation(this, R.anim.pop_up_animation);
+        //Animations
+        findViewById(R.id.buttonPresenter).startAnimation(logoMoveAnimation);
+        findViewById(R.id.buttonSpectator).startAnimation(logoMoveAnimation);
+        //Connection
         connectionDataBase = ConnectionDataBase.getInstance(); //Singleton
         connectionDataBase.setUpConnectionsClient(this);
         connectionDataBase.setServiceId(getPackageName());
