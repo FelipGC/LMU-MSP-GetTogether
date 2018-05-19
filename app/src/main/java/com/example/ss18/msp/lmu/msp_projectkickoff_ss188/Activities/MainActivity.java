@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         presenter = (ImageButton)findViewById(R.id.buttonPresenter);
         spectator = (ImageButton) findViewById(R.id.buttonSpectator);
         //Setting up username via AlertDialog
-        seen = loadPreferences();
+        loadPreferences();
         if (!seen) {
             setUsername();
         }
@@ -105,6 +105,19 @@ public class MainActivity extends AppCompatActivity {
         connectionDataBase = ConnectionDataBase.getInstance(); //Singleton
         connectionDataBase.setUpConnectionsClient(this);
         connectionDataBase.setServiceId(getPackageName());
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        savePreferences();
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadPreferences();
     }
 
     private void savePreferences() {
@@ -119,14 +132,13 @@ public class MainActivity extends AppCompatActivity {
         editor.commit();
     }
 
-    private boolean loadPreferences() {
+    private void loadPreferences() {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME,
                 Context.MODE_PRIVATE);
         // Get value
         userName = settings.getString(PREF_USER, userName);
         seen = settings.getBoolean(PREF_SEEN, seen);
         System.out.println("Load username: " + userName);
-        return seen;
     }
 
     private void setUsername() {

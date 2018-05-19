@@ -143,7 +143,7 @@ public class ConnectionDataBase {
      * Starts advertising to be spotted by discoverers
      */
     public void startAdvertising() {
-        Log.i(TAG, "Starting advertising..." +"  "+ serviceID);
+        Log.i(TAG, "Starting advertising..." +"  "+ MainActivity.getUserRole().getUserName() + serviceID);
         // Note: Advertising may fail
         connectionsClient.startAdvertising(
                 MainActivity.getUserRole().getUserName(), serviceID, connectionLifecycleCallback,
