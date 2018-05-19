@@ -1,8 +1,11 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
 import android.Manifest;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.annotation.CallSuper;
@@ -13,6 +16,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -29,6 +33,10 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import java.lang.annotation.Target;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String PREFS_NAME = "preferences";
+    private static final String PREF_USER = "username";
+    private static final String PREF_SEEN = "seen";
 
     private ImageButton presenter;
     private ImageButton spectator;
@@ -57,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static ConnectionDataBase connectionDataBase;
     private static String userName = "UnknownUser";
+    private boolean seen = false;
 
     /**
      * Called when our Activity has been made visible to the user.
@@ -85,7 +94,10 @@ public class MainActivity extends AppCompatActivity {
         presenter = (ImageButton)findViewById(R.id.buttonPresenter);
         spectator = (ImageButton) findViewById(R.id.buttonSpectator);
         //Setting up username via AlertDialog
-        setUsername();
+        seen = loadPreferences();
+        if (!seen) {
+            setUsername();
+        }
         //Animations
         presenter.startAnimation(logoMoveAnimation);
         spectator.startAnimation(logoMoveAnimation);
@@ -95,23 +107,47 @@ public class MainActivity extends AppCompatActivity {
         connectionDataBase.setServiceId(getPackageName());
     }
 
+    private void savePreferences() {
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME,
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+
+        // Edit and commit
+        System.out.println("Save username: " + userName);
+        editor.putString(PREF_USER, userName);
+        editor.putBoolean(PREF_SEEN, true);
+        editor.commit();
+    }
+
+    private boolean loadPreferences() {
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME,
+                Context.MODE_PRIVATE);
+        // Get value
+        userName = settings.getString(PREF_USER, userName);
+        seen = settings.getBoolean(PREF_SEEN, seen);
+        System.out.println("Load username: " + userName);
+        return seen;
+    }
+
     private void setUsername() {
         final EditText input = new EditText(this);
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle("Add a username");
-        dialog.setMessage("Please enter a username");
+        //dialog.setTitle("Add a username");
+        dialog.setMessage(R.string.username);
         dialog.setView(input);
-        dialog.setPositiveButton("Enter", new DialogInterface.OnClickListener() {
+        dialog.setPositiveButton(R.string.enter, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Toast.makeText(MainActivity.this, "Clicked enter", Toast.LENGTH_LONG).show();
                 userName = input.getText().toString();
+                savePreferences();
             }
         });
-        dialog.setNegativeButton("Skip", new DialogInterface.OnClickListener() {
+        dialog.setNegativeButton(R.string.skip, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Toast.makeText(MainActivity.this, "Clicked Skip", Toast.LENGTH_LONG).show();
+                savePreferences();
             }
         });
 
@@ -146,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
      * @param view
      */
     public void presenterButtonClicked(View view) {
-        Log.i(TAG, "User chose to be a PRESENTER.");
+        Log.i(TAG, "User chose to be a PRESENTER." + userName + seen);
         userRole = new Presenter(userName);
         startDiscovering();
     }

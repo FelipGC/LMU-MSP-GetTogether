@@ -6,6 +6,9 @@
     <string name="missingPermission">Insufficient permissions granted</string>
     <string name="startDiscovering">You are now a presenter!</string>
     <string name="startAdvertising">You are now a viewer!</string>
+    <string name="username">Please enter a username</string>
+    <string name="enter">Enter</string>
+    <string name="skip">Skip</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

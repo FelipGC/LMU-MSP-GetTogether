@@ -143,7 +143,7 @@ public class ConnectionDataBase {
      * Starts advertising to be spotted by discoverers
      */
     public void startAdvertising() {
-        Log.i(TAG, "Starting advertising...");
+        Log.i(TAG, "Starting advertising..." +"  "+ serviceID);
         // Note: Advertising may fail
         connectionsClient.startAdvertising(
                 MainActivity.getUserRole().getUserName(), serviceID, connectionLifecycleCallback,
@@ -168,7 +168,7 @@ public class ConnectionDataBase {
      * Start the process of detecting nearby devices (connectors)
      */
     public void startDiscovering() {
-        Log.i(TAG, "Starting discovering...");
+        Log.i(TAG, "Starting discovering..."+ MainActivity.getUserRole().getUserName() +"  "+ serviceID);
         //Clear list every time we try to re-discover
         discoveredEndpoints.clear();
         //Callbacks for finding devices
@@ -189,7 +189,20 @@ public class ConnectionDataBase {
                     }
                 };
         //Start discovering
-        connectionsClient.startDiscovery(serviceID, endpointDiscoveryCallback, new DiscoveryOptions(STRATEGY));
+        connectionsClient.startDiscovery(serviceID, endpointDiscoveryCallback, new DiscoveryOptions(STRATEGY)).addOnSuccessListener(
+                new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unusedResult) {
+                        // We're discovering!
+                    }
+                })
+                .addOnFailureListener(
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                // We were unable to start discovering.
+                            }
+                        });
     }
 
     /**
