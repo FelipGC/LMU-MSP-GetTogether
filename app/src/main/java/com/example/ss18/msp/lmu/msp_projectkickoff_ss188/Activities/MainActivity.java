@@ -1,6 +1,7 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -8,12 +9,15 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionDataBase;
@@ -25,6 +29,9 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import java.lang.annotation.Target;
 
 public class MainActivity extends AppCompatActivity {
+
+    private ImageButton presenter;
+    private ImageButton spectator;
 
     /**
      * ACCESS_COARSE_LOCATION is considered dangerous, so we need to explicitly
@@ -74,13 +81,41 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Animation logoMoveAnimation = AnimationUtils.loadAnimation(this, R.anim.pop_up_animation);
+        //Views
+        presenter = (ImageButton)findViewById(R.id.buttonPresenter);
+        spectator = (ImageButton) findViewById(R.id.buttonSpectator);
+        //Setting up username via AlertDialog
+        setUsername();
         //Animations
-        findViewById(R.id.buttonPresenter).startAnimation(logoMoveAnimation);
-        findViewById(R.id.buttonSpectator).startAnimation(logoMoveAnimation);
+        presenter.startAnimation(logoMoveAnimation);
+        spectator.startAnimation(logoMoveAnimation);
         //Connection
         connectionDataBase = ConnectionDataBase.getInstance(); //Singleton
         connectionDataBase.setUpConnectionsClient(this);
         connectionDataBase.setServiceId(getPackageName());
+    }
+
+    private void setUsername() {
+        final EditText input = new EditText(this);
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Add a username");
+        dialog.setMessage("Please enter a username");
+        dialog.setView(input);
+        dialog.setPositiveButton("Enter", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(MainActivity.this, "Clicked enter", Toast.LENGTH_LONG).show();
+                userName = input.getText().toString();
+            }
+        });
+        dialog.setNegativeButton("Skip", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(MainActivity.this, "Clicked Skip", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        dialog.show();
     }
 
     /**
