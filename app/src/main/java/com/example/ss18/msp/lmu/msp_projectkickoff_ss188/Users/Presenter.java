@@ -9,13 +9,12 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.MainActivity
  */
 public class Presenter extends User {
     private final String TAG = "Presenter";
-    public Presenter(String username){
-        setUserName(username);
+    public Presenter(){
         Log.i(TAG,"Presenter created.");
         roleType = UserRole.PRESENTER;
     }
     @Override
     public void changeRole() {
-        MainActivity.setUserRole(new Spectator(getUserName()));
+        MainActivity.setUserRole(new Spectator());
     }
 }

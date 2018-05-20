@@ -26,10 +26,10 @@ import java.util.HashMap;
 /**
  * Stores everything we need related to the NearbyConnection process.
  */
-public class ConnectionDataBase {
+public class ConnectionManager {
 
-    private final String TAG = "ConnectionDataBase";
-    private static final ConnectionDataBase connectionDataBase = new ConnectionDataBase();
+    private final String TAG = "ConnectionManager";
+    private static final ConnectionManager CONNECTION_MANAGER = new ConnectionManager();
     /**
      * The connection strategy as defined in https://developers.google.com/nearby/connections/strategies
      */
@@ -39,11 +39,11 @@ public class ConnectionDataBase {
      */
     private String serviceID;
 
-    public static ConnectionDataBase getInstance() {
-        return connectionDataBase;
+    public static ConnectionManager getInstance() {
+        return CONNECTION_MANAGER;
     }
 
-    private ConnectionDataBase() {
+    private ConnectionManager() {
     } //( Due to Singleton)
 
     /**

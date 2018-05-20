@@ -1,5 +1,7 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
+
 /**
  * Represents a user using this software. A user can either be a spectator or a presenter.
  * Spectator & Presenter inherit this class.
@@ -10,8 +12,6 @@ public abstract class User {
      */
     public abstract void changeRole();
 
-    private String userName;
-
     public enum UserRole{SPECTATOR, PRESENTER};
     /**
      * The type the user is
@@ -21,11 +21,11 @@ public abstract class User {
     //Getters & Setters
 
     public String getUserName() {
-        return userName;
+        return LocalDataBase.getUserName();
     }
 
     public void setUserName(String userName) {
-        this.userName = userName;
+        LocalDataBase.setUserName(userName);
     }
 
     public UserRole getRoleType() {
