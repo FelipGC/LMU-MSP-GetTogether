@@ -3,6 +3,7 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.MainActivity;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
@@ -43,6 +44,11 @@ public class ConnectionManager {
         return CONNECTION_MANAGER;
     }
 
+    /**
+     * A reference to the corresponding activity
+     */
+    private AppLogicActivity appLogicActivity;
+
     private ConnectionManager() {
     } //( Due to Singleton)
 
@@ -56,7 +62,7 @@ public class ConnectionManager {
                 public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
                     Log.i(TAG, String.format("onConnectionInitiated(endpointId=%s, endpointName=%s)",
                             endpointId, connectionInfo.getEndpointName()));
-                    switch (MainActivity.getUserRole().getRoleType()) {
+                    switch (AppLogicActivity.getUserRole().getRoleType()) {
 
                         case SPECTATOR:
                             //If we are the spectator, we need to ask the user if he really (still)
@@ -84,6 +90,7 @@ public class ConnectionManager {
                         case ConnectionsStatusCodes.STATUS_OK:
                             // We're connected! Can now start sending and receiving data.
                             establishedConnections.put(endpointId, discoveredEndpoints.get(endpointId));
+                            updateParticipantsCount();
                             break;
                         case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
                             // The connection was rejected by one or both sides.
@@ -99,8 +106,10 @@ public class ConnectionManager {
                     // We've been disconnected from this endpoint. No more data can be
                     // sent or received.
                     Log.i(TAG, "Disconnected from endpoint " + endpointId);
-                    if (establishedConnections.containsKey(endpointId))
+                    if (establishedConnections.containsKey(endpointId)) {
                         establishedConnections.remove(endpointId);
+                        updateParticipantsCount();
+                    }
                 }
             };
     /**
@@ -143,10 +152,10 @@ public class ConnectionManager {
      * Starts advertising to be spotted by discoverers
      */
     public void startAdvertising() {
-        Log.i(TAG, "Starting advertising..." +"  "+ MainActivity.getUserRole().getUserName() + serviceID);
+        Log.i(TAG, "Starting advertising..." +"  "+ AppLogicActivity.getUserRole().getUserName() + serviceID);
         // Note: Advertising may fail
         connectionsClient.startAdvertising(
-                MainActivity.getUserRole().getUserName(), serviceID, connectionLifecycleCallback,
+                AppLogicActivity.getUserRole().getUserName(), serviceID, connectionLifecycleCallback,
                 new AdvertisingOptions(STRATEGY)).addOnSuccessListener(
                 new OnSuccessListener<Void>() {
                     @Override
@@ -168,7 +177,7 @@ public class ConnectionManager {
      * Start the process of detecting nearby devices (connectors)
      */
     public void startDiscovering() {
-        Log.i(TAG, "Starting discovering..."+ MainActivity.getUserRole().getUserName() +"  "+ serviceID);
+        Log.i(TAG, "Starting discovering..."+ AppLogicActivity.getUserRole().getUserName() +"  "+ serviceID);
         //Clear list every time we try to re-discover
         discoveredEndpoints.clear();
         //Callbacks for finding devices
@@ -247,7 +256,7 @@ public class ConnectionManager {
      */
     public void requestConnection(final ConnectionEndpoint endpoint) {
         connectionsClient.requestConnection(
-                MainActivity.getUserRole().getUserName(),
+                AppLogicActivity.getUserRole().getUserName(),
                 endpoint.getId(),
                 connectionLifecycleCallback)
                 .addOnSuccessListener(
@@ -270,8 +279,9 @@ public class ConnectionManager {
     /**
      * Defines the connectionClient for the NearbyConnection
      **/
-    public void setUpConnectionsClient(MainActivity mainActivity) {
-        this.connectionsClient = Nearby.getConnectionsClient(mainActivity);
+    public void setUpConnectionsClient(AppLogicActivity appLogicActivity) {
+        this.appLogicActivity = appLogicActivity;
+        this.connectionsClient = Nearby.getConnectionsClient(appLogicActivity);
     }
 
     public void setServiceId(String serviceId) {
@@ -280,5 +290,10 @@ public class ConnectionManager {
 
     public void disconnectFromAllEndpoints() {
         //TODO: Implement
+        //...
+        //updateParticipantCount();
+    }
+    private void updateParticipantsCount(){
+        appLogicActivity.updateParticipantsGUI(establishedConnections.size());
     }
 }

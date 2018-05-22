@@ -6,10 +6,20 @@
     <string name="missingPermission">Insufficient permissions granted</string>
     <string name="startDiscovering">You are now a presenter!</string>
     <string name="startAdvertising">You are now a viewer!</string>
-    <string name="username">Please enter a username</string>
+    <string name="username">Please enter a nickname</string>
     <string name="enter">Enter</string>
     <string name="skip">Skip</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="help"><![CDATA[Help & Feedback]]></string>
+    <string name="about">About</string>
+    <string name="settings">Settings</string>
+    <string name="participants">PARTICIPANTS</string>
+    <string name="aboutTextCredits">"This app was created for an internship at the LMU during the summer semester 2018.\n\nIt was developed by: AAAAAA, BBBBBBB, CCCCCC and DDDDDD.\n\nIcons have been obtained from: https://www.iconfinder.com/iconsets/education-flat-7 under the creative common license.
+    </string>
+    <string name="poke">Poke</string>
+    <string name="call">call</string>
+    <string name="welcome">Welcome!</string>
+    <string name="dismiss">Dismiss</string>
 </resources>

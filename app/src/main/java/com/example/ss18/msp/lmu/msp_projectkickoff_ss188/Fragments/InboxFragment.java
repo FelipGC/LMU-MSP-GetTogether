@@ -11,13 +11,13 @@ import android.view.ViewGroup;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
 public class InboxFragment extends Fragment {
-    private static final String TAG = "TabOneFragment";
+    private static final String TAG = "InboxFragment";
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.tab_one_fragment,container,false);
+        View view = inflater.inflate(R.layout.inbox_fragment,container,false);
         return view;
     }
 }

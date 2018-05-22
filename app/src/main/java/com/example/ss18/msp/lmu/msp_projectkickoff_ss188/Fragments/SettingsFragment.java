@@ -10,14 +10,15 @@ import android.view.ViewGroup;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
-public class InboxFragment extends Fragment {
-    private static final String TAG = "InboxFragment";
+public class SettingsFragment extends Fragment {
+    private static final String TAG = "SettingsFragment";
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.tab_one_fragment,container,false);
+        View view = inflater.inflate(R.layout.settings_fragment,container,false);
         return view;
     }
 }
+

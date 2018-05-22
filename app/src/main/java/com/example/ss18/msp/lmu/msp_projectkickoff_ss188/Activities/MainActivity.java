@@ -54,12 +54,7 @@ public class MainActivity extends AppCompatActivity {
      * Tag for Logging/Debugging
      */
     private static final String TAG = "MAIN_ACTIVITY";
-    /**
-     * The role of the user (Presenter/Spectator)
-     */
-    private static User userRole;
 
-    private static ConnectionManager connectionManager;
     private boolean userNameAlreadyEntered = false;
 
     /**
@@ -95,10 +90,6 @@ public class MainActivity extends AppCompatActivity {
         //Animations
         presenter.startAnimation(logoMoveAnimation);
         spectator.startAnimation(logoMoveAnimation);
-        //Connection
-        connectionManager = ConnectionManager.getInstance(); //Singleton
-        connectionManager.setUpConnectionsClient(this);
-        connectionManager.setServiceId(getPackageName());
     }
 
     @Override
@@ -114,6 +105,9 @@ public class MainActivity extends AppCompatActivity {
         loadPreferences();
     }
 
+    /**
+     * Saves the username to the preferences
+     */
     private void savePreferences() {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME,
                 Context.MODE_PRIVATE);
@@ -125,6 +119,9 @@ public class MainActivity extends AppCompatActivity {
         editor.commit();
     }
 
+    /**
+     * Loads the username form the preferences
+     */
     private void loadPreferences() {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME,
                 Context.MODE_PRIVATE);
@@ -136,10 +133,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Displays an input dialog window to enter the username
+     */
     private void setUsername() {
         final EditText input = new EditText(this);
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        //dialog.setTitle("Add a username");
+        dialog.setTitle(R.string.welcome);
         dialog.setMessage(R.string.username);
         dialog.setView(input);
         dialog.setPositiveButton(R.string.enter, new DialogInterface.OnClickListener() {
@@ -159,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        dialog.create();
         dialog.show();
     }
 
@@ -191,8 +192,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public void presenterButtonClicked(View view) {
         Log.i(TAG, "User chose to be a PRESENTER." + LocalDataBase.getUserName());
-        userRole = new Presenter();
-        startDiscovering();
+        createSecondaryActivity(new Presenter());
     }
 
     /**
@@ -203,55 +203,16 @@ public class MainActivity extends AppCompatActivity {
      */
     public void spectatorButtonClicked(View view) {
         Log.i(TAG, "User chose to be a SPECTATOR.");
-        userRole = new Spectator();
-        startAdvertising();
-    }
-
-    /**
-     * Calls startAdvertising() on the connectionManager
-     */
-    private void startAdvertising() {
-        Toast.makeText(this, R.string.startAdvertising, Toast.LENGTH_LONG).show();
-        connectionManager.startAdvertising();
-        createSecondaryActivity();
-    }
-
-    /**
-     * Calls stopAdvertising() on the connectionManager
-     */
-    private void stopAdvertising() {
-        connectionManager.stopAdvertising();
-    }
-    /**
-     * Calls startDiscovering() on the connectionManager
-     */
-    private void startDiscovering() {
-        Toast.makeText(this, R.string.startDiscovering, Toast.LENGTH_LONG).show();
-        connectionManager.startDiscovering();
-        createSecondaryActivity();
-    }
-    /**
-     * Calls stopDiscovering() on the connectionManager
-     */
-    private void stopDiscovering() {
-        connectionManager.stopDiscovering();
+        createSecondaryActivity(new Spectator());
     }
 
     /**
      * Creates a new (secondary) activity
      */
-    private void createSecondaryActivity(){
-        Intent intent = new Intent(this, SecondaryActivity.class);
-        //intent.putExtra("RoleType", getUserRole().getRoleType());
+    private void createSecondaryActivity(User userRole){
+        Intent intent = new Intent(this, AppLogicActivity.class);
+        intent.putExtra("UserRole", userRole);
         startActivity(intent);
     }
-    //Getters and Setters
-    public static User getUserRole() {
-        return userRole;
-    }
 
-    public static void setUserRole(User userRole) {
-        Log.i(TAG, "User changed his role to: " + userRole.getRoleType().toString());
-        MainActivity.userRole = userRole;
-    }
 }
