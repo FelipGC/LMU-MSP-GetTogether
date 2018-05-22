@@ -4,7 +4,6 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.MainActivity;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
@@ -147,7 +146,10 @@ public class ConnectionManager {
      * All devices we are currently connected to.
      */
     private final HashMap<String, ConnectionEndpoint> establishedConnections = new HashMap<>();
-
+    /**
+     * All devices we want to connect with (for the discoverer)
+     */
+    private final HashMap<String, ConnectionEndpoint> pendingConnections = new HashMap<>();
     /**
      * Starts advertising to be spotted by discoverers
      */
@@ -295,5 +297,17 @@ public class ConnectionManager {
     }
     private void updateParticipantsCount(){
         appLogicActivity.updateParticipantsGUI(establishedConnections.size());
+    }
+
+    public HashMap<String, ConnectionEndpoint> getDiscoveredEndpoints() {
+        return discoveredEndpoints;
+    }
+
+    public HashMap<String, ConnectionEndpoint> getEstablishedConnections() {
+        return establishedConnections;
+    }
+
+    public HashMap<String, ConnectionEndpoint> getPendingConnections() {
+        return pendingConnections;
     }
 }

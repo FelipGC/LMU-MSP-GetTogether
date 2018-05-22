@@ -22,4 +22,9 @@
     <string name="call">call</string>
     <string name="welcome">Welcome!</string>
     <string name="dismiss">Dismiss</string>
+    <string name="selectDevices">Select devices for file sharing:</string>
+    <string name="deselectAll">Deselect all</string>
+    <string name="selectAll">Select all</string>
+    <string name="noDevicesFound">No devices found yet :(</string>
+    <string name="okay">Okay</string>
 </resources>

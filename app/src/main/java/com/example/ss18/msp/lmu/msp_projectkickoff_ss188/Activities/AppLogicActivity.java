@@ -7,22 +7,22 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ShareFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.InboxFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.TabPageAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ParticipantsFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.LiveViewFragment;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
-
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
 public class AppLogicActivity extends AppCompatActivity {
     /**
@@ -163,4 +163,64 @@ public class AppLogicActivity extends AppCompatActivity {
         AppLogicActivity.userRole = userRole;
     }
 
+    /**
+     * Displays options to manage (allow/deny) file sharing with devices.
+     * That is selecting devices you want to enable file sharing
+     * @param view
+     */
+    public void manageParticipants(View view){
+        Log.i(TAG,"Participants button clicked");
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Participants");
+        dialog.setMessage(R.string.selectDevices);
+        final boolean[] devicesSelectedByDefault = null; //We may want to change that later
+        final ConnectionEndpoint[] discoveredDevices = connectionManager.getDiscoveredEndpoints().values().toArray(new ConnectionEndpoint[0]);
+        if(discoveredDevices.length == 0){
+            dialog.setMessage(com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R.string.noDevicesFound);
+            dialog.setNeutralButton(R.string.okay, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+        }else {
+            final String[] deviceNicknames = new String[discoveredDevices.length];
+            //Assign nicknames
+            for (int i = 0; i < discoveredDevices.length; i++)
+                deviceNicknames[i] = discoveredDevices[i].getName();
+
+            DialogInterface.OnMultiChoiceClickListener dialogInterface = new DialogInterface.OnMultiChoiceClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int device,
+                                    boolean isChecked) {
+                    if (isChecked) {
+                        // If the user checked the item, add it to the selected items
+                        connectionManager.getPendingConnections().put(discoveredDevices[device].getId(), discoveredDevices[device]);
+                    } else if (connectionManager.getPendingConnections().containsKey(discoveredDevices[device].getId())) {
+                        // Else, if the item is already in the array, remove it
+                        connectionManager.getPendingConnections().remove(discoveredDevices[device].getId());
+                    }
+                }
+            };
+
+            // Specify the list array, the items to be selected by default (null for none),
+            // and the listener through which to receive callbacks when items are selected
+            dialog.setMultiChoiceItems(deviceNicknames, devicesSelectedByDefault, dialogInterface);
+            // Set the action buttons
+            dialog.setPositiveButton(R.string.selectAll, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+
+                }
+            });
+            dialog.setNegativeButton(R.string.deselectAll, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                }
+            });
+        }
+
+        dialog.create();
+        dialog.show();
+    }
 }
