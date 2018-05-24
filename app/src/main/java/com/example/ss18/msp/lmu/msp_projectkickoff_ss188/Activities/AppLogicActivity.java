@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.AvailablePresenterFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ShareFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.InboxFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.TabPageAdapter;
@@ -58,6 +59,7 @@ public class AppLogicActivity extends AppCompatActivity {
             case SPECTATOR:
                 startAdvertising();
                 //Add tabs for spectator
+                tabPageAdapter.addFragment(new AvailablePresenterFragment(), "Presenters");
                 tabPageAdapter.addFragment(new InboxFragment(), "Inbox");
                 tabPageAdapter.addFragment(new LiveViewFragment(), "Live View");
                 break;
@@ -170,20 +172,21 @@ public class AppLogicActivity extends AppCompatActivity {
      */
     public void manageParticipants(View view){
         Log.i(TAG,"Participants button clicked");
-        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle("Participants");
-        dialog.setMessage(R.string.selectDevices);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.selectDevices);
         final boolean[] devicesSelectedByDefault = null; //We may want to change that later
         final ConnectionEndpoint[] discoveredDevices = connectionManager.getDiscoveredEndpoints().values().toArray(new ConnectionEndpoint[0]);
+        //We found no device
         if(discoveredDevices.length == 0){
-            dialog.setMessage(com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R.string.noDevicesFound);
-            dialog.setNeutralButton(R.string.okay, new DialogInterface.OnClickListener() {
+            builder.setMessage(R.string.noDevicesFound);
+            builder.setNeutralButton(R.string.okay, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
+                    //dialog.dismiss();
                 }
             });
-        }else {
+        }//We found devices
+        else {
             final String[] deviceNicknames = new String[discoveredDevices.length];
             //Assign nicknames
             for (int i = 0; i < discoveredDevices.length; i++)
@@ -205,22 +208,36 @@ public class AppLogicActivity extends AppCompatActivity {
 
             // Specify the list array, the items to be selected by default (null for none),
             // and the listener through which to receive callbacks when items are selected
-            dialog.setMultiChoiceItems(deviceNicknames, devicesSelectedByDefault, dialogInterface);
+            builder.setMultiChoiceItems(deviceNicknames, devicesSelectedByDefault, dialogInterface);
             // Set the action buttons
-            dialog.setPositiveButton(R.string.selectAll, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-
-                }
-            });
-            dialog.setNegativeButton(R.string.deselectAll, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                }
-            });
+            builder.setPositiveButton(R.string.selectAll, null);
+            builder.setNegativeButton(R.string.deselectAll, null);
+            builder.setPositiveButton(R.string.okay, null );
         }
-
-        dialog.create();
+        final AlertDialog dialog = builder.create();
         dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Select all
+                for (int i = 0; i < discoveredDevices.length; i++)
+                    dialog.getListView().setItemChecked(i, true);
+            }
+        });
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Deselect all
+                for (int i = 0; i < discoveredDevices.length; i++)
+                    dialog.getListView().setItemChecked(i, false);
+            }
+        });
+        //Connect to selected devices after dismissing the dialog!
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                connectionManager.requestConnectionForSelectedDevices();
+            }
+        });
     }
 }

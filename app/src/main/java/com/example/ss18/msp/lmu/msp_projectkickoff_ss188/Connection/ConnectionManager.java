@@ -35,7 +35,7 @@ public class ConnectionManager {
      */
     private final Strategy STRATEGY = Strategy.P2P_CLUSTER;
     /**
-     * The id of the NearbyConnection service. (package name of the mainactivity)
+     * The id of the NearbyConnection service. (package name of the main activity)
      */
     private String serviceID;
 
@@ -249,6 +249,17 @@ public class ConnectionManager {
     }
 
     /**
+     * Calls ({@link package.class#requestConnection}) requestConnection for
+     * every device inside ({@link package.class#pendingConnections}) pendingConnections
+     * if not already established
+     */
+    public void requestConnectionForSelectedDevices(){
+        for (String deviceID : pendingConnections.keySet()) {
+            if (!establishedConnections.containsKey(deviceID))
+                requestConnection(pendingConnections.get(deviceID));
+        }
+    }
+    /**
      * Only for discoverers (Presenters)
      * If the discoverer wishes to establish a connection to an advertiser, then a connection is needed.
      * According to the documentation, both sides must explicitly accept the connection. Therefor we
@@ -256,7 +267,9 @@ public class ConnectionManager {
      *
      * @param endpoint The endpoint to connect
      */
-    public void requestConnection(final ConnectionEndpoint endpoint) {
+    private void requestConnection(final ConnectionEndpoint endpoint) {
+        Log.i(TAG,String.format("Requesting connection for (endpointId=%s, endpointName=%s)",
+                endpoint.getId(), endpoint.getName()));
         connectionsClient.requestConnection(
                 AppLogicActivity.getUserRole().getUserName(),
                 endpoint.getId(),
