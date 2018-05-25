@@ -41,6 +41,8 @@ public class AppLogicActivity extends AppCompatActivity {
      */
     private static User userRole;
 
+    private AvailablePresenterFragment availablePresenterFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,7 +61,7 @@ public class AppLogicActivity extends AppCompatActivity {
             case SPECTATOR:
                 startAdvertising();
                 //Add tabs for spectator
-                tabPageAdapter.addFragment(new AvailablePresenterFragment(), "Presenters");
+                tabPageAdapter.addFragment(availablePresenterFragment = new AvailablePresenterFragment(), "Presenters");
                 tabPageAdapter.addFragment(new InboxFragment(), "Inbox");
                 tabPageAdapter.addFragment(new LiveViewFragment(), "Live View");
                 break;
@@ -118,6 +120,12 @@ public class AppLogicActivity extends AppCompatActivity {
     public void updateParticipantsGUI(int newSize){
         TextView textView = findViewById(R.id.numberOfParticipants);
         textView.setText(newSize);
+    }
+    /**
+     * Updates the amount of presenters on the GUI
+     */
+    public void updatePresentersGUI(){
+        availablePresenterFragment.updateDeviceListView();
     }
     /**
      * Gets executed when the user selects "Help" on the activity menu
@@ -239,5 +247,10 @@ public class AppLogicActivity extends AppCompatActivity {
                 connectionManager.requestConnectionForSelectedDevices();
             }
         });
+    }
+    //Getters and Setters
+
+    public static ConnectionManager getConnectionManager() {
+        return connectionManager;
     }
 }

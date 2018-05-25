@@ -27,5 +27,6 @@
     <string name="selectAll">Select all</string>
     <string name="noDevicesFound">No devices found yet :(</string>
     <string name="okay">Okay</string>
-    <string name="available_presenters">Available presenters</string>
+    <string name="available_presenters">Subscriptions</string>
+    <string name="no_devices_found">No devices found...\n\n\n\n:(</string>
 </resources>

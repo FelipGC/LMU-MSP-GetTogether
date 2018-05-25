@@ -46,7 +46,7 @@ public class ConnectionManager {
     /**
      * A reference to the corresponding activity
      */
-    private AppLogicActivity appLogicActivity;
+    private static AppLogicActivity appLogicActivity;
 
     private ConnectionManager() {
     } //( Due to Singleton)
@@ -71,8 +71,8 @@ public class ConnectionManager {
                             ConnectionEndpoint connectionEndpoint =
                                     new ConnectionEndpoint(endpointId, connectionInfo.getEndpointName());
                             discoveredEndpoints.put(endpointId, connectionEndpoint);
-
-                            //TODO: Implement option to decline or accept connection to discoverer
+                            updatePresenters();
+                            //TODO: Display notification(?)
                             break;
                         case PRESENTER:
                             //If we are the discoverer and since we requested the connection, we assume
@@ -107,7 +107,14 @@ public class ConnectionManager {
                     Log.i(TAG, "Disconnected from endpoint " + endpointId);
                     if (establishedConnections.containsKey(endpointId)) {
                         establishedConnections.remove(endpointId);
-                        updateParticipantsCount();
+                        switch (AppLogicActivity.getUserRole().getRoleType()) {
+                            case SPECTATOR:
+                                updatePresenters();
+                                break;
+                            case PRESENTER:
+                                updateParticipantsCount();
+                                break;
+                        }
                     }
                 }
             };
@@ -290,7 +297,6 @@ public class ConnectionManager {
                     }
                 });
     }
-
     /**
      * Defines the connectionClient for the NearbyConnection
      **/
@@ -312,6 +318,12 @@ public class ConnectionManager {
         appLogicActivity.updateParticipantsGUI(establishedConnections.size());
     }
 
+    /**
+     * Updates the presenters which are available
+     */
+    public void updatePresenters(){
+        appLogicActivity.updatePresentersGUI();
+    }
     public HashMap<String, ConnectionEndpoint> getDiscoveredEndpoints() {
         return discoveredEndpoints;
     }
@@ -322,5 +334,9 @@ public class ConnectionManager {
 
     public HashMap<String, ConnectionEndpoint> getPendingConnections() {
         return pendingConnections;
+    }
+
+    public static AppLogicActivity getAppLogicActivity() {
+        return appLogicActivity;
     }
 }
