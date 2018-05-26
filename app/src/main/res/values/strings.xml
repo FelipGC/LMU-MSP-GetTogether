@@ -29,4 +29,14 @@
     <string name="okay">Okay</string>
     <string name="available_presenters">Subscriptions</string>
     <string name="no_devices_found">No devices found...\n\n\n\n:(</string>
+    <string name="help_feedback">ViewPresent is an app developed for enabling easy and comfortable file transfer via Bluetooth within a range of approximate 100m.
+        \n\nIt does not need any internet connection and allows a fast file transfer between multiple nearby devices.
+        \n\nThere are two main role types in this application: “Presenters” and “Viewers”.
+        \nPresenters are allowed to distribute files or data to all subscribed devices (viewers).
+        \nThey will automatically search for nearby devices (viewers) and can then select what devices he actually wishes or does not wish to include in the file sharing group.
+        \nA viewer therefore is somebody who subscribed to a presenter, allowing him to receive everything the presenter distributes.
+        \nViewers can subscribe to multiple presenters, and presenters can have multiple viewers.
+        \n\nIf a viewer is allowed to receive data from one or multiple presenters, he can then also select all the devices he eventually wants to subscribe to.
+        \n\nFor for any concerns or feedback, please contact us under xxxxxx@campus.lmu.de
+</string>
 </resources>

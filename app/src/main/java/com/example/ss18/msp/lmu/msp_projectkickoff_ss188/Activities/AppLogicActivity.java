@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -132,6 +133,18 @@ public class AppLogicActivity extends AppCompatActivity {
      */
     public void onClickHelp(MenuItem item){
         Log.i(TAG,"Help option clicked");
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Help & Feedback");
+        ScrollView scrollView = new ScrollView(this);
+        dialog.setMessage(R.string.help_feedback);
+        dialog.setNeutralButton(R.string.dismiss, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        dialog.create();
+        dialog.show();
     }
 
     //Advertising and Discovery
