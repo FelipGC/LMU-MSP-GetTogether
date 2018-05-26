@@ -11,7 +11,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,6 +42,7 @@ public class AppLogicActivity extends AppCompatActivity {
     private static User userRole;
 
     private AvailablePresenterFragment availablePresenterFragment;
+    private ShareFragment shareFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +70,7 @@ public class AppLogicActivity extends AppCompatActivity {
                 startDiscovering();
                 //Add tabs for presenter
                 tabPageAdapter.addFragment(new ParticipantsFragment(), "Participants");
-                tabPageAdapter.addFragment(new ShareFragment(), "Share");
+                tabPageAdapter.addFragment(shareFragment = new ShareFragment(), "Share");
                 break;
             default:
                 Log.e(TAG, "Role type missing!");
@@ -135,7 +135,6 @@ public class AppLogicActivity extends AppCompatActivity {
         Log.i(TAG,"Help option clicked");
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Help & Feedback");
-        ScrollView scrollView = new ScrollView(this);
         dialog.setMessage(R.string.help_feedback);
         dialog.setNeutralButton(R.string.dismiss, new DialogInterface.OnClickListener() {
             @Override
@@ -260,6 +259,15 @@ public class AppLogicActivity extends AppCompatActivity {
                 connectionManager.requestConnectionForSelectedDevices();
             }
         });
+    }
+
+    /**
+     * Gets executed when a presentor presses to "select file" button inside the share_fragment
+     */
+    public void selectFileButtonClicked(View view) {
+        if(shareFragment == null)
+            return;
+        shareFragment.performFileSearch();
     }
     //Getters and Setters
 
