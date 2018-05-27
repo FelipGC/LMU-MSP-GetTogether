@@ -1,9 +1,12 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
 import android.support.annotation.NonNull;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
@@ -21,6 +24,7 @@ import com.google.android.gms.nearby.connection.Strategy;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.io.File;
 import java.util.HashMap;
 
 /**
@@ -123,10 +127,17 @@ public class ConnectionManager {
      */
     private final PayloadCallback payloadCallback =
             new PayloadCallback() {
+            //Note: onPayloadReceived() is called when the first byte of a Payload is received;
+            //it does not indicate that the entire Payload has been received.
+            //The completion of the transfer is indicated when onPayloadTransferUpdate() is called with a status of PayloadTransferUpdate.Status.SUCCESS
                 @Override
                 public void onPayloadReceived(String endpointId, Payload payload) {
                     //We will be receiving data
                     Log.i(TAG, String.format("onPayloadReceived(endpointId=%s, payload=%s)", endpointId, payload));
+                    if (payload.getType() == Payload.Type.FILE) {
+                        // Add this to our tracking map, so that we can retrieve the payload later.
+                        LocalDataBase.receivedPayLoadData.put(payload.getId(), payload);
+                    }
                 }
 
                 @Override
@@ -134,11 +145,40 @@ public class ConnectionManager {
                     if (update.getStatus() == PayloadTransferUpdate.Status.SUCCESS) {
                         //Data fully received
                         Log.i(TAG, "Payload data fully received!");
+                        //Display a notification
+                        displayNotification("Document received",
+                                String.format("%s has sent you a document...",establishedConnections.get(endpointId)),
+                                "CHANNEL_ID_PAYLOAD_RECEIVED",
+                                NotificationCompat.PRIORITY_DEFAULT);
+                        Payload payload = LocalDataBase.receivedPayLoadData.get(update.getPayloadId());
+                        //Load data
+                        if (payload.getType() == Payload.Type.FILE) {
+                            File payloadFile = payload.asFile().asJavaFile();
+                            Log.i(TAG, "Payload name: " + payloadFile.getName());
+                        }
+                    }
+                    else if(update.getStatus() == PayloadTransferUpdate.Status.FAILURE){
+                        Log.i(TAG, "Payload status: PayloadTransferUpdate.Status.FAILURE");
                     }
                 }
             };
 
-
+    /**
+     * Displays a notification message.
+     * See @see <a>https://developer.android.com/training/notify-user/build-notification>this</a>
+     * for more information
+     * @param title The title of the not
+     * @param message The message we want to display
+     * @param CHANNEL_ID The required channel id for API 26 or higher
+     */
+    public void displayNotification(final String title, final String message, final String CHANNEL_ID,
+                                     final int priority){
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getAppLogicActivity(), CHANNEL_ID)
+                .setSmallIcon(R.drawable.file_icon)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setPriority(priority);
+    }
     /**
      * Handler to Nearby Connections.
      */
@@ -316,6 +356,23 @@ public class ConnectionManager {
     }
     private void updateParticipantsCount(){
         appLogicActivity.updateParticipantsGUI(establishedConnections.size());
+    }
+
+    /**
+     * Sends a Payload object out to all endPointss
+     */
+    public void sendPayload(Payload payload){
+        for (String endpointId : establishedConnections.keySet())
+            sendPayload(endpointId,payload);
+    }
+    /**
+     * Sends a Payload object out to one specific endPoint
+     */
+    public void sendPayload(String endpointId, Payload payload){
+        Log.i(TAG,"Sent: " + payload.getId() + "with type: " + payload.getType() + " to: " + endpointId);
+        Nearby.getConnectionsClient(appLogicActivity).sendPayload(endpointId, payload);
+        //Add to receivedPayLoadData in our data
+        LocalDataBase.receivedPayLoadData.put(payload.getId(),payload);
     }
 
     /**

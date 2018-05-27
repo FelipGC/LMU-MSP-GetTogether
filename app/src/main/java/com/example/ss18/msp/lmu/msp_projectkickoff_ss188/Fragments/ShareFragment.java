@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -12,7 +13,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
+import com.google.android.gms.nearby.connection.Payload;
+
+import java.io.FileNotFoundException;
 
 /**
  * Class for selecting data/files and sharing them.
@@ -55,6 +60,7 @@ public class ShareFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
+        Log.i(TAG, "Received onActivityResult");
 
         // The ACTION_OPEN_DOCUMENT intent was sent with the request code
         // READ_REQUEST_CODE. If the request code seen here doesn't match, it's the
@@ -67,6 +73,35 @@ public class ShareFragment extends Fragment {
             // Pull that URI using resultData.getData().
             Uri uri = resultData.getData();
             Log.i(TAG, "Uri: " + uri.toString());
+            //dataToPayload
+            try {
+                sendDataToEndpoint(uri);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         }
+        //Calling super is mandatory!
+        super.onActivityResult(requestCode, resultCode, resultData);
     }
+    /**
+     * Sends data from a uri to (all) endpoints
+     * @param uri
+     */
+    private void sendDataToEndpoint(Uri uri) throws FileNotFoundException {
+        Payload payload = dataToPayload(uri);
+        AppLogicActivity.getConnectionManager().sendPayload(payload);
+    }
+
+    /**
+     * Transforms data (pictures, pdfs, etc..) from a URI into a payload so we can send data between
+     * different devices
+     * See @see <a https://developers.google.com/nearby/connections/android/exchange-data>this</a> for
+     * more information
+     */
+    private Payload dataToPayload(Uri uri) throws FileNotFoundException {
+        // Open the ParcelFileDescriptor for this URI with read access.
+        ParcelFileDescriptor file = getContext().getContentResolver().openFileDescriptor(uri, "r");
+        return Payload.fromFile(file);
+    }
+
 }
