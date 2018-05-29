@@ -25,10 +25,10 @@
     <string name="selectDevices">Select devices for file sharing:</string>
     <string name="deselectAll">Deselect all</string>
     <string name="selectAll">Select all</string>
-    <string name="noDevicesFound">No devices found yet :(</string>
+    <string name="noDevicesFound">Noone wants to join your presentation yet :(</string>
     <string name="okay">Okay</string>
     <string name="available_presenters">Subscriptions</string>
-    <string name="no_devices_found">No devices found...\n\n\n\n:(</string>
+    <string name="no_devices_found">No presentations to join...</string>
     <string name="help_feedback">ViewPresent is an app developed for enabling easy and comfortable file transfer via Bluetooth within a range of approximate 100m.
         \n\nIt does not need any internet connection and allows a fast file transfer between multiple nearby devices.
         \n\nThere are two main role types in this application: “Presenters” and “Viewers”.

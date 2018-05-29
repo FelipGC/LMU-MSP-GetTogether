@@ -43,8 +43,8 @@ public class AvailablePresenterFragment extends Fragment {
         final ConnectionEndpoint[] discoveredDevices = AppLogicActivity.getConnectionManager().
                 getDiscoveredEndpoints().values().toArray(new ConnectionEndpoint[0]);
         //We found no device
-        if (discoveredDevices.length == 0 && false) {
-            Log.i(TAG,"discoveredDevices.length == 0 ?????!!!!");
+        if (discoveredDevices.length == 0) {
+            Log.i(TAG,"discoveredDevices.length == 0");
             view.findViewById(R.id.presentersListView).setVisibility(View.GONE);
             view.findViewById(R.id.presentersListViewTitle).setVisibility(View.GONE);
             view.findViewById(R.id.noDevicesFound).setVisibility(View.VISIBLE);
@@ -72,14 +72,22 @@ public class AvailablePresenterFragment extends Fragment {
                     CheckedTextView checkBox = (CheckedTextView) view;
                     checkBox.setChecked(!checkBox.isChecked());
                     if(checkBox.isChecked()) {
+                        //Click and ticked
                         Toast.makeText(getContext(), String.format(String.format("Subscribed to: %s",
                                 deviceNicknames[position])), Toast.LENGTH_SHORT).show();
-                        AppLogicActivity.getConnectionManager().acceptConnection(true,discoveredDevices[position]);
+                        AppLogicActivity.getConnectionManager().getPendingConnections()
+                                .put(discoveredDevices[position].getId(),discoveredDevices[position]);
+                        AppLogicActivity.getConnectionManager().requestConnection(discoveredDevices[position]);
                     }
                     else {
+                        //Click and not ticked
                         Toast.makeText(getContext(), String.format(String.format("Unsubscribed from: %s",
                                 deviceNicknames[position])), Toast.LENGTH_SHORT).show();
-                        AppLogicActivity.getConnectionManager().acceptConnection(false, discoveredDevices[position]);
+                        if(AppLogicActivity.getConnectionManager().getPendingConnections().containsKey(discoveredDevices[position].getId())) {
+                            AppLogicActivity.getConnectionManager().acceptConnection(false, discoveredDevices[position]);
+                            AppLogicActivity.getConnectionManager().getPendingConnections()
+                                    .remove(discoveredDevices[position].getId());
+                        }
                     }
                 }
             });

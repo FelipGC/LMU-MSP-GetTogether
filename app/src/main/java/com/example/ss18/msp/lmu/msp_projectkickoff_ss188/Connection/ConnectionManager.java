@@ -37,12 +37,13 @@ public class ConnectionManager {
     /**
      * The connection strategy as defined in https://developers.google.com/nearby/connections/strategies
      */
-    private final Strategy STRATEGY = Strategy.P2P_POINT_TO_POINT;
+    private final Strategy STRATEGY = Strategy.P2P_CLUSTER;
     /**
      * The id of the NearbyConnection service. (package name of the main activity)
      */
     private String serviceID;
 
+    private final String CHANNEL_ID = "CHANNEL_ID_42";
     public static ConnectionManager getInstance() {
         return CONNECTION_MANAGER;
     }
@@ -68,20 +69,20 @@ public class ConnectionManager {
                     switch (AppLogicActivity.getUserRole().getRoleType()) {
 
                         case SPECTATOR:
-                            //If we are the spectator, we need to ask the user if he really (still)
-                            //wants to connect to the discoverer (= endpoint)
+                            //If we are the discoverer (= viewer) and since we requested the connection, we assume
+                            //we want to accept to connection anyway
+                            acceptConnection(true, discoveredEndpoints.get(endpointId));
+                            break;
+                        case PRESENTER:
+                            //If we are the presenter, we need to verify if he really
+                            //wants to allow the connection to the discoverer (= viewer)
 
                             //Create endpoint and add it to the list
                             ConnectionEndpoint connectionEndpoint =
                                     new ConnectionEndpoint(endpointId, connectionInfo.getEndpointName());
                             discoveredEndpoints.put(endpointId, connectionEndpoint);
-                            updatePresenters();
-                            //TODO: Display notification(?)
-                            break;
-                        case PRESENTER:
-                            //If we are the discoverer and since we requested the connection, we assume
-                            //we want to accept to connection anyway
-                            acceptConnection(true, discoveredEndpoints.get(endpointId));
+                            displayNotification("Viewer found!",connectionInfo.getEndpointName()
+                                    + "is asking for joing your session",NotificationCompat.PRIORITY_DEFAULT);
                             break;
                     }
                 }
@@ -158,7 +159,6 @@ public class ConnectionManager {
                         //Display a notification
                         displayNotification("Document received",
                                 String.format("%s has sent you a document...",establishedConnections.get(endpointId)),
-                                "CHANNEL_ID_PAYLOAD_RECEIVED",
                                 NotificationCompat.PRIORITY_DEFAULT);
                         Payload payload = LocalDataBase.receivedPayLoadData.get(update.getPayloadId());
                         //Load data
@@ -179,10 +179,8 @@ public class ConnectionManager {
      * for more information
      * @param title The title of the not
      * @param message The message we want to display
-     * @param CHANNEL_ID The required channel id for API 26 or higher
      */
-    public void displayNotification(final String title, final String message, final String CHANNEL_ID,
-                                     final int priority){
+    public void displayNotification(final String title, final String message, final int priority){
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getAppLogicActivity(), CHANNEL_ID)
                 .setSmallIcon(R.drawable.file_icon)
                 .setContentTitle(title)
@@ -208,13 +206,14 @@ public class ConnectionManager {
      */
     private final HashMap<String, ConnectionEndpoint> pendingConnections = new HashMap<>();
     /**
-     * Starts advertising to be spotted by discoverers
+     * Starts advertising to be spotted by discoverers (= viewers)
      */
     public void startAdvertising() {
+        Log.i(TAG, "Starting advertising..." +"  "+ AppLogicActivity.getUserRole().getUserName() + serviceID);
+        //Clear list every time we try to re-discover
         establishedConnections.clear();
         discoveredEndpoints.clear();
         pendingConnections.clear();
-        Log.i(TAG, "Starting advertising..." +"  "+ AppLogicActivity.getUserRole().getUserName() + serviceID);
         // Note: Advertising may fail
         connectionsClient.startAdvertising(
                 AppLogicActivity.getUserRole().getUserName(), serviceID, connectionLifecycleCallback,
@@ -254,6 +253,9 @@ public class ConnectionManager {
                         //Create and define a new ConnectionEndpoint
                         ConnectionEndpoint connectionEndpoint = new ConnectionEndpoint(endpointId, info.getEndpointName());
                         discoveredEndpoints.put(connectionEndpoint.getId(), connectionEndpoint);
+                        displayNotification("Presenter found!",info.getEndpointName()
+                                + " can be added to the presentation",NotificationCompat.PRIORITY_LOW);
+                        updatePresenters();
                     }
 
                     @Override
@@ -322,14 +324,14 @@ public class ConnectionManager {
         }
     }
     /**
-     * Only for discoverers (Presenters)
-     * If the discoverer wishes to establish a connection to an advertiser, then a connection is needed.
+     * Only for discoverers (Viewers)
+     * If the advertisers wishes to establish a connection to a presenter (advertiser), then a connection is needed.
      * According to the documentation, both sides must explicitly accept the connection. Therefor we
      * must first request a connection to the endpoint
      *
      * @param endpoint The endpoint to connect
      */
-    private void requestConnection(final ConnectionEndpoint endpoint) {
+    public void requestConnection(final ConnectionEndpoint endpoint) {
         Log.i(TAG,String.format("Requesting connection for (endpointId=%s, endpointName=%s)",
                 endpoint.getId(), endpoint.getName()));
         connectionsClient.requestConnection(
