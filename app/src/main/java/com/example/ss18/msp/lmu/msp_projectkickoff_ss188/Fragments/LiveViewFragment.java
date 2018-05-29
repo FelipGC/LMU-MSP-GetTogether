@@ -19,4 +19,5 @@ public class LiveViewFragment extends Fragment {
         View view = inflater.inflate(R.layout.live_view_fragment,container,false);
         return view;
     }
+
 }

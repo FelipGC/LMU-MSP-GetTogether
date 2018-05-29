@@ -93,7 +93,15 @@ public class ConnectionManager {
                         case ConnectionsStatusCodes.STATUS_OK:
                             // We're connected! Can now start sending and receiving data.
                             establishedConnections.put(endpointId, discoveredEndpoints.get(endpointId));
-                            updateParticipantsCount();
+                            if(pendingConnections.containsKey(endpointId))
+                                pendingConnections.remove(endpointId);
+                            switch (AppLogicActivity.getUserRole().getRoleType()) {
+                                case SPECTATOR:
+                                    break;
+                                case PRESENTER:
+                                    updateParticipantsCount();
+                                    break;
+                            }
                             break;
                         case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
                             // The connection was rejected by one or both sides.
@@ -109,6 +117,8 @@ public class ConnectionManager {
                     // We've been disconnected from this endpoint. No more data can be
                     // sent or received.
                     Log.i(TAG, "Disconnected from endpoint " + endpointId);
+                    if(pendingConnections.containsKey(endpointId))
+                        pendingConnections.remove(endpointId);
                     if (establishedConnections.containsKey(endpointId)) {
                         establishedConnections.remove(endpointId);
                         switch (AppLogicActivity.getUserRole().getRoleType()) {
@@ -201,6 +211,9 @@ public class ConnectionManager {
      * Starts advertising to be spotted by discoverers
      */
     public void startAdvertising() {
+        establishedConnections.clear();
+        discoveredEndpoints.clear();
+        pendingConnections.clear();
         Log.i(TAG, "Starting advertising..." +"  "+ AppLogicActivity.getUserRole().getUserName() + serviceID);
         // Note: Advertising may fail
         connectionsClient.startAdvertising(
@@ -229,6 +242,8 @@ public class ConnectionManager {
         Log.i(TAG, "Starting discovering..."+ AppLogicActivity.getUserRole().getUserName() +"  "+ serviceID);
         //Clear list every time we try to re-discover
         discoveredEndpoints.clear();
+        pendingConnections.clear();
+        establishedConnections.clear();
         //Callbacks for finding devices
         //Finds nearby devices and stores them in "discoveredEndpoints"
         final EndpointDiscoveryCallback endpointDiscoveryCallback =

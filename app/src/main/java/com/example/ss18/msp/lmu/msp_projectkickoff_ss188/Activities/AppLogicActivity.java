@@ -120,7 +120,7 @@ public class AppLogicActivity extends AppCompatActivity {
      */
     public void updateParticipantsGUI(int newSize){
         TextView textView = findViewById(R.id.numberOfParticipants);
-        textView.setText(newSize);
+        textView.setText(newSize + "");
     }
     /**
      * Updates the amount of presenters on the GUI
@@ -232,7 +232,7 @@ public class AppLogicActivity extends AppCompatActivity {
             // Set the action buttons
             builder.setPositiveButton(R.string.selectAll, null);
             builder.setNegativeButton(R.string.deselectAll, null);
-            builder.setPositiveButton(R.string.okay, null );
+            builder.setNeutralButton(R.string.okay, null );
         }
         final AlertDialog dialog = builder.create();
         dialog.show();

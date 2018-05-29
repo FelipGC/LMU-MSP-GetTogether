@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        alertDialog.dismiss();
+        if(alertDialog != null) alertDialog.dismiss();
     }
 
     /**

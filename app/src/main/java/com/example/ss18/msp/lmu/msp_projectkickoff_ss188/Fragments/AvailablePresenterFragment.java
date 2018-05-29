@@ -1,14 +1,17 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments;
 
 import android.os.Bundle;
+import android.os.Debug;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.CheckedTextView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -19,14 +22,15 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEn
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
+import java.util.List;
+
 public class AvailablePresenterFragment extends Fragment {
-    private static final String TAG = "AvailablePresenterFragment";
+    private static final String TAG = "AvailablePresenter";
     private View view;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.available_presenters_fragment,container,false);
-        updateDeviceListView();
         return view;
     }
 
@@ -35,38 +39,56 @@ public class AvailablePresenterFragment extends Fragment {
      * or has already connected to
      */
     public void updateDeviceListView() {
+        Log.i(TAG,"updateDeviceListView()");
         final ConnectionEndpoint[] discoveredDevices = AppLogicActivity.getConnectionManager().
                 getDiscoveredEndpoints().values().toArray(new ConnectionEndpoint[0]);
         //We found no device
-        if (discoveredDevices.length == 0) {
+        if (discoveredDevices.length == 0 && false) {
+            Log.i(TAG,"discoveredDevices.length == 0 ?????!!!!");
             view.findViewById(R.id.presentersListView).setVisibility(View.GONE);
             view.findViewById(R.id.presentersListViewTitle).setVisibility(View.GONE);
             view.findViewById(R.id.noDevicesFound).setVisibility(View.VISIBLE);
         }//We found devices
         else {
             final String[] deviceNicknames = new String[discoveredDevices.length];
+            ListView listView = (ListView) view.findViewById(R.id.presentersListView);
             //Assign nicknames
-            for (int i = 0; i < discoveredDevices.length; i++)
+            for (int i = 0; i < discoveredDevices.length; i++) {
                 deviceNicknames[i] = discoveredDevices[i].getName();
-            ListAdapter listAdapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_list_item_checked,deviceNicknames);
-            ListView listView = view.findViewById(R.id.presentersListView);
+                if(AppLogicActivity.getConnectionManager().getEstablishedConnections().
+                        containsKey(discoveredDevices[i].getId())){
+                    CheckedTextView textview = (CheckedTextView) ((ListView) listView).getAdapter().getItem(i);
+                    Log.i(TAG,listView.getItemAtPosition(i) + "");
+                    textview.setChecked(true);
+                }
+            }
+            ListAdapter listAdapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_list_item_multiple_choice,deviceNicknames);
+            listView = view.findViewById(R.id.presentersListView);
             listView.setAdapter(listAdapter);
 
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    CheckedTextView textview = (CheckedTextView) view;
-                    textview.setChecked(!textview.isChecked());
-                    if(textview.isChecked()) {
+                    CheckedTextView checkBox = (CheckedTextView) view;
+                    checkBox.setChecked(!checkBox.isChecked());
+                    if(checkBox.isChecked()) {
                         Toast.makeText(getContext(), String.format(String.format("Subscribed to: %s",
                                 deviceNicknames[position])), Toast.LENGTH_SHORT).show();
                         AppLogicActivity.getConnectionManager().acceptConnection(true,discoveredDevices[position]);
                     }
-                    else
-                        Toast.makeText(getContext(),String.format( String.format("Unsubscribed from: %s",
-                                deviceNicknames[position])),Toast.LENGTH_SHORT).show();
+                    else {
+                        Toast.makeText(getContext(), String.format(String.format("Unsubscribed from: %s",
+                                deviceNicknames[position])), Toast.LENGTH_SHORT).show();
+                        AppLogicActivity.getConnectionManager().acceptConnection(false, discoveredDevices[position]);
+                    }
                 }
             });
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateDeviceListView();
     }
 }
