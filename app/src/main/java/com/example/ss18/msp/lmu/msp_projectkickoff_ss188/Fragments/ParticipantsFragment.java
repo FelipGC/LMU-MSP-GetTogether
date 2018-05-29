@@ -45,8 +45,9 @@ public class ParticipantsFragment extends Fragment {
         Log.i(TAG,"Participants button clicked");
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.selectDevices);
-        final boolean[] devicesSelectedByDefault = null; //We may want to change that later
         final ConnectionEndpoint[] discoveredDevices = connectionManager.getDiscoveredEndpoints().values().toArray(new ConnectionEndpoint[0]);
+        final boolean[] devicesSelectedByDefault = new boolean[discoveredDevices.length]; //Default to be true(selected)
+
         //We found no device
         if(discoveredDevices.length == 0){
             builder.setMessage(R.string.noDevicesFound);
@@ -60,8 +61,11 @@ public class ParticipantsFragment extends Fragment {
         else {
             final String[] deviceNicknames = new String[discoveredDevices.length];
             //Assign nicknames
-            for (int i = 0; i < discoveredDevices.length; i++)
+            for (int i = 0; i < discoveredDevices.length; i++) {
                 deviceNicknames[i] = discoveredDevices[i].getName();
+                if(connectionManager.getEstablishedConnections().containsKey(discoveredDevices[i].getId()))
+                    devicesSelectedByDefault[i] = true;
+            }
 
             DialogInterface.OnMultiChoiceClickListener dialogInterface = new DialogInterface.OnMultiChoiceClickListener() {
                 @Override

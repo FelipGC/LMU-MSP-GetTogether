@@ -107,9 +107,11 @@ public class ConnectionManager {
                             break;
                         case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
                             // The connection was rejected by one or both sides.
+                            pendingConnections.remove(endpointId);
                             break;
                         case ConnectionsStatusCodes.STATUS_ERROR:
                             // The connection broke before it was able to be accepted.
+                            pendingConnections.remove(endpointId);
                             break;
                     }
                 }
@@ -262,6 +264,7 @@ public class ConnectionManager {
                     @Override
                     public void onEndpointLost(String endpointId) {
                         Log.i(TAG, String.format("onEndpointLost(endpointId=%s)", endpointId));
+                        updatePresenters();
                     }
                 };
         //Start discovering
