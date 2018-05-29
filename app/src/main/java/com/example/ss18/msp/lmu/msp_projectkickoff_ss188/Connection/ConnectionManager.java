@@ -37,7 +37,7 @@ public class ConnectionManager {
     /**
      * The connection strategy as defined in https://developers.google.com/nearby/connections/strategies
      */
-    private final Strategy STRATEGY = Strategy.P2P_CLUSTER;
+    private final Strategy STRATEGY = Strategy.P2P_POINT_TO_POINT;
     /**
      * The id of the NearbyConnection service. (package name of the main activity)
      */
