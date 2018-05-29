@@ -84,37 +84,6 @@ public class AppLogicActivity extends AppCompatActivity {
         TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main, menu);
-        return true;
-    }
-    /**
-     * Gets executed when the user selects "Settings" on the activity menu
-     */
-    public void onClickSettings(MenuItem item){
-        Log.i(TAG,"Settings option clicked");
-    }
-    /**
-     * Gets executed when the user selects "About" on the activity menu
-     */
-    public void onClickAbout(MenuItem item){
-
-        Log.i(TAG,"About option clicked");
-        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle("About");
-        dialog.setMessage(R.string.aboutTextCredits);
-        dialog.setNeutralButton(R.string.dismiss, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        dialog.create();
-        dialog.show();
-    }
     /**
      * Updates the amount of participants on the GUI
      */
@@ -126,23 +95,6 @@ public class AppLogicActivity extends AppCompatActivity {
      */
     public void updatePresentersGUI(){
         availablePresenterFragment.updateDeviceListView();
-    }
-    /**
-     * Gets executed when the user selects "Help" on the activity menu
-     */
-    public void onClickHelp(MenuItem item){
-        Log.i(TAG,"Help option clicked");
-        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle("Help & Feedback");
-        dialog.setMessage(R.string.help_feedback);
-        dialog.setNeutralButton(R.string.dismiss, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        dialog.create();
-        dialog.show();
     }
 
     //Advertising and Discovery

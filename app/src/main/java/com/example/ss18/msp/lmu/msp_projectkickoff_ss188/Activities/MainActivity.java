@@ -15,11 +15,15 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
@@ -91,6 +95,59 @@ public class MainActivity extends AppCompatActivity {
         //Animations
         presenter.startAnimation(logoMoveAnimation);
         spectator.startAnimation(logoMoveAnimation);
+    }
+
+    /**
+     * Adds the menu button to the view
+     *
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return true;
+    }
+    /**
+     * Gets executed when the user selects "Settings" on the activity menu
+     */
+    public void onClickSettings(MenuItem item){
+        Log.i(TAG,"Settings option clicked");
+    }
+    /**
+     * Gets executed when the user selects "About" on the activity menu
+     */
+    public void onClickAbout(MenuItem item){
+
+        Log.i(TAG,"About option clicked");
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("About");
+        dialog.setMessage(R.string.aboutTextCredits);
+        dialog.setNeutralButton(R.string.dismiss, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        dialog.create();
+        dialog.show();
+    }
+
+    /**
+     * Gets executed when the user selects "Help" on the activity menu
+     */
+    public void onClickHelp(MenuItem item){
+        Log.i(TAG,"Help option clicked");
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Help & Feedback");
+        dialog.setMessage(R.string.help_feedback);
+        dialog.setNeutralButton(R.string.dismiss, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        dialog.create();
+        dialog.show();
     }
 
     @Override
