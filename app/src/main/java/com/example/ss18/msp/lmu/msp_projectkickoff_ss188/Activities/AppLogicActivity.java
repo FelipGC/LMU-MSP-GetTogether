@@ -11,10 +11,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.AvailablePresenterFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ShareFragment;
@@ -119,8 +117,8 @@ public class AppLogicActivity extends AppCompatActivity {
     /**
      * Updates the amount of participants on the GUI
      */
-    public void updateParticipantsGUI(int newSize){
-        participantsFragment.updateParticipantsGUI(newSize);
+    public void updateParticipantsGUI(int newSize, int maxSize){
+        participantsFragment.updateParticipantsGUI(newSize,maxSize);
     }
     /**
      * Updates the amount of presenters on the GUI

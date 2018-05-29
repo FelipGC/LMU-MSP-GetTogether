@@ -1,5 +1,8 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
+import android.app.NotificationManager;
+import android.content.Context;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -83,14 +86,15 @@ public class ConnectionManager {
                                     new ConnectionEndpoint(endpointId, connectionInfo.getEndpointName());
                             discoveredEndpoints.put(endpointId, connectionEndpoint);
                             displayNotification("Viewer found!",connectionInfo.getEndpointName()
-                                    + "is asking for joing your session",NotificationCompat.PRIORITY_DEFAULT);
+                                    + " is asking for joing your session",NotificationCompat.PRIORITY_DEFAULT);
+                            updateParticipantsCount();
                             break;
                     }
                 }
 
                 @Override
                 public void onConnectionResult(String endpointId, ConnectionResolution result) {
-                    Log.i(TAG, String.format("onConnectionResponse(endpointId=%s, result=%s)", endpointId, result));
+                    Log.i(TAG, String.format("onConnectionResponse(endpointId=%s, result=%s)", endpointId, result.getStatus()));
                     switch (result.getStatus().getStatusCode()) {
                         case ConnectionsStatusCodes.STATUS_OK:
                             // We're connected! Can now start sending and receiving data.
@@ -184,11 +188,18 @@ public class ConnectionManager {
      * @param message The message we want to display
      */
     public void displayNotification(final String title, final String message, final int priority){
+        Log.i(TAG,"NOTIFICATION: " + message);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getAppLogicActivity(), CHANNEL_ID)
                 .setSmallIcon(R.drawable.file_icon)
                 .setContentTitle(title)
                 .setContentText(message)
                 .setPriority(priority);
+        //TODO: ADD VIBRATION AND SOUND!
+        //...
+        mBuilder.build();
+        NotificationManager mNotificationManager = (NotificationManager) getAppLogicActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+        // notificationID allows you to update the notification later on.
+        mNotificationManager.notify(42, mBuilder.build());
     }
     /**
      * Handler to Nearby Connections.
@@ -241,7 +252,7 @@ public class ConnectionManager {
      * Start the process of detecting nearby devices (connectors)
      */
     public void startDiscovering() {
-        Log.i(TAG, "Starting discovering..."+ AppLogicActivity.getUserRole().getUserName() +"  "+ serviceID);
+        Log.i(TAG, "Starting discovering as: "+ AppLogicActivity.getUserRole().getUserName() +"  "+ serviceID);
         //Clear list every time we try to re-discover
         discoveredEndpoints.clear();
         pendingConnections.clear();
@@ -252,7 +263,7 @@ public class ConnectionManager {
                 new EndpointDiscoveryCallback() {
                     @Override
                     public void onEndpointFound(String endpointId, DiscoveredEndpointInfo info) {
-                        Log.i(TAG, "onEndpointFound: endpoint found, connecting");
+                        Log.i(TAG, String.format("onEndpointFound(endpointId = %s,endpointName = %s)", endpointId,info.getEndpointName()));
                         //Create and define a new ConnectionEndpoint
                         ConnectionEndpoint connectionEndpoint = new ConnectionEndpoint(endpointId, info.getEndpointName());
                         discoveredEndpoints.put(connectionEndpoint.getId(), connectionEndpoint);
@@ -264,6 +275,8 @@ public class ConnectionManager {
                     @Override
                     public void onEndpointLost(String endpointId) {
                         Log.i(TAG, String.format("onEndpointLost(endpointId=%s)", endpointId));
+                        if(discoveredEndpoints.containsKey(endpointId))
+                            discoveredEndpoints.remove(endpointId);
                         updatePresenters();
                     }
                 };
@@ -317,18 +330,17 @@ public class ConnectionManager {
     }
 
     /**
-     * Calls ({@link package.class#requestConnection}) requestConnection for
+     * Calls ({@link package.class#requestConnection}) calls accept/reject connection the for
      * every device inside ({@link package.class#pendingConnections}) pendingConnections
      * if not already established
      */
-    public void requestConnectionForSelectedDevices(){
-        for (String deviceID : pendingConnections.keySet()) {
-            if (!establishedConnections.containsKey(deviceID))
-                requestConnection(pendingConnections.get(deviceID));
-            else establishedConnections.remove(deviceID);
-
-        }
-    }
+    public void acceptConnectionIfPending(ConnectionEndpoint endPoint){
+            if (!establishedConnections.containsKey(endPoint.getId())){
+                boolean acceptConnection = pendingConnections.containsKey(endPoint.getId());
+                acceptConnection(acceptConnection,pendingConnections.get(endPoint.getId()));
+            }
+            else establishedConnections.remove(endPoint.getId());
+            }
     /**
      * Only for discoverers (Viewers)
      * If the advertisers wishes to establish a connection to a presenter (advertiser), then a connection is needed.
@@ -378,7 +390,7 @@ public class ConnectionManager {
         //updateParticipantCount();
     }
     private void updateParticipantsCount(){
-        appLogicActivity.updateParticipantsGUI(establishedConnections.size());
+        appLogicActivity.updateParticipantsGUI(establishedConnections.size(),discoveredEndpoints.size());
     }
 
     /**

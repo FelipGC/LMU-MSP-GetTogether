@@ -38,18 +38,21 @@ public class AvailablePresenterFragment extends Fragment {
      * Updates the list view displaying all devices an advertiser can connect/
      * or has already connected to
      */
-    public void updateDeviceListView() {
+    public synchronized void updateDeviceListView() {
         Log.i(TAG,"updateDeviceListView()");
         final ConnectionEndpoint[] discoveredDevices = AppLogicActivity.getConnectionManager().
                 getDiscoveredEndpoints().values().toArray(new ConnectionEndpoint[0]);
         //We found no device
         if (discoveredDevices.length == 0) {
-            Log.i(TAG,"discoveredDevices.length == 0");
             view.findViewById(R.id.presentersListView).setVisibility(View.GONE);
             view.findViewById(R.id.presentersListViewTitle).setVisibility(View.GONE);
             view.findViewById(R.id.noDevicesFound).setVisibility(View.VISIBLE);
         }//We found devices
         else {
+            view.findViewById(R.id.presentersListView).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.presentersListViewTitle).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.noDevicesFound).setVisibility(View.GONE);
+
             final String[] deviceNicknames = new String[discoveredDevices.length];
             ListView listView = (ListView) view.findViewById(R.id.presentersListView);
             //Assign nicknames
@@ -92,11 +95,5 @@ public class AvailablePresenterFragment extends Fragment {
                 }
             });
         }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        updateDeviceListView();
     }
 }

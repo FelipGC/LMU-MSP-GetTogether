@@ -31,9 +31,9 @@ public class ParticipantsFragment extends Fragment {
     /**
      * Updates the amount of participants on the GUI
      */
-    public void updateParticipantsGUI(int newSize){
+    public void updateParticipantsGUI(int newSize, int maxSize){
         TextView textView = mainView.findViewById(R.id.numberOfParticipants);
-        textView.setText(newSize + "");
+        textView.setText(newSize + "/"+maxSize);
     }
 
     /**
@@ -71,12 +71,15 @@ public class ParticipantsFragment extends Fragment {
                 @Override
                 public void onClick(DialogInterface dialog, int device,
                                     boolean isChecked) {
+                    Log.i(TAG,"Device checked: " + isChecked + " | " + discoveredDevices[device].getName());
                     if (isChecked) {
                         // If the user checked the item, add it to the selected items
                         connectionManager.getPendingConnections().put(discoveredDevices[device].getId(), discoveredDevices[device]);
+                        connectionManager.acceptConnectionIfPending(discoveredDevices[device]);
                     } else if (connectionManager.getPendingConnections().containsKey(discoveredDevices[device].getId())) {
                         // Else, if the item is already in the array, remove it
                         connectionManager.getPendingConnections().remove(discoveredDevices[device].getId());
+                        connectionManager.acceptConnectionIfPending(discoveredDevices[device]);
                     }
                 }
             };
@@ -98,6 +101,7 @@ public class ParticipantsFragment extends Fragment {
                 for (int i = 0; i < discoveredDevices.length; i++) {
                     dialog.getListView().setItemChecked(i, true);
                     connectionManager.getPendingConnections().put(discoveredDevices[i].getId(),discoveredDevices[i]);
+                    connectionManager.acceptConnectionIfPending(discoveredDevices[i]);
                 }
             }
         });
@@ -105,18 +109,12 @@ public class ParticipantsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //Deselect all
-                for (int i = 0; i < discoveredDevices.length; i++){
+                for (int i = 0; i < discoveredDevices.length; i++) {
                     dialog.getListView().setItemChecked(i, false);
-                if(connectionManager.getPendingConnections().containsKey(discoveredDevices[i].getId()))
-                    connectionManager.getPendingConnections().remove(discoveredDevices[i].getId());
+                    if (connectionManager.getPendingConnections().containsKey(discoveredDevices[i].getId()))
+                        connectionManager.getPendingConnections().remove(discoveredDevices[i].getId());
+                    connectionManager.acceptConnectionIfPending(discoveredDevices[i]);
                 }
-            }
-        });
-        //Connect to selected devices after dismissing the dialog!
-        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                connectionManager.requestConnectionForSelectedDevices();
             }
         });
     }
