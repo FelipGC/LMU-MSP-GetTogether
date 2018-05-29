@@ -66,6 +66,7 @@ public class ConnectionManager {
                 public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
                     Log.i(TAG, String.format("onConnectionInitiated(endpointId=%s, endpointName=%s)",
                             endpointId, connectionInfo.getEndpointName()));
+                    pendingConnections.remove(endpointId);
                     switch (AppLogicActivity.getUserRole().getRoleType()) {
 
                         case SPECTATOR:
@@ -321,6 +322,8 @@ public class ConnectionManager {
         for (String deviceID : pendingConnections.keySet()) {
             if (!establishedConnections.containsKey(deviceID))
                 requestConnection(pendingConnections.get(deviceID));
+            else establishedConnections.remove(deviceID);
+
         }
     }
     /**
