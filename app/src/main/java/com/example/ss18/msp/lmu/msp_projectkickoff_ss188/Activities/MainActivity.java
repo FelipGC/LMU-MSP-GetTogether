@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageButton presenter;
     private ImageButton spectator;
+    private AlertDialog alertDialog;
 
     /**
      * ACCESS_COARSE_LOCATION is considered dangerous, so we need to explicitly
@@ -84,8 +85,9 @@ public class MainActivity extends AppCompatActivity {
         spectator = findViewById(R.id.buttonSpectator);
         //Setting up username via AlertDialog
         loadPreferences();
-        if (!userNameAlreadyEntered)
+        if (!userNameAlreadyEntered) {
             setUsername();
+        }
         //Animations
         presenter.startAnimation(logoMoveAnimation);
         spectator.startAnimation(logoMoveAnimation);
@@ -94,14 +96,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
-        savePreferences();
-
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        loadPreferences();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        alertDialog.dismiss();
     }
 
     /**
@@ -158,8 +163,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        dialog.create();
-        dialog.show();
+        alertDialog = dialog.create();
+        alertDialog.show();
     }
 
     /**
