@@ -5,23 +5,35 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/transparent"
-    tools:context=".Activities.AppLogicActivity">
+    tools:context=".Activities.SettingsActivity">
 
+    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:stretchColumns="1">
+        <TableRow>
+            <TextView
+                android:text="@string/change_username_setting"
+                android:padding="5dp"
+                android:textSize="40dp"
+                android:elevation="15dp"
+                android:textColor="@color/grayAccent"
+                android:textStyle="bold"
+                app:fontFamily="@font/capriola"
+                android:onClick="onClickChangeUsername"/>
+        </TableRow>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_marginBottom="228dp"
-        android:layout_marginEnd="74dp"
-        android:layout_marginLeft="74dp"
-        android:layout_marginRight="74dp"
-        android:layout_marginStart="74dp"
-        android:text="FRAGMENT4"
-        android:textSize="40dp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        <TableRow>
+            <TextView
+                android:text="@string/change_photo_setting"
+                android:padding="5dp"
+                android:textSize="40dp"
+                android:elevation="15dp"
+                android:textColor="@color/grayAccent"
+                android:textStyle="bold"
+                app:fontFamily="@font/capriola"
+                android:onClick="onClickChangePhoto"/>
+        </TableRow>
+    </TableLayout>
 
 </android.support.constraint.ConstraintLayout>
