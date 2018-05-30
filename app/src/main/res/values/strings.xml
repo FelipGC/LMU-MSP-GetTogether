@@ -11,6 +11,7 @@
     <string name="skip">Skip</string>
     <string name="change_username_setting">Change Username</string>
     <string name="change_photo_setting">Change Photo</string>
+    <string name="change_username">Please enter your new nickname!</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
