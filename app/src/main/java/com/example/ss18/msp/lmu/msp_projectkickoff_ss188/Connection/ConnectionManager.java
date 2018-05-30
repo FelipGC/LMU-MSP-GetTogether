@@ -5,6 +5,7 @@ import android.content.Context;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
@@ -28,6 +29,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 
 /**
@@ -145,6 +147,9 @@ public class ConnectionManager {
      */
     private final PayloadCallback payloadCallback =
             new PayloadCallback() {
+            //SimpleArrayMap is a more efficient data structure when lots of changes occur (in comparision to hash map)
+            private final SimpleArrayMap<String, Payload> incomingPayloads = new SimpleArrayMap<>();
+            private final SimpleArrayMap<String, String> filePayloadFilenames = new SimpleArrayMap<>();
             //Note: onPayloadReceived() is called when the first byte of a Payload is received;
             //it does not indicate that the entire Payload has been received.
             //The completion of the transfer is indicated when onPayloadTransferUpdate() is called with a status of PayloadTransferUpdate.Status.SUCCESS
@@ -152,26 +157,43 @@ public class ConnectionManager {
                 public void onPayloadReceived(String endpointId, Payload payload) {
                     //We will be receiving data
                     Log.i(TAG, String.format("onPayloadReceived(endpointId=%s, payload=%s)", endpointId, payload));
-                    if (payload.getType() == Payload.Type.FILE) {
+                    if (payload.getType() == Payload.Type.BYTES) {
+                        String payloadFilenameMessage = null;
+                        try {
+                            payloadFilenameMessage = new String(payload.asBytes(), "UTF-8");
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                        //Extracts the payloadId and filename from the message and stores it in the
+                        //filePayloadFilenames map. The format is payloadId:filename.
+                        int substringDividerIndex = payloadFilenameMessage.indexOf(':');
+                        String payloadId = payloadFilenameMessage.substring(0, substringDividerIndex);
+                        String filename = payloadFilenameMessage.substring(substringDividerIndex + 1);
+                        filePayloadFilenames.put(payloadId, filename);
+                    }else if (payload.getType() == Payload.Type.FILE) {
                         // Add this to our tracking map, so that we can retrieve the payload later.
-                        LocalDataBase.receivedPayLoadData.put(payload.getId(), payload);
+                        incomingPayloads.put(endpointId, payload);
                     }
                 }
 
                 @Override
                 public void onPayloadTransferUpdate(String endpointId, PayloadTransferUpdate update) {
                     if (update.getStatus() == PayloadTransferUpdate.Status.SUCCESS) {
-                        //Data fully received
+                        //Data fully received.
                         Log.i(TAG, "Payload data fully received!");
-                        //Display a notification
+                        //Display a notification.
                         displayNotification("Document received",
                                 String.format("%s has sent you a document...",establishedConnections.get(endpointId)),
                                 NotificationCompat.PRIORITY_DEFAULT);
-                        Payload payload = LocalDataBase.receivedPayLoadData.get(update.getPayloadId());
+                        Payload payload = incomingPayloads.get(update.getPayloadId());
                         //Load data
                         if (payload.getType() == Payload.Type.FILE) {
+                            // Retrieve the filename and corresponding payload.
                             File payloadFile = payload.asFile().asJavaFile();
+                            String fileName = filePayloadFilenames.remove(endpointId);
                             Log.i(TAG, "Payload name: " + payloadFile.getName());
+                            //Update inbox-fragment.
+                            appLogicActivity.getInboxFragment().storePayLoad(fileName,payloadFile);
                         }
                     }
                     else if(update.getStatus() == PayloadTransferUpdate.Status.FAILURE){
@@ -396,18 +418,18 @@ public class ConnectionManager {
     /**
      * Sends a Payload object out to all endPointss
      */
-    public void sendPayload(Payload payload){
+    public void sendPayload(Payload payload,String payloadStoringName){
         for (String endpointId : establishedConnections.keySet())
-            sendPayload(endpointId,payload);
+            sendPayload(endpointId,payload,payloadStoringName);
     }
     /**
      * Sends a Payload object out to one specific endPoint
      */
-    public void sendPayload(String endpointId, Payload payload){
+    public void sendPayload(String endpointId, Payload payload, String payloadStoringName){
         Log.i(TAG,"Sent: " + payload.getId() + "with type: " + payload.getType() + " to: " + endpointId);
         Nearby.getConnectionsClient(appLogicActivity).sendPayload(endpointId, payload);
         //Add to receivedPayLoadData in our data
-        LocalDataBase.receivedPayLoadData.put(payload.getId(),payload);
+        LocalDataBase.sentPayLoadData.put(payload.getId(),payload);
     }
 
     /**

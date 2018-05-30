@@ -41,8 +41,7 @@
             android:fontFamily="@font/capriola"
             android:text="@string/available_presenters"
             android:textAlignment="center"
-            android:textSize="18sp"
-            android:textStyle="italic" />
+            android:textSize="18sp" />
 
         <ListView
             android:id="@+id/presentersListView"

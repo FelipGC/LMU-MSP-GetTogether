@@ -89,7 +89,9 @@ public class ShareFragment extends Fragment {
      */
     private void sendDataToEndpoint(Uri uri) throws FileNotFoundException {
         Payload payload = dataToPayload(uri);
-        AppLogicActivity.getConnectionManager().sendPayload(payload);
+        // Mapping the ID of the file payload to the filename
+        String payloadStoringName = payload.getId() + ":" + uri.getLastPathSegment();
+        AppLogicActivity.getConnectionManager().sendPayload(payload,payloadStoringName);
     }
 
     /**

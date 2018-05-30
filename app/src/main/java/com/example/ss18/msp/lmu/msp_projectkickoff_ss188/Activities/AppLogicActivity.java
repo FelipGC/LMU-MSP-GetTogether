@@ -22,6 +22,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ParticipantsF
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.LiveViewFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
+import com.google.android.gms.nearby.connection.Payload;
 
 public class AppLogicActivity extends AppCompatActivity {
     /**
@@ -42,6 +43,7 @@ public class AppLogicActivity extends AppCompatActivity {
     private AvailablePresenterFragment availablePresenterFragment;
     private ShareFragment shareFragment;
     private ParticipantsFragment participantsFragment;
+    private InboxFragment inboxFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +64,7 @@ public class AppLogicActivity extends AppCompatActivity {
                 startDiscovering();
                 //Add tabs for spectator
                 tabPageAdapter.addFragment(availablePresenterFragment = new AvailablePresenterFragment(), "Presenters");
-                tabPageAdapter.addFragment(new InboxFragment(), "Inbox");
+                tabPageAdapter.addFragment(inboxFragment = new InboxFragment(), "Inbox");
                 tabPageAdapter.addFragment(new LiveViewFragment(), "Live View");
                 break;
             case PRESENTER:
@@ -113,7 +115,6 @@ public class AppLogicActivity extends AppCompatActivity {
         dialog.create();
         dialog.show();
     }
-
     /**
      * Updates the amount of participants on the GUI
      */
@@ -204,5 +205,9 @@ public class AppLogicActivity extends AppCompatActivity {
 
     public static ConnectionManager getConnectionManager() {
         return connectionManager;
+    }
+
+    public InboxFragment getInboxFragment() {
+        return inboxFragment;
     }
 }

@@ -15,10 +15,6 @@ public final class LocalDataBase {
     private static String userName = "Unknown user";
 
     /**
-     * Stores payloads we received during an active session (gets cleared after app exits/closes)
-     */
-    public final static HashMap<Long,Payload> receivedPayLoadData = new HashMap<Long,Payload>();
-    /**
      * Stores payloads we sent during an active session (gets cleared after app exits/closes)
      */
     public final static HashMap<Long,Payload> sentPayLoadData = new HashMap<Long,Payload>();
