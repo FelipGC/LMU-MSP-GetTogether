@@ -91,7 +91,10 @@ public class MainActivity extends AppCompatActivity {
         loadPreferences();
         if (!userNameAlreadyEntered) {
             setUsername();
+        } else {
+            Toast.makeText(MainActivity.this, "HI! " + LocalDataBase.getUserName(), Toast.LENGTH_LONG).show();
         }
+
         //Animations
         presenter.startAnimation(logoMoveAnimation);
         spectator.startAnimation(logoMoveAnimation);
@@ -107,12 +110,17 @@ public class MainActivity extends AppCompatActivity {
         inflater.inflate(R.menu.menu_main, menu);
         return true;
     }
+
     /**
      * Gets executed when the user selects "Settings" on the activity menu
      */
     public void onClickSettings(MenuItem item){
         Log.i(TAG,"Settings option clicked");
+        Intent myIntent = new Intent(MainActivity.this,SettingsActivity.class);
+        //myIntent.putExtra("key", value); //Optional parameters
+        MainActivity.this.startActivity(myIntent);
     }
+
     /**
      * Gets executed when the user selects "About" on the activity menu
      */
