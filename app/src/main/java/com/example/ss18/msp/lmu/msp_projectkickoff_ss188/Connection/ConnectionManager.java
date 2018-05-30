@@ -419,14 +419,23 @@ public class ConnectionManager {
      * Sends a Payload object out to all endPointss
      */
     public void sendPayload(Payload payload,String payloadStoringName){
-        for (String endpointId : establishedConnections.keySet())
-            sendPayload(endpointId,payload,payloadStoringName);
+        for (String endpointId : establishedConnections.keySet()) {
+            try {
+                sendPayload(endpointId,payload,payloadStoringName);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
     }
     /**
      * Sends a Payload object out to one specific endPoint
      */
-    public void sendPayload(String endpointId, Payload payload, String payloadStoringName){
+    public void sendPayload(String endpointId, Payload payload, String payloadStoringName) throws UnsupportedEncodingException {
         Log.i(TAG,"Sent: " + payload.getId() + "with type: " + payload.getType() + " to: " + endpointId);
+        // Send the name of the payload/file as a bytes payload first!
+        Nearby.getConnectionsClient(appLogicActivity).sendPayload(
+                endpointId, Payload.fromBytes(payloadStoringName.getBytes("UTF-8")));
+        //Send the payload data afterwards!
         Nearby.getConnectionsClient(appLogicActivity).sendPayload(endpointId, payload);
         //Add to receivedPayLoadData in our data
         LocalDataBase.sentPayLoadData.put(payload.getId(),payload);
