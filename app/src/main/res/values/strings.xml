@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ViewPresent</string>
+    <string name="app_name">Get Together</string>
     <string name="introInfo">Do you wish to be a PRESENTER or SPECTATOR?</string>
     <string name="presenter">Presenter</string>
     <string name="spectator">Spectator</string>
@@ -19,7 +19,7 @@
     <string name="about">About</string>
     <string name="settings">Settings</string>
     <string name="participants">PARTICIPANTS</string>
-    <string name="aboutTextCredits">"This app was created for an internship at the LMU during the summer semester 2018.\n\nIt was developed by: AAAAAA, BBBBBBB, CCCCCC and DDDDDD.\n\nIcons have been obtained from: https://www.iconfinder.com/iconsets/education-flat-7 under the creative common license.
+    <string name="aboutTextCredits">"This app was created for an internship at the LMU during the summer semester 2018.\n\nIt was developed by: Patrick Börzel, Felip Guimerà, Elena Terzieva, Laureen Wiedemann\n\nIcons have been obtained from: https://www.iconfinder.com/iconsets/education-flat-7 under the creative common license.
     </string>
     <string name="poke">Poke</string>
     <string name="call">call</string>
@@ -30,9 +30,12 @@
     <string name="selectAll">Select all</string>
     <string name="noDevicesFound">Noone wants to join your presentation yet :(</string>
     <string name="okay">Okay</string>
-    <string name="available_presenters">Subscriptions</string>
+    <string name="joined_presenters">Joined:</string>
+    <string name="pending_presenters">Pending:</string>
+    <string name="available_presenters">Available:</string>
+
     <string name="no_devices_found">No presentations to join...</string>
-    <string name="help_feedback">ViewPresent is an app developed for enabling easy and comfortable file transfer via Bluetooth within a range of approximate 100m.
+    <string name="help_feedback">"Get Together" is an app developed for enabling easy and comfortable file transfer via Bluetooth within a range of approximate 100m.
         \n\nIt does not need any internet connection and allows a fast file transfer between multiple nearby devices.
         \n\nThere are two main role types in this application: “Presenters” and “Viewers”.
         \nPresenters are allowed to distribute files or data to all subscribed devices (viewers).
@@ -42,4 +45,7 @@
         \n\nIf a viewer is allowed to receive data from one or multiple presenters, he can then also select all the devices he eventually wants to subscribe to.
         \n\nFor for any concerns or feedback, please contact us under xxxxxx@campus.lmu.de
 </string>
+    <string name="leave_presentation">Leave presentation?</string>
+    <string name="sure_to_leave_group">You are about to leave and disconnect from %s. Are you sure you want to leave the group? You will no longer receive any notifications from this presenter</string>
+    <string name="cancel">Cancel</string>
 </resources>

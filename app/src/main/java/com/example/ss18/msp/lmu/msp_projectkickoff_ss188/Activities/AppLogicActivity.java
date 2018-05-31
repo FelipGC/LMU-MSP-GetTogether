@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.AvailablePresenterFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ShareFragment;
@@ -22,7 +23,6 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ParticipantsF
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.LiveViewFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
-import com.google.android.gms.nearby.connection.Payload;
 
 public class AppLogicActivity extends AppCompatActivity {
     /**
@@ -93,8 +93,8 @@ public class AppLogicActivity extends AppCompatActivity {
     /**
      * Updates the amount of presenters on the GUI
      */
-    public void updatePresentersGUI(){
-        availablePresenterFragment.updateDeviceListView();
+    public void updatePresentersGUI(ConnectionEndpoint endpoint){
+        availablePresenterFragment.updateDeviceList(endpoint);
     }
 
     //Advertising and Discovery

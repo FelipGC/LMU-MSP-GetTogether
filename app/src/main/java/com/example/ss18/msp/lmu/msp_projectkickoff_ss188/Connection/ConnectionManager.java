@@ -126,6 +126,7 @@ public class ConnectionManager {
                 public void onDisconnected(String endpointId) {
                     // We've been disconnected from this endpoint. No more data can be
                     // sent or received.
+                    ConnectionEndpoint endpoint = discoveredEndpoints.get(endpointId);
                     Log.i(TAG, "Disconnected from endpoint " + endpointId);
                     if(pendingConnections.containsKey(endpointId))
                         pendingConnections.remove(endpointId);
@@ -133,7 +134,7 @@ public class ConnectionManager {
                         establishedConnections.remove(endpointId);
                         switch (AppLogicActivity.getUserRole().getRoleType()) {
                             case SPECTATOR:
-                                updatePresenters();
+                                updatePresenters(endpoint);
                                 break;
                             case PRESENTER:
                                 updateParticipantsCount();
@@ -291,15 +292,17 @@ public class ConnectionManager {
                         discoveredEndpoints.put(connectionEndpoint.getId(), connectionEndpoint);
                         displayNotification("Presenter found!",info.getEndpointName()
                                 + " can be added to the presentation",NotificationCompat.PRIORITY_LOW);
-                        updatePresenters();
+                        updatePresenters(connectionEndpoint);
                     }
 
                     @Override
                     public void onEndpointLost(String endpointId) {
                         Log.i(TAG, String.format("onEndpointLost(endpointId=%s)", endpointId));
-                        if(discoveredEndpoints.containsKey(endpointId))
+                        if(discoveredEndpoints.containsKey(endpointId)) {
+                            ConnectionEndpoint connectionEndpoint = discoveredEndpoints.get(endpointId);
                             discoveredEndpoints.remove(endpointId);
-                        updatePresenters();
+                            updatePresenters(connectionEndpoint);
+                        }
                     }
                 };
         //Start discovering
@@ -406,10 +409,13 @@ public class ConnectionManager {
         this.serviceID = serviceId;
     }
 
+    public void disconnectFromEndpoint(String endpointID){
+        connectionsClient.disconnectFromEndpoint(endpointID);
+    }
     public void disconnectFromAllEndpoints() {
-        //TODO: Implement
-        //...
-        //updateParticipantCount();
+        for (String id : discoveredEndpoints.keySet()) {
+            disconnectFromEndpoint(id);
+        }
     }
     private void updateParticipantsCount(){
         appLogicActivity.updateParticipantsGUI(establishedConnections.size(),discoveredEndpoints.size());
@@ -444,8 +450,8 @@ public class ConnectionManager {
     /**
      * Updates the presenters which are available
      */
-    public void updatePresenters(){
-        appLogicActivity.updatePresentersGUI();
+    public void updatePresenters(ConnectionEndpoint endpoint){
+        appLogicActivity.updatePresentersGUI(endpoint);
     }
     public HashMap<String, ConnectionEndpoint> getDiscoveredEndpoints() {
         return discoveredEndpoints;
