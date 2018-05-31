@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
@@ -108,38 +109,52 @@ public class ConnectionManager {
                             establishedConnections.put(endpointId, discoveredEndpoints.get(endpointId));
                             if(pendingConnections.containsKey(endpointId))
                                 pendingConnections.remove(endpointId);
-                            updateGUI(endpoint);
                             break;
                         case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
+                            Log.i(TAG, "CONNECTION REJECTED");
                             // The connection was rejected by one or both sides.
                             pendingConnections.remove(endpointId);
                             Toast.makeText(appLogicActivity, String.format(String.format("Connection rejected to: %s",
                                     endpoint.getName())), Toast.LENGTH_SHORT).show();
                             break;
                         case ConnectionsStatusCodes.STATUS_ERROR:
+                            Log.i(TAG, "CONNECTION ERROR BEFORE ESTABLISHING");
                             // The connection broke before it was able to be accepted.
                             pendingConnections.remove(endpointId);
-                            Toast.makeText(appLogicActivity, String.format(String.format("Connection to %s failed",
-                                    endpoint.getName())), Toast.LENGTH_SHORT).show();
                             break;
                     }
+                    updateGUI(endpoint);
                 }
 
                 @Override
                 public void onDisconnected(String endpointId) {
                     // We've been disconnected from this endpoint. No more data can be
                     // sent or received.
-                    ConnectionEndpoint endpoint = discoveredEndpoints.get(endpointId);
-                    Log.i(TAG, "Disconnected from endpoint " + endpoint.getOriginalName());
-                    if(pendingConnections.containsKey(endpointId))
-                        pendingConnections.remove(endpointId);
-                    if (establishedConnections.containsKey(endpointId))
-                        establishedConnections.remove(endpointId);
-                    if(discoveredEndpoints.containsKey(endpointId))
-                        discoveredEndpoints.remove(endpointId);
-                    updateGUI(endpoint);
+                    onDisconnectConsequences(endpointId);
                 }
             };
+
+    /**
+     * Executes consequences after a device has disconnected
+     * @param endpointId
+     */
+    private void onDisconnectConsequences(String endpointId) {
+        ConnectionEndpoint endpoint = discoveredEndpoints.get(endpointId);
+        Log.i(TAG, "Disconnected from endpoint " + endpoint.getOriginalName());
+        //Clear in this class
+        if(pendingConnections.containsKey(endpointId))
+            pendingConnections.remove(endpointId);
+        if (establishedConnections.containsKey(endpointId))
+            establishedConnections.remove(endpointId);
+        if(discoveredEndpoints.containsKey(endpointId))
+            discoveredEndpoints.remove(endpointId);
+        //Clear in other classes
+        if(appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR)
+            appLogicActivity.getAvailablePresenterFragment().removeEndpointFromArrays(endpoint);
+        //Update the GUI finally
+        updateGUI(endpoint);
+    }
+
     /**
      * Callback for payloads (data) sent from another device to us.
      */
@@ -302,6 +317,7 @@ public class ConnectionManager {
                             establishedConnections.remove(endpointId);
                         if(pendingConnections.containsKey(endpointId))
                             pendingConnections.remove(endpointId);
+                        updateGUI(connectionEndpoint);
                     }
                 };
         //Start discovering
@@ -411,6 +427,7 @@ public class ConnectionManager {
     public void disconnectFromEndpoint(String endpointID){
         Log.i(TAG,"Disconnect " + endpointID);
         connectionsClient.disconnectFromEndpoint(endpointID);
+        onDisconnectConsequences(endpointID);
     }
     public void disconnectFromAllEndpoints() {
         for (String id : discoveredEndpoints.keySet()) {

@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -30,7 +31,7 @@ public class AvailablePresenterFragment extends Fragment {
     private static final String TAG = "AvailablePresenter";
     private ListView availablePresenters;
     private ListView establishedPresenters;
-    private TextView pendingTitle;
+    private Button pendingButton;
     private TextView joinedTitle;
     private TextView availableTitle;
     private ConnectionManager cM;
@@ -60,7 +61,7 @@ public class AvailablePresenterFragment extends Fragment {
                 establishedPresenters = view.findViewById(R.id.presentersListView_joined),
                 availableTitle = view.findViewById(R.id.presentersListViewTitle_available),
                 joinedTitle = view.findViewById(R.id.presentersListViewTitle_established),
-                pendingTitle = view.findViewById(R.id.presentersListViewTitle_pending)));
+                pendingButton = view.findViewById(R.id.presentersListViewTitle_pending)));
         viewNoDevices.add(view.findViewById(R.id.noDevicesFound));
 
         //Set adapters
@@ -101,7 +102,7 @@ public class AvailablePresenterFragment extends Fragment {
             }
         });
         //On Click: Displays list of pending connections as a dialog
-        pendingTitle.setOnClickListener(new View.OnClickListener() {
+        pendingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //TODO: Implement
@@ -113,6 +114,7 @@ public class AvailablePresenterFragment extends Fragment {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(R.string.pending_devices);
                 builder.setItems(deviceNicknames,null);
+                builder.create().show();
             }
         });
         //On Click: Disconnect from endpoint (must be a long click)
@@ -128,13 +130,26 @@ public class AvailablePresenterFragment extends Fragment {
     }
 
     /**
+     * Removes an endPoint from the above three arrays (for example when he disconnects)
+     */
+    public void removeEndpointFromArrays(ConnectionEndpoint connectionEndpoint){
+        if(establishedPresenters_ArrayList.contains(connectionEndpoint.getId()))
+            establishedPresenters_ArrayList.remove(connectionEndpoint.getId());
+        if(pendingPresenters_ArrayList.contains(connectionEndpoint.getId()))
+            pendingPresenters_ArrayList.remove(connectionEndpoint.getId());
+        if(availablePresenters_ArrayList.contains(connectionEndpoint.getId()))
+            availablePresenters_ArrayList.remove(connectionEndpoint.getId());    }
+    /**
      * Displays a dialog after for asking the user if he really wants to unsubscribe and
      * disconnect from a presenter (endpoint).
      */
     private void displayRemovePresenterDialog(final ConnectionEndpoint connectionEndpoint) {
         AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
         dialog.setTitle(R.string.leave_presentation);
-        dialog.setMessage(String.format(String.valueOf(R.string.sure_to_leave_group), connectionEndpoint.getName()));
+        dialog.setMessage(String.format("You are about to leave and disconnect from \"%s\". " +
+                        "Are you sure you want to leave the group?" +
+                        "\nYou will no longer receive any notifications from this presenter!",
+                connectionEndpoint.getName()));
         dialog.setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -144,7 +159,7 @@ public class AvailablePresenterFragment extends Fragment {
                 dialog.dismiss();
             }
         });
-        dialog.setNegativeButton(R.string.skip, new DialogInterface.OnClickListener() {
+        dialog.setPositiveButton(R.string.leave, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //Click and ticked
@@ -152,7 +167,6 @@ public class AvailablePresenterFragment extends Fragment {
                         connectionEndpoint.getName())), Toast.LENGTH_SHORT).show();
                 //Disconnect from endpoint
                 cM.disconnectFromEndpoint(connectionEndpoint.getId());
-                cM.getEstablishedConnections().remove(connectionEndpoint.getId());
                 updateDeviceList(connectionEndpoint);
             }
         });
@@ -188,7 +202,7 @@ public class AvailablePresenterFragment extends Fragment {
         ListView targetListView = null;
         if (cM.getEstablishedConnections().containsKey(endpoint.getId()))
             targetListView = establishedPresenters;
-        else if (cM.getDiscoveredEndpoints().containsKey(endpoint.getId()))
+        else if (!cM.getPendingConnections().containsKey(endpoint.getId()))
             targetListView = availablePresenters;
         //Hide GUI we do not want
         for (View view : viewNoDevices)
@@ -196,15 +210,18 @@ public class AvailablePresenterFragment extends Fragment {
         for (View view : viewDevicesFound)
             view.setVisibility(View.VISIBLE);
         //Add or remove element form listView
-        HashSet<ListView> listViews = new HashSet<>(Arrays.asList(establishedPresenters, availablePresenters));
+        HashSet<ListView> listViews = new HashSet<>(Arrays.asList(establishedPresenters, availablePresenters,null));
         for (ListView listView : listViews) {
-            ArrayAdapter<String> listAdapter = (ArrayAdapter<String>) listView.getAdapter();
+            ArrayAdapter<String> listAdapter = null;
+            if(listView != null)
+                listAdapter = (ArrayAdapter<String>) listView.getAdapter();
             //Rename is necessary
             final String displayName = endpoint.getName();
             //Update listView
             if (listView == targetListView) {
                 //Add endpoint to list
-                listAdapter.add(displayName);
+                if(listAdapter != null)
+                    listAdapter.add(displayName);
 
                 if (listView == availablePresenters)
                     availablePresenters_ArrayList.add(endpoint);
@@ -213,27 +230,27 @@ public class AvailablePresenterFragment extends Fragment {
                 else pendingPresenters_ArrayList.add(endpoint);
 
                 Log.i(TAG, "Added to list: " + displayName);
-            } else if(listView != null) {
+            } else {
                 //Remove endpoint from list
-                listAdapter.remove(displayName);
+                if(listAdapter != null)
+                    listAdapter.remove(displayName);
                 if (listView == availablePresenters)
                     availablePresenters_ArrayList.remove(endpoint);
                 else if (listView == establishedPresenters)
                     establishedPresenters_ArrayList.remove(endpoint);
                 else pendingPresenters_ArrayList.remove(endpoint);
                 //Hide if empty
-                if (listAdapter.getCount() == 0) {
+                if (listAdapter != null && listAdapter.getCount() == 0) {
                     listView.setVisibility(View.GONE);
                     if (listView == availablePresenters)
                         availableTitle.setVisibility(View.GONE);
                     else if (listView == establishedPresenters)
                         joinedTitle.setVisibility(View.GONE);
                 }
-            }else{
-                if(pendingPresenters_ArrayList.size() == 0)
-                    pendingTitle.setVisibility(View.INVISIBLE);
-                else pendingTitle.setText(pendingPresenters_ArrayList.size() + " pending connection(s)");
             }
+            if(pendingPresenters_ArrayList.size() == 0)
+                pendingButton.setVisibility(View.INVISIBLE);
+            else pendingButton.setText("Pending Connection(s): " + pendingPresenters_ArrayList.size());
         }
     }
 }

@@ -45,7 +45,7 @@
         \n\nFor for any concerns or feedback, please contact us under xxxxxx@campus.lmu.de
 </string>
     <string name="leave_presentation">Leave presentation?</string>
-    <string name="sure_to_leave_group">You are about to leave and disconnect from %s. Are you sure you want to leave the group? You will no longer receive any notifications from this presenter</string>
     <string name="cancel">Cancel</string>
-    <string name="pending_devices">Pending devices:</string>
+    <string name="pending_devices">Awaiting response from:</string>
+    <string name="leave">Leave</string>
 </resources>
