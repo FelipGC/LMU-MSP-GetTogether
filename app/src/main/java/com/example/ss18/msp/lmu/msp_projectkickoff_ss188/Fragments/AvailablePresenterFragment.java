@@ -1,6 +1,5 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,30 +13,22 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
-import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.MainActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-
-import static junit.runner.BaseTestRunner.savePreferences;
 
 public class AvailablePresenterFragment extends Fragment {
     private static final String TAG = "AvailablePresenter";
     private ListView availablePresenters;
-    private ListView pendingPresenters;
     private ListView establishedPresenters;
     private TextView pendingTitle;
     private TextView joinedTitle;
@@ -66,7 +57,6 @@ public class AvailablePresenterFragment extends Fragment {
 
         viewDevicesFound.addAll(Arrays.asList(
                 availablePresenters = view.findViewById(R.id.presentersListView_available),
-                pendingPresenters = view.findViewById(R.id.presentersListView_pending),
                 establishedPresenters = view.findViewById(R.id.presentersListView_joined),
                 availableTitle = view.findViewById(R.id.presentersListViewTitle_available),
                 joinedTitle = view.findViewById(R.id.presentersListViewTitle_established),
@@ -75,7 +65,6 @@ public class AvailablePresenterFragment extends Fragment {
 
         //Set adapters
         availablePresenters.setAdapter(new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_multiple_choice));
-        pendingPresenters.setAdapter(new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1));
         establishedPresenters.setAdapter(new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1));
 
         //Set up clickListeners for the individual items and lists
@@ -102,9 +91,8 @@ public class AvailablePresenterFragment extends Fragment {
                 checkBox.setChecked(!checkBox.isChecked());
                 if (checkBox.isChecked()) {
                     //Click and ticked
-                    Log.i(TAG, "View: " + view + " TAG: " + String.valueOf(view.getTag()));
                     ConnectionEndpoint endpoint = availablePresenters_ArrayList.get(position);
-                    Toast.makeText(getContext(), String.format(String.format("Subscribed to: %s",
+                    Toast.makeText(getContext(), String.format(String.format("Requested to join: %s",
                             endpoint.getName())), Toast.LENGTH_SHORT).show();
                     cM.getPendingConnections().put(endpoint.getId(), endpoint);
                     cM.requestConnection(endpoint);
@@ -112,19 +100,19 @@ public class AvailablePresenterFragment extends Fragment {
                 }
             }
         });
-        //On Click: Abort connection request
-        pendingPresenters.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        //On Click: Displays list of pending connections as a dialog
+        pendingTitle.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //Click and ticked
-                ConnectionEndpoint endpoint = pendingPresenters_ArrayList.get(position);
-                Toast.makeText(getContext(), String.format(String.format("Abort Connection request to: %s",
-                        endpoint.getName())), Toast.LENGTH_SHORT).show();
-                cM.getPendingConnections().remove(endpoint.getId());
-                //Disconnect from endpoint
-                cM.acceptConnection(false, endpoint);
-                cM.disconnectFromEndpoint(endpoint.getId());
-                updateDeviceList(endpoint);
+            public void onClick(View v) {
+                //TODO: Implement
+                final String[] deviceNicknames = new String[pendingPresenters_ArrayList.size()];
+                //Assign nicknames
+                for (int i = 0; i < pendingPresenters_ArrayList.size(); i++) {
+                    deviceNicknames[i] = pendingPresenters_ArrayList.get(i).getName();
+                }
+                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(R.string.pending_devices);
+                builder.setItems(deviceNicknames,null);
             }
         });
         //On Click: Disconnect from endpoint (must be a long click)
@@ -197,12 +185,10 @@ public class AvailablePresenterFragment extends Fragment {
      * be added
      */
     private void updateListViews(ConnectionEndpoint endpoint) {
-        ListView targetListView;
+        ListView targetListView = null;
         if (cM.getEstablishedConnections().containsKey(endpoint.getId()))
             targetListView = establishedPresenters;
-        else if (cM.getPendingConnections().containsKey(endpoint.getId()))
-            targetListView = pendingPresenters;
-        else
+        else if (cM.getDiscoveredEndpoints().containsKey(endpoint.getId()))
             targetListView = availablePresenters;
         //Hide GUI we do not want
         for (View view : viewNoDevices)
@@ -210,11 +196,11 @@ public class AvailablePresenterFragment extends Fragment {
         for (View view : viewDevicesFound)
             view.setVisibility(View.VISIBLE);
         //Add or remove element form listView
-        HashSet<ListView> listViews = new HashSet<>(Arrays.asList(establishedPresenters, availablePresenters, pendingPresenters));
+        HashSet<ListView> listViews = new HashSet<>(Arrays.asList(establishedPresenters, availablePresenters));
         for (ListView listView : listViews) {
             ArrayAdapter<String> listAdapter = (ArrayAdapter<String>) listView.getAdapter();
             //Rename is necessary
-            final String displayName = endpoint.getName()+ " ("+endpoint.getId()+")";
+            final String displayName = endpoint.getName();
             //Update listView
             if (listView == targetListView) {
                 //Add endpoint to list
@@ -227,7 +213,7 @@ public class AvailablePresenterFragment extends Fragment {
                 else pendingPresenters_ArrayList.add(endpoint);
 
                 Log.i(TAG, "Added to list: " + displayName);
-            } else {
+            } else if(listView != null) {
                 //Remove endpoint from list
                 listAdapter.remove(displayName);
                 if (listView == availablePresenters)
@@ -242,8 +228,11 @@ public class AvailablePresenterFragment extends Fragment {
                         availableTitle.setVisibility(View.GONE);
                     else if (listView == establishedPresenters)
                         joinedTitle.setVisibility(View.GONE);
-                    else pendingTitle.setVisibility(View.GONE);
                 }
+            }else{
+                if(pendingPresenters_ArrayList.size() == 0)
+                    pendingTitle.setVisibility(View.INVISIBLE);
+                else pendingTitle.setText(pendingPresenters_ArrayList.size() + " pending connection(s)");
             }
         }
     }

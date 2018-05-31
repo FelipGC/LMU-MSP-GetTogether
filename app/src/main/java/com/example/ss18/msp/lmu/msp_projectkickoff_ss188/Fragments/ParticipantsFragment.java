@@ -46,7 +46,7 @@ public class ParticipantsFragment extends Fragment {
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.selectDevices);
         final ConnectionEndpoint[] discoveredDevices = connectionManager.getDiscoveredEndpoints().values().toArray(new ConnectionEndpoint[0]);
-        final boolean[] devicesSelectedByDefault = new boolean[discoveredDevices.length]; //Default to be true(selected)
+        final boolean[] selectedDevices = new boolean[discoveredDevices.length]; //Default to be true(selected)
 
         //We found no device
         if(discoveredDevices.length == 0){
@@ -54,7 +54,7 @@ public class ParticipantsFragment extends Fragment {
             builder.setNeutralButton(R.string.okay, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    //dialog.dismiss();
+                    dialog.dismiss();
                 }
             });
         }//We found devices
@@ -64,7 +64,7 @@ public class ParticipantsFragment extends Fragment {
             for (int i = 0; i < discoveredDevices.length; i++) {
                 deviceNicknames[i] = discoveredDevices[i].getName();
                 if(connectionManager.getEstablishedConnections().containsKey(discoveredDevices[i].getId()))
-                    devicesSelectedByDefault[i] = true;
+                    selectedDevices[i] = true;
             }
 
             DialogInterface.OnMultiChoiceClickListener dialogInterface = new DialogInterface.OnMultiChoiceClickListener() {
@@ -72,21 +72,13 @@ public class ParticipantsFragment extends Fragment {
                 public void onClick(DialogInterface dialog, int device,
                                     boolean isChecked) {
                     Log.i(TAG,"Device checked: " + isChecked + " | " + discoveredDevices[device].getName());
-                    if (isChecked) {
-                        // If the user checked the item, add it to the selected items
-                        connectionManager.getPendingConnections().put(discoveredDevices[device].getId(), discoveredDevices[device]);
-                        connectionManager.acceptConnectionIfPending(discoveredDevices[device]);
-                    } else if (connectionManager.getPendingConnections().containsKey(discoveredDevices[device].getId())) {
-                        // Else, if the item is already in the array, remove it
-                        connectionManager.getPendingConnections().remove(discoveredDevices[device].getId());
-                        connectionManager.acceptConnectionIfPending(discoveredDevices[device]);
-                    }
+                    selectedDevices[device] = isChecked;
                 }
             };
 
             // Specify the list array, the items to be selected by default (null for none),
             // and the listener through which to receive callbacks when items are selected
-            builder.setMultiChoiceItems(deviceNicknames, devicesSelectedByDefault, dialogInterface);
+            builder.setMultiChoiceItems(deviceNicknames, selectedDevices, dialogInterface);
             // Set the action buttons
             builder.setPositiveButton(R.string.selectAll, null);
             builder.setNegativeButton(R.string.deselectAll, null);
@@ -100,8 +92,6 @@ public class ParticipantsFragment extends Fragment {
                 //Select all
                 for (int i = 0; i < discoveredDevices.length; i++) {
                     dialog.getListView().setItemChecked(i, true);
-                    connectionManager.getPendingConnections().put(discoveredDevices[i].getId(),discoveredDevices[i]);
-                    connectionManager.acceptConnectionIfPending(discoveredDevices[i]);
                 }
             }
         });
@@ -111,9 +101,21 @@ public class ParticipantsFragment extends Fragment {
                 //Deselect all
                 for (int i = 0; i < discoveredDevices.length; i++) {
                     dialog.getListView().setItemChecked(i, false);
-                    if (connectionManager.getPendingConnections().containsKey(discoveredDevices[i].getId()))
-                        connectionManager.getPendingConnections().remove(discoveredDevices[i].getId());
-                    connectionManager.acceptConnectionIfPending(discoveredDevices[i]);
+                }
+            }
+        });
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                Log.i(TAG,"onDismiss()");
+                for (int device = 0; device < selectedDevices.length; device++) {
+                    boolean isChecked = selectedDevices[device];
+                    if (isChecked) {
+                        // If the user checked the item, add it to the selected items
+                        connectionManager.getPendingConnections().put(discoveredDevices[device].getId(), discoveredDevices[device]);
+                        connectionManager.acceptConnectionIfPending(discoveredDevices[device]);
+                    } else
+                        connectionManager.disconnectFromEndpoint(discoveredDevices[device].getId());
                 }
             }
         });

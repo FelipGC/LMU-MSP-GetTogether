@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
@@ -88,7 +89,9 @@ public class ConnectionManager {
                                     new ConnectionEndpoint(endpointId, connectionInfo.getEndpointName());
                             discoveredEndpoints.put(endpointId, connectionEndpoint);
                             displayNotification("Viewer found!",connectionInfo.getEndpointName()
-                                    + " is asking for joing your session",NotificationCompat.PRIORITY_DEFAULT);
+                                    + " is asking for joining your session",NotificationCompat.PRIORITY_DEFAULT);
+                            Toast.makeText(getAppLogicActivity(), String.format(String.format("Viewer %s found!",
+                                    connectionEndpoint.getName())), Toast.LENGTH_SHORT).show();
                             updateParticipantsCount();
                             break;
                     }
@@ -97,27 +100,27 @@ public class ConnectionManager {
                 @Override
                 public void onConnectionResult(String endpointId, ConnectionResolution result) {
                     Log.i(TAG, String.format("onConnectionResponse(endpointId=%s, result=%s)", endpointId, result.getStatus()));
+                    ConnectionEndpoint endpoint = discoveredEndpoints.get(endpointId);
                     switch (result.getStatus().getStatusCode()) {
                         case ConnectionsStatusCodes.STATUS_OK:
+                            Log.i(TAG, "WE ARE CONNECTED");
                             // We're connected! Can now start sending and receiving data.
                             establishedConnections.put(endpointId, discoveredEndpoints.get(endpointId));
                             if(pendingConnections.containsKey(endpointId))
                                 pendingConnections.remove(endpointId);
-                            switch (AppLogicActivity.getUserRole().getRoleType()) {
-                                case SPECTATOR:
-                                    break;
-                                case PRESENTER:
-                                    updateParticipantsCount();
-                                    break;
-                            }
+                            updateGUI(endpoint);
                             break;
                         case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
                             // The connection was rejected by one or both sides.
                             pendingConnections.remove(endpointId);
+                            Toast.makeText(appLogicActivity, String.format(String.format("Connection rejected to: %s",
+                                    endpoint.getName())), Toast.LENGTH_SHORT).show();
                             break;
                         case ConnectionsStatusCodes.STATUS_ERROR:
                             // The connection broke before it was able to be accepted.
                             pendingConnections.remove(endpointId);
+                            Toast.makeText(appLogicActivity, String.format(String.format("Connection to %s failed",
+                                    endpoint.getName())), Toast.LENGTH_SHORT).show();
                             break;
                     }
                 }
@@ -127,20 +130,14 @@ public class ConnectionManager {
                     // We've been disconnected from this endpoint. No more data can be
                     // sent or received.
                     ConnectionEndpoint endpoint = discoveredEndpoints.get(endpointId);
-                    Log.i(TAG, "Disconnected from endpoint " + endpointId);
+                    Log.i(TAG, "Disconnected from endpoint " + endpoint.getOriginalName());
                     if(pendingConnections.containsKey(endpointId))
                         pendingConnections.remove(endpointId);
-                    if (establishedConnections.containsKey(endpointId)) {
+                    if (establishedConnections.containsKey(endpointId))
                         establishedConnections.remove(endpointId);
-                        switch (AppLogicActivity.getUserRole().getRoleType()) {
-                            case SPECTATOR:
-                                updatePresenters(endpoint);
-                                break;
-                            case PRESENTER:
-                                updateParticipantsCount();
-                                break;
-                        }
-                    }
+                    if(discoveredEndpoints.containsKey(endpointId))
+                        discoveredEndpoints.remove(endpointId);
+                    updateGUI(endpoint);
                 }
             };
     /**
@@ -298,11 +295,13 @@ public class ConnectionManager {
                     @Override
                     public void onEndpointLost(String endpointId) {
                         Log.i(TAG, String.format("onEndpointLost(endpointId=%s)", endpointId));
-                        if(discoveredEndpoints.containsKey(endpointId)) {
-                            ConnectionEndpoint connectionEndpoint = discoveredEndpoints.get(endpointId);
+                        ConnectionEndpoint connectionEndpoint = discoveredEndpoints.get(endpointId);
+                        if(discoveredEndpoints.containsKey(endpointId))
                             discoveredEndpoints.remove(endpointId);
-                            updatePresenters(connectionEndpoint);
-                        }
+                        if(establishedConnections.containsKey(endpointId))
+                            establishedConnections.remove(endpointId);
+                        if(pendingConnections.containsKey(endpointId))
+                            pendingConnections.remove(endpointId);
                     }
                 };
         //Start discovering
@@ -410,6 +409,7 @@ public class ConnectionManager {
     }
 
     public void disconnectFromEndpoint(String endpointID){
+        Log.i(TAG,"Disconnect " + endpointID);
         connectionsClient.disconnectFromEndpoint(endpointID);
     }
     public void disconnectFromAllEndpoints() {
@@ -431,6 +431,20 @@ public class ConnectionManager {
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    /**
+     * Updates the GUI depending on the role (viewer or presenter)
+     */
+    private void updateGUI(ConnectionEndpoint endpoint){
+        switch (AppLogicActivity.getUserRole().getRoleType()) {
+            case SPECTATOR:
+                updatePresenters(endpoint);
+                break;
+            case PRESENTER:
+                updateParticipantsCount();
+                break;
         }
     }
     /**
