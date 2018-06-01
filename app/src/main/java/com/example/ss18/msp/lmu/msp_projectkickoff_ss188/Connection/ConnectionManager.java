@@ -2,8 +2,6 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
 import android.app.NotificationManager;
 import android.content.Context;
-import android.content.Intent;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.SimpleArrayMap;
@@ -34,7 +32,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -137,6 +134,14 @@ public class ConnectionManager {
                 }
             };
 
+    /*
+    * Sends the received message from the endpoint to the device
+     */
+    public void onSend(String message) {
+        ChatFragment chat = getAppLogicActivity().getChatFragment();
+        chat.getDataFromEndPoint(message);
+    }
+
     /**
      * Executes consequences after a device has disconnected
      * @param endpointId
@@ -190,6 +195,7 @@ public class ConnectionManager {
                             int substringDividerIndex = payloadFilenameMessage.indexOf(':');
                             String payloadId = payloadFilenameMessage.substring(0, substringDividerIndex);
                             String filename = payloadFilenameMessage.substring(substringDividerIndex + 1);
+                            onSend(filename);
                             filePayloadFilenames.put(payloadId, filename);
                         } catch (Exception e) {
                             return;
@@ -229,6 +235,8 @@ public class ConnectionManager {
                     }
                 }
             };
+
+
 
     /**
      * Displays a notification message.

@@ -167,6 +167,10 @@ public class AppLogicActivity extends AppCompatActivity {
         return inboxFragment;
     }
 
+    public ChatFragment getChatFragment() {
+        return chatFragment;
+    }
+
     public AvailablePresenterFragment getAvailablePresenterFragment() {
         return availablePresenterFragment;
     }

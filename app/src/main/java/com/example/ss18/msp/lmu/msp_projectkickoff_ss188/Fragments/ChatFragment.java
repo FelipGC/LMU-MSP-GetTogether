@@ -1,9 +1,6 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments;
 
-import android.content.DialogInterface;
-import android.media.Image;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -20,10 +17,8 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.Message;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.MessageAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.google.android.gms.nearby.connection.Payload;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
 public class ChatFragment extends Fragment implements View.OnClickListener {
@@ -50,9 +45,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         messagesView.setAdapter(messageAdapter);
         Log.i("Main", "Hereee" + getActivity());
 
-        us = "Koko";
-        mes = new Message("Sup!", us, false);
-        messageAdapter.add(mes);
+
         return view;
     }
 
@@ -64,11 +57,10 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         Log.i(TAG, "Clicked Send");
         String messageText = editText.getText().toString();
         if (!messageText.isEmpty()) {
-
+            
             String name = LocalDataBase.getUserName();
             Message msg = new Message(messageText, name, true);
             messageAdapter.add(msg);
-            messageAdapter.add(mes);
             // scroll the ListView to the last added element
             messagesView.setSelection(messagesView.getCount() - 1);
 
@@ -86,7 +78,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         //String name = LocalDataBase.getUserName();
         Payload payload = dataToPayload(message);
         // Mapping the ID of the file payload to the filename
-        String payloadStoringName = payload.getId() + ":" + message;
+        String payloadStoringName = payload.getId() + ":" + LocalDataBase.getUserName() + ":" + message;
         Log.i(TAG, "Eliiii2222  " + payloadStoringName);
 
         AppLogicActivity.getConnectionManager().sendPayload(payload,payloadStoringName);
@@ -106,22 +98,16 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
     /*
     ** Gets the message from the endpoint
      */
-    private void getDataFromEndPoint(Payload receivedPayload) {
-        String receivedMessage;
-        try {
-            receivedMessage = new String(receivedPayload.asBytes(), "UTF-8");
-            //Extracts the payloadSender and the message from the message and converts it into
-            //Message(). The format is sender:filename.
-            int substringDividerIndex = receivedMessage.indexOf(':');
-            String payloadSender = receivedMessage.substring(0, substringDividerIndex);
-            String message = receivedMessage.substring(substringDividerIndex + 1);
+    public void getDataFromEndPoint(String receivedMessage) {
 
-            Message received = new Message(message, payloadSender, false);
-            messageAdapter.add(received);
-            // scroll the ListView to the last added element
-            messagesView.setSelection(messagesView.getCount() - 1);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-        }
+        //Extracts the payloadSender and the message from the message and converts it into
+        //Message(). The format is sender:filename.
+        int substringDividerIndex = receivedMessage.indexOf(':');
+        String payloadSender = receivedMessage.substring(0, substringDividerIndex);
+        String message = receivedMessage.substring(substringDividerIndex + 1);
+        Message received = new Message(message, payloadSender, false);
+        messageAdapter.add(received);
+        // scroll the ListView to the last added element
+        messagesView.setSelection(messagesView.getCount() - 1);
     }
 }
