@@ -16,16 +16,11 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
 public class RegisterActivity extends AppCompatActivity {
-    private static final String PREFS_NAME = "preferences_title";
-    private static final String PREF_USER = "preferences_username";
-
-    private AlertDialog alertDialog;
-    /**
-     * Tag for Logging/Debugging
-     */
     private static final String TAG = "REGISTER_ACTIVITY";
 
-
+    private static final String PREFS_NAME = "preferences_title";
+    private static final String PREF_USER = "preferences_username";
+    private AlertDialog alertDialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,8 +49,9 @@ public class RegisterActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 LocalDataBase.setUserName(input.getText().toString());
                 savePreferences();
-                Toast.makeText(RegisterActivity.this, "Welcome " +
-                        LocalDataBase.getUserName()+ "!", Toast.LENGTH_LONG).show();
+                Toast.makeText(RegisterActivity.this,
+                        getString(R.string.welcomeUser, LocalDataBase.getUserName()),
+                        Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(RegisterActivity.this,MainActivity.class);
                 startActivity(intent);
             }
@@ -71,6 +67,7 @@ public class RegisterActivity extends AppCompatActivity {
         alertDialog = dialog.create();
         alertDialog.show();
     }
+
     /**
      * Saves the username to the preferences
      */

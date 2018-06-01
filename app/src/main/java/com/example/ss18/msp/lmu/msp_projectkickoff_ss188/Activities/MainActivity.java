@@ -1,19 +1,10 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
-import android.Manifest;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.os.Build;
-import android.support.annotation.CallSuper;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.support.v4.content.ContextCompat;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,10 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
@@ -34,39 +22,26 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 
 public class MainActivity extends AppCompatActivity {
 
-
+    private static final String TAG = "MAIN_ACTIVITY";
 
     private ImageButton presenter;
     private ImageButton spectator;
-
-
-
-    /**
-     * Tag for Logging/Debugging
-     */
-    private static final String TAG = "MAIN_ACTIVITY";
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Animation logoMoveAnimation = AnimationUtils.loadAnimation(this, R.anim.pop_up_animation);
+
         //Views
         presenter = findViewById(R.id.buttonPresenter);
         spectator = findViewById(R.id.buttonSpectator);
 
         //Animations
+        Animation logoMoveAnimation = AnimationUtils.loadAnimation(this, R.anim.pop_up_animation);
         presenter.startAnimation(logoMoveAnimation);
         spectator.startAnimation(logoMoveAnimation);
     }
 
-    /**
-     * Adds the menu button to the view
-     *
-     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -76,16 +51,17 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Gets executed when the user selects "Settings" on the activity menu
+     * @param item the clicked Menuitem
      */
     public void onClickSettings(MenuItem item){
         Log.i(TAG,"Settings option clicked");
         Intent myIntent = new Intent(MainActivity.this,SettingsActivity.class);
-        //myIntent.putExtra("key", value); //Optional parameters
         MainActivity.this.startActivity(myIntent);
     }
 
     /**
      * Gets executed when the user selects "About" on the activity menu
+     * @param item The clicked Menuitem
      */
     public void onClickAbout(MenuItem item){
 
@@ -105,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Gets executed when the user selects "Help" on the activity menu
+     * @param item The clicked Menuitem
      */
     public void onClickHelp(MenuItem item){
         Log.i(TAG,"Help option clicked");
@@ -121,30 +98,11 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-
-
-
-
     /**
      * Gets executed if the user chooses to be a "Presenter"  by pressing
      * the corresponding button
      *
-     * @param view
+     * @param view The Button
      */
     public void presenterButtonClicked(View view) {
         Log.i(TAG, "User chose to be a PRESENTER." + LocalDataBase.getUserName());
@@ -155,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
      * Gets executed if the user chooses to be a "Spectator"  by pressing
      * the corresponding button
      *
-     * @param view
+     * @param view The button
      */
     public void spectatorButtonClicked(View view) {
         Log.i(TAG, "User chose to be a SPECTATOR.");
@@ -164,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Creates a new (secondary) activity
+     * @param userRole Implementation of User with specific role
      */
     private void createSecondaryActivity(User userRole){
         Intent intent = new Intent(this, AppLogicActivity.class);
