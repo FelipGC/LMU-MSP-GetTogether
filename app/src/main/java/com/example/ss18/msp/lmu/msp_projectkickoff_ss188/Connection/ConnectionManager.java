@@ -34,6 +34,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -162,12 +163,14 @@ public class ConnectionManager {
      */
     private final PayloadCallback payloadCallback =
             new PayloadCallback() {
-            //SimpleArrayMap is a more efficient data structure when lots of changes occur (in comparision to hash map)
-            private final SimpleArrayMap<String, Payload> incomingPayloads = new SimpleArrayMap<>();
-            private final SimpleArrayMap<String, String> filePayloadFilenames = new SimpleArrayMap<>();
-            //Note: onPayloadReceived() is called when the first byte of a Payload is received;
-            //it does not indicate that the entire Payload has been received.
-            //The completion of the transfer is indicated when onPayloadTransferUpdate() is called with a status of PayloadTransferUpdate.Status.SUCCESS
+                //SimpleArrayMap is a more efficient data structure when lots of changes occur (in comparision to hash map)
+                private final SimpleArrayMap<String, Payload> incomingPayloads = new SimpleArrayMap<>();
+                private final SimpleArrayMap<String, String> filePayloadFilenames = new SimpleArrayMap<>();
+
+
+                //Note: onPayloadReceived() is called when the first byte of a Payload is received;
+                //it does not indicate that the entire Payload has been received.
+                //The completion of the transfer is indicated when onPayloadTransferUpdate() is called with a status of PayloadTransferUpdate.Status.SUCCESS
                 @Override
                 public void onPayloadReceived(String endpointId, Payload payload) {
                     //We will be receiving data
@@ -176,14 +179,20 @@ public class ConnectionManager {
                         String payloadFilenameMessage = null;
                         try {
                             payloadFilenameMessage = new String(payload.asBytes(), "UTF-8");
-                            //Extracts the payloadId and filename from the message and stores it in the
-                            //filePayloadFilenames map. The format is payloadId:filename.
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                        //Extracts the payloadId and filename from the message and stores it in the
+                        //filePayloadFilenames map. The format is payloadId:filename.
+                        Log.i(TAG, "Eliiii333  " + payloadFilenameMessage);
+                        try {
+                            Log.i(TAG, "Eliiii333a  " + payloadFilenameMessage);
                             int substringDividerIndex = payloadFilenameMessage.indexOf(':');
                             String payloadId = payloadFilenameMessage.substring(0, substringDividerIndex);
                             String filename = payloadFilenameMessage.substring(substringDividerIndex + 1);
                             filePayloadFilenames.put(payloadId, filename);
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
+                        } catch (Exception e) {
+                            return;
                         }
                     }else if (payload.getType() == Payload.Type.FILE) {
                         // Add this to our tracking map, so that we can retrieve the payload later.
@@ -201,6 +210,8 @@ public class ConnectionManager {
                                 String.format("%s has sent you a document...",establishedConnections.get(endpointId)),
                                 NotificationCompat.PRIORITY_DEFAULT);
                         Payload payload = incomingPayloads.get(update.getPayloadId());
+                        Log.i(TAG, "Eli5555" + payload + incomingPayloads+filePayloadFilenames);
+
                         if (payload != null) {
                             //Load data
                             if (payload.getType() == Payload.Type.FILE) {
@@ -379,12 +390,12 @@ public class ConnectionManager {
      * if not already established
      */
     public void acceptConnectionIfPending(ConnectionEndpoint endPoint){
-            if (!establishedConnections.containsKey(endPoint.getId())){
-                boolean acceptConnection = pendingConnections.containsKey(endPoint.getId());
-                acceptConnection(acceptConnection,pendingConnections.get(endPoint.getId()));
-            }
-            else establishedConnections.remove(endPoint.getId());
-            }
+        if (!establishedConnections.containsKey(endPoint.getId())){
+            boolean acceptConnection = pendingConnections.containsKey(endPoint.getId());
+            acceptConnection(acceptConnection,pendingConnections.get(endPoint.getId()));
+        }
+        else establishedConnections.remove(endPoint.getId());
+    }
     /**
      * Only for discoverers (Viewers)
      * If the advertisers wishes to establish a connection to a presenter (advertiser), then a connection is needed.
@@ -448,6 +459,8 @@ public class ConnectionManager {
     public void sendPayload(Payload payload,String payloadStoringName){
         for (String endpointId : establishedConnections.keySet()) {
             try {
+                Log.i(TAG, "Eliiii444  " + endpointId);
+
                 sendPayload(endpointId,payload,payloadStoringName);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
