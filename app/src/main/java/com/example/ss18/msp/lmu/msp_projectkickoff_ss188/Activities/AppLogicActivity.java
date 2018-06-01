@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.AvailablePresenterFragment;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ShareFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.InboxFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.TabPageAdapter;
@@ -44,6 +45,7 @@ public class AppLogicActivity extends AppCompatActivity {
     private ShareFragment shareFragment;
     private ParticipantsFragment participantsFragment;
     private InboxFragment inboxFragment;
+    private ChatFragment chatFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,12 +68,14 @@ public class AppLogicActivity extends AppCompatActivity {
                 tabPageAdapter.addFragment(availablePresenterFragment = new AvailablePresenterFragment(), "Presenters");
                 tabPageAdapter.addFragment(inboxFragment = new InboxFragment(), "Inbox");
                 tabPageAdapter.addFragment(new LiveViewFragment(), "Live View");
+                tabPageAdapter.addFragment(chatFragment = new ChatFragment(), "Chat");
                 break;
             case PRESENTER:
                 startAdvertising();
                 //Add tabs for presenter
                 tabPageAdapter.addFragment(participantsFragment = new ParticipantsFragment(), "Participants");
                 tabPageAdapter.addFragment(shareFragment = new ShareFragment(), "Share");
+                tabPageAdapter.addFragment(chatFragment = new ChatFragment(), "Chat");
                 break;
             default:
                 Log.e(TAG, "Role type missing!");
