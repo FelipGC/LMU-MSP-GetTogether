@@ -15,11 +15,8 @@
             <TextView
                 android:text="@string/change_username_setting"
                 android:padding="5dp"
-                android:textSize="40dp"
                 android:elevation="15dp"
                 android:textColor="@color/colorPrimaryLight"
-                android:textStyle="bold"
-                app:fontFamily="@font/capriola"
                 android:onClick="onClickChangeUsername"/>
         </TableRow>
 
@@ -27,11 +24,8 @@
             <TextView
                 android:text="@string/change_photo_setting"
                 android:padding="5dp"
-                android:textSize="40dp"
                 android:elevation="15dp"
                 android:textColor="@color/colorPrimaryLight"
-                android:textStyle="bold"
-                app:fontFamily="@font/capriola"
                 android:onClick="onClickChangePhoto"/>
         </TableRow>
     </TableLayout>
