@@ -23,18 +23,18 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.google.android.gms.nearby.connection.Payload;
 
-import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
 public class ChatFragment extends Fragment implements View.OnClickListener {
-    private static final String TAG = "InboxFragment";
+    private static final String TAG = "ChatFragment";
 
     private EditText editText;
-    Message mes;
-    String us;
-    MessageAdapter messageAdapter;
-    ListView messagesView;
-    ImageButton buttonSend;
+    private Message mes;
+    private String us;
+    private MessageAdapter messageAdapter;
+    private ListView messagesView;
+    private ImageButton buttonSend;
 
     @Nullable
     @Override
@@ -51,26 +51,9 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         Log.i("Main", "Hereee" + getActivity());
 
         us = "Koko";
-        mes = new Message("Sup!", us, true);
+        mes = new Message("Sup!", us, false);
         messageAdapter.add(mes);
         return view;
-    }
-
-    public void sendMessage(View view) {
-        String message = editText.getText().toString();
-        if (message.length() > 0) {
-            String user = "Eli";
-            Message msg = new Message(message, user, false);
-
-
-            Log.i("Main", "Hereee" + messageAdapter+msg+mes);
-            messageAdapter.add(msg);
-            messageAdapter.add(mes);
-            // scroll the ListView to the last added element
-            messagesView.setSelection(messagesView.getCount() - 1);
-
-            editText.getText().clear();
-        }
     }
 
     /*
@@ -83,7 +66,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         if (!messageText.isEmpty()) {
 
             String name = LocalDataBase.getUserName();
-            Message msg = new Message(messageText, name, false);
+            Message msg = new Message(messageText, name, true);
             messageAdapter.add(msg);
             messageAdapter.add(mes);
             // scroll the ListView to the last added element
@@ -118,5 +101,27 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         Payload payload = Payload.fromBytes(message.getBytes(Charset.forName("UTF-8")));
         Log.i(TAG, "Eliiii  " + payload.getType());
         return payload;
+    }
+
+    /*
+    ** Gets the message from the endpoint
+     */
+    private void getDataFromEndPoint(Payload receivedPayload) {
+        String receivedMessage;
+        try {
+            receivedMessage = new String(receivedPayload.asBytes(), "UTF-8");
+            //Extracts the payloadSender and the message from the message and converts it into
+            //Message(). The format is sender:filename.
+            int substringDividerIndex = receivedMessage.indexOf(':');
+            String payloadSender = receivedMessage.substring(0, substringDividerIndex);
+            String message = receivedMessage.substring(substringDividerIndex + 1);
+
+            Message received = new Message(message, payloadSender, false);
+            messageAdapter.add(received);
+            // scroll the ListView to the last added element
+            messagesView.setSelection(messagesView.getCount() - 1);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+        }
     }
 }

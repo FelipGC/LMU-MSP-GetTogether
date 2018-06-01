@@ -2,6 +2,7 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
@@ -11,6 +12,7 @@ import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.google.android.gms.nearby.Nearby;
@@ -174,15 +176,15 @@ public class ConnectionManager {
                         String payloadFilenameMessage = null;
                         try {
                             payloadFilenameMessage = new String(payload.asBytes(), "UTF-8");
+                            //Extracts the payloadId and filename from the message and stores it in the
+                            //filePayloadFilenames map. The format is payloadId:filename.
+                            int substringDividerIndex = payloadFilenameMessage.indexOf(':');
+                            String payloadId = payloadFilenameMessage.substring(0, substringDividerIndex);
+                            String filename = payloadFilenameMessage.substring(substringDividerIndex + 1);
+                            filePayloadFilenames.put(payloadId, filename);
                         } catch (UnsupportedEncodingException e) {
                             e.printStackTrace();
                         }
-                        //Extracts the payloadId and filename from the message and stores it in the
-                        //filePayloadFilenames map. The format is payloadId:filename.
-                        int substringDividerIndex = payloadFilenameMessage.indexOf(':');
-                        String payloadId = payloadFilenameMessage.substring(0, substringDividerIndex);
-                        String filename = payloadFilenameMessage.substring(substringDividerIndex + 1);
-                        filePayloadFilenames.put(payloadId, filename);
                     }else if (payload.getType() == Payload.Type.FILE) {
                         // Add this to our tracking map, so that we can retrieve the payload later.
                         incomingPayloads.put(endpointId, payload);
@@ -199,14 +201,16 @@ public class ConnectionManager {
                                 String.format("%s has sent you a document...",establishedConnections.get(endpointId)),
                                 NotificationCompat.PRIORITY_DEFAULT);
                         Payload payload = incomingPayloads.get(update.getPayloadId());
-                        //Load data
-                        if (payload.getType() == Payload.Type.FILE) {
-                            // Retrieve the filename and corresponding payload.
-                            File payloadFile = payload.asFile().asJavaFile();
-                            String fileName = filePayloadFilenames.remove(endpointId);
-                            Log.i(TAG, "Payload name: " + payloadFile.getName());
-                            //Update inbox-fragment.
-                            appLogicActivity.getInboxFragment().storePayLoad(fileName,payloadFile);
+                        if (payload != null) {
+                            //Load data
+                            if (payload.getType() == Payload.Type.FILE) {
+                                // Retrieve the filename and corresponding payload.
+                                File payloadFile = payload.asFile().asJavaFile();
+                                String fileName = filePayloadFilenames.remove(endpointId);
+                                Log.i(TAG, "Payload name: " + payloadFile.getName());
+                                //Update inbox-fragment.
+                                appLogicActivity.getInboxFragment().storePayLoad(fileName,payloadFile);
+                            }
                         }
                     }
                     else if(update.getStatus() == PayloadTransferUpdate.Status.FAILURE){

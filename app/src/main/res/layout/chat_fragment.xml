@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:clipToPadding="false"
+    android:background="@color/whiteAccent"
     android:focusableInTouchMode="true"
     tools:context=".Activities.AppLogicActivity">
 
