@@ -79,7 +79,10 @@ public class ConnectionManager {
                         case SPECTATOR:
                             //If we are the discoverer (= viewer) and since we requested the connection, we assume
                             //we want to accept to connection anyway
-                            acceptConnection(true, discoveredEndpoints.get(endpointId));
+                            //Make sure we dio not lose the connection to the endpoint
+                            ConnectionEndpoint endpoint = discoveredEndpoints.get(endpointId);
+                            if(endpoint != null)
+                                acceptConnection(true, discoveredEndpoints.get(endpointId));
                             break;
                         case PRESENTER:
                             //If we are the presenter, we need to verify if he really
@@ -120,7 +123,7 @@ public class ConnectionManager {
                         case ConnectionsStatusCodes.STATUS_ERROR:
                             Log.i(TAG, "CONNECTION ERROR BEFORE ESTABLISHING");
                             // The connection broke before it was able to be accepted.
-                            pendingConnections.remove(endpointId);
+                            onDisconnectConsequences(endpointId);
                             break;
                     }
                     updateGUI(endpoint);
@@ -137,7 +140,7 @@ public class ConnectionManager {
     /*
     * Sends the received message from the endpoint to the device
      */
-    public void onSend(String message) {
+    public void onChatMessageSent(String message) {
         ChatFragment chat = getAppLogicActivity().getChatFragment();
         chat.getDataFromEndPoint(message);
     }
@@ -158,7 +161,7 @@ public class ConnectionManager {
             discoveredEndpoints.remove(endpointId);
         //Clear in other classes
         if(appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR)
-            appLogicActivity.getAvailablePresenterFragment().removeEndpointFromArrays(endpoint);
+            appLogicActivity.getSelectPresenterFragment().removeEndpointFromArrays(endpoint);
         //Update the GUI finally
         updateGUI(endpoint);
     }
@@ -199,7 +202,7 @@ public class ConnectionManager {
                             switch (payloadId){
                                 case "CHAT":
                                     Log.i(TAG,"Received CHAT MESSAGES");
-                                    onSend(filename);
+                                    onChatMessageSent(filename);
                                     break;
                                 default:
                                     Log.i(TAG,"Received FILE NAME");
