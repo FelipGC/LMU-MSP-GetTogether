@@ -189,14 +189,23 @@ public class ConnectionManager {
                         }
                         //Extracts the payloadId and filename from the message and stores it in the
                         //filePayloadFilenames map. The format is payloadId:filename.
-                        Log.i(TAG, "Eliiii333  " + payloadFilenameMessage);
+                        Log.i(TAG, "Received string: " + payloadFilenameMessage);
                         try {
-                            Log.i(TAG, "Eliiii333a  " + payloadFilenameMessage);
                             int substringDividerIndex = payloadFilenameMessage.indexOf(':');
                             String payloadId = payloadFilenameMessage.substring(0, substringDividerIndex);
                             String filename = payloadFilenameMessage.substring(substringDividerIndex + 1);
-                            onSend(filename);
-                            filePayloadFilenames.put(payloadId, filename);
+                            //We must check wheter we are receiving a file name (in order to rename a file)
+                            //or a chat message
+                            switch (payloadId){
+                                case "CHAT":
+                                    Log.i(TAG,"Received CHAT MESSAGES");
+                                    onSend(filename);
+                                    break;
+                                default:
+                                    Log.i(TAG,"Received FILE NAME");
+                                    filePayloadFilenames.put(payloadId, filename);
+                                    break;
+                            }
                         } catch (Exception e) {
                             return;
                         }
@@ -363,14 +372,12 @@ public class ConnectionManager {
     /**
      * Stops looking for new devices/endpoints to connect to
      */
-    public void stopDiscovering() {
-    }
+    public void stopDiscovering() {}
 
     /**
      * Stops advertising to new discoverers
      */
-    public void stopAdvertising() {
-    }
+    public void stopAdvertising() {}
 
     public ConnectionsClient getConnectionsClient() {
         return connectionsClient;
@@ -467,8 +474,7 @@ public class ConnectionManager {
     public void sendPayload(Payload payload,String payloadStoringName){
         for (String endpointId : establishedConnections.keySet()) {
             try {
-                Log.i(TAG, "Eliiii444  " + endpointId);
-
+                Log.i(TAG, "sendPayload to: " + endpointId);
                 sendPayload(endpointId,payload,payloadStoringName);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();

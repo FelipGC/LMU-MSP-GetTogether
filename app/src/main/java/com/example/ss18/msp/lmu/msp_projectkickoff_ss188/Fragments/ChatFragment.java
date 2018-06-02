@@ -25,8 +25,8 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "ChatFragment";
 
     private EditText editText;
-    private Message mes;
-    private String us;
+    private Message mes; // ???????? <-whats that?
+    private String us; // ????????? <-whats that?
     private MessageAdapter messageAdapter;
     private ListView messagesView;
     private ImageButton buttonSend;
@@ -77,9 +77,9 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
     private void sendDataToEndpoint(String message) {
         //String name = LocalDataBase.getUserName();
         Payload payload = dataToPayload(message);
-        // Mapping the ID of the file payload to the filename
-        String payloadStoringName = payload.getId() + ":" + LocalDataBase.getUserName() + ":" + message;
-        Log.i(TAG, "Eliiii2222  " + payloadStoringName);
+        // Adding the CHAT tag to identify chat messages on receive.
+        String payloadStoringName = "CHAT" + ":" + LocalDataBase.getUserName() + ":" + message;
+        Log.i(TAG, "SendDataToEndpoint: " + payloadStoringName);
 
         AppLogicActivity.getConnectionManager().sendPayload(payload,payloadStoringName);
     }
@@ -91,7 +91,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
     private Payload dataToPayload(String message) {
         // Create Bytes from String
         Payload payload = Payload.fromBytes(message.getBytes(Charset.forName("UTF-8")));
-        Log.i(TAG, "Eliiii  " + payload.getType());
+        Log.i(TAG, "Data to payload:  " + payload.getType());
         return payload;
     }
 
