@@ -1,26 +1,21 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.AvailablePresenterFragment;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.SelectPresenterFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ShareFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.InboxFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.TabPageAdapter;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ParticipantsFragment;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.SelectParticipantsFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.LiveViewFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
@@ -41,9 +36,9 @@ public class AppLogicActivity extends AppCompatActivity {
      */
     private static User userRole;
 
-    private AvailablePresenterFragment availablePresenterFragment;
+    private SelectPresenterFragment selectPresenterFragment;
     private ShareFragment shareFragment;
-    private ParticipantsFragment participantsFragment;
+    private SelectParticipantsFragment selectParticipantsFragment;
     private InboxFragment inboxFragment;
     private ChatFragment chatFragment;
 
@@ -65,7 +60,7 @@ public class AppLogicActivity extends AppCompatActivity {
             case SPECTATOR:
                 startDiscovering();
                 //Add tabs for spectator
-                tabPageAdapter.addFragment(availablePresenterFragment = new AvailablePresenterFragment(), "Presenters");
+                tabPageAdapter.addFragment(selectPresenterFragment = new SelectPresenterFragment(), "Presenters");
                 tabPageAdapter.addFragment(inboxFragment = new InboxFragment(), "Inbox");
                 tabPageAdapter.addFragment(new LiveViewFragment(), "Live View");
                 tabPageAdapter.addFragment(chatFragment = new ChatFragment(), "Chat");
@@ -73,7 +68,7 @@ public class AppLogicActivity extends AppCompatActivity {
             case PRESENTER:
                 startAdvertising();
                 //Add tabs for presenter
-                tabPageAdapter.addFragment(participantsFragment = new ParticipantsFragment(), "Participants");
+                tabPageAdapter.addFragment(selectParticipantsFragment = new SelectParticipantsFragment(), "Participants");
                 tabPageAdapter.addFragment(shareFragment = new ShareFragment(), "Share");
                 tabPageAdapter.addFragment(chatFragment = new ChatFragment(), "Chat");
                 break;
@@ -92,13 +87,13 @@ public class AppLogicActivity extends AppCompatActivity {
      * Updates the amount of participants on the GUI
      */
     public void updateParticipantsGUI(int newSize, int maxSize){
-        participantsFragment.updateParticipantsGUI(newSize,maxSize);
+        selectParticipantsFragment.updateParticipantsGUI(newSize,maxSize);
     }
     /**
      * Updates the amount of presenters on the GUI
      */
     public void updatePresentersGUI(ConnectionEndpoint endpoint){
-        availablePresenterFragment.updateDeviceList(endpoint);
+        selectPresenterFragment.updateDeviceList(endpoint);
     }
 
     //Advertising and Discovery
@@ -146,7 +141,7 @@ public class AppLogicActivity extends AppCompatActivity {
      * @param view
      */
     public void manageParticipants(View view){
-        participantsFragment.manageParticipants(view);
+        selectParticipantsFragment.manageParticipants(view);
     }
 
     /**
@@ -171,7 +166,7 @@ public class AppLogicActivity extends AppCompatActivity {
         return chatFragment;
     }
 
-    public AvailablePresenterFragment getAvailablePresenterFragment() {
-        return availablePresenterFragment;
+    public SelectPresenterFragment getSelectPresenterFragment() {
+        return selectPresenterFragment;
     }
 }

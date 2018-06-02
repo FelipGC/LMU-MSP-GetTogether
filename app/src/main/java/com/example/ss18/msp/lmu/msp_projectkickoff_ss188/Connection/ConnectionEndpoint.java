@@ -12,27 +12,29 @@ public final class ConnectionEndpoint {
     @NonNull
     private final String id; //Should be unique!
     @NonNull
-    private String name; //Become unique if it isn`t at instantiation.
+    private String name; //Becomes unique if it wasn`t at instantiation.
     @NonNull
     private final String originalName; //Doesnt need to be unique
 
     public ConnectionEndpoint(@NonNull String id, @NonNull String name) {
         this.id = id;
         this.originalName = this.name = name;
+        checkForDuplicatedNames();
     }
 
     /**
      * Checks if the device name (NOT the id) is already occupied locacly! If so, rename it.
      */
-    private void checkForDuplicatedNames(){
+    private void checkForDuplicatedNames() {
         int nrDuplicates = 0;
         for (ConnectionEndpoint otherEndpoint : AppLogicActivity.getConnectionManager().getDiscoveredEndpoints().values()) {
-            if(otherEndpoint.getOriginalName().equals(originalName))
+            if (otherEndpoint.getOriginalName().equals(originalName))
                 nrDuplicates++;
         }
-        if(nrDuplicates > 0)
+        if (nrDuplicates > 0)
             name = name + " " + nrDuplicates;
     }
+
     //Getters
     @NonNull
     public String getId() {

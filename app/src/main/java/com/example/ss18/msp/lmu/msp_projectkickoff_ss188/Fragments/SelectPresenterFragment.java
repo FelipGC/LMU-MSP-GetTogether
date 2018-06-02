@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
-public class AvailablePresenterFragment extends Fragment {
+public class SelectPresenterFragment extends Fragment {
     private static final String TAG = "AvailablePresenter";
     private ListView availablePresenters;
     private ListView establishedPresenters;
@@ -47,7 +47,7 @@ public class AvailablePresenterFragment extends Fragment {
      */
     private HashSet<View> viewNoDevices = new HashSet<>();
 
-    public AvailablePresenterFragment() {
+    public SelectPresenterFragment() {
     }
 
     @Nullable
@@ -180,7 +180,7 @@ public class AvailablePresenterFragment extends Fragment {
      * or has already connected to
      */
     public synchronized void updateDeviceList(ConnectionEndpoint endpoint) {
-        Log.i(TAG, "updateDeviceList()");
+        Log.i(TAG, "updateDeviceList( "+endpoint+" )");
         //We found no device
         if (cM.getDiscoveredEndpoints().size() == 0) {
             for (View view : viewDevicesFound)
