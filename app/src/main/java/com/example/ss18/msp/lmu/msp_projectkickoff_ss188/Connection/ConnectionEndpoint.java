@@ -1,5 +1,6 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
@@ -15,6 +16,8 @@ public final class ConnectionEndpoint {
     private String name; //Becomes unique if it wasn`t at instantiation.
     @NonNull
     private final String originalName; //Doesnt need to be unique
+
+    private Bitmap profilePicture;
 
     public ConnectionEndpoint(@NonNull String id, @NonNull String name) {
         this.id = id;
@@ -68,5 +71,9 @@ public final class ConnectionEndpoint {
     @Override
     public String toString() {
         return String.format("ConnectionEndpoint{id=%s, name=%s}", id, name);
+    }
+
+    public Bitmap getProfilePicture() {
+        return profilePicture;
     }
 }

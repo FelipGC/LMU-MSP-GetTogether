@@ -40,7 +40,7 @@ import java.util.HashMap;
 public class ConnectionManager {
 
     private final String TAG = "ConnectionManager";
-    private static final ConnectionManager CONNECTION_MANAGER = new ConnectionManager();
+    private static ConnectionManager CONNECTION_MANAGER = new ConnectionManager();
     /**
      * The connection strategy as defined in https://developers.google.com/nearby/connections/strategies
      */
@@ -48,7 +48,7 @@ public class ConnectionManager {
     /**
      * The id of the NearbyConnection service. (package name of the main activity)
      */
-    private String serviceID;
+    private String serviceID = "fjkgldsjf38SAIOsksjd348";
 
     private final String CHANNEL_ID = "CHANNEL_ID_42";
     public static ConnectionManager getInstance() {
@@ -60,8 +60,7 @@ public class ConnectionManager {
      */
     private static AppLogicActivity appLogicActivity;
 
-    private ConnectionManager() {
-    } //( Due to Singleton)
+    private ConnectionManager() { } //( Due to Singleton)
 
     /**
      * Callbacks for connections to other devices.
@@ -123,7 +122,7 @@ public class ConnectionManager {
                         case ConnectionsStatusCodes.STATUS_ERROR:
                             Log.i(TAG, "CONNECTION ERROR BEFORE ESTABLISHING");
                             // The connection broke before it was able to be accepted.
-                            onDisconnectConsequences(endpointId);
+                            onDisconnectConsequences(endpoint);
                             break;
                     }
                     updateGUI(endpoint);
@@ -131,9 +130,11 @@ public class ConnectionManager {
 
                 @Override
                 public void onDisconnected(String endpointId) {
+                    Log.i(TAG, "DISCONNECTED");
+                    ConnectionEndpoint endpoint = discoveredEndpoints.get(endpointId);
                     // We've been disconnected from this endpoint. No more data can be
                     // sent or received.
-                    onDisconnectConsequences(endpointId);
+                    onDisconnectConsequences(endpoint);
                 }
             };
 
@@ -147,23 +148,28 @@ public class ConnectionManager {
 
     /**
      * Executes consequences after a device has disconnected
-     * @param endpointId
      */
-    private void onDisconnectConsequences(String endpointId) {
-        ConnectionEndpoint endpoint = discoveredEndpoints.get(endpointId);
+    private void onDisconnectConsequences(ConnectionEndpoint endpoint) {
         Log.i(TAG, "Disconnected from endpoint " + endpoint.getOriginalName());
         //Clear in this class
-        if(pendingConnections.containsKey(endpointId))
-            pendingConnections.remove(endpointId);
-        if (establishedConnections.containsKey(endpointId))
-            establishedConnections.remove(endpointId);
-        if(discoveredEndpoints.containsKey(endpointId))
-            discoveredEndpoints.remove(endpointId);
+        if(pendingConnections.containsKey(endpoint.getId()))
+            pendingConnections.remove(endpoint.getId());
+        if (establishedConnections.containsKey(endpoint.getId()))
+            establishedConnections.remove(endpoint.getId());
+        if(discoveredEndpoints.containsKey(endpoint.getId()))
+            discoveredEndpoints.remove(endpoint.getId());
         //Clear in other classes
-        if(appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR)
-            appLogicActivity.getSelectPresenterFragment().removeEndpointFromArrays(endpoint);
+        if(appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR) {
+            appLogicActivity.getSelectPresenterFragment().removeEndpointFromAdapters(endpoint);
+            stopDiscovering();
+            startDiscovering();
+        }else{
+            stopAdvertising();
+            startAdvertising();
+        }
         //Update the GUI finally
         updateGUI(endpoint);
+
     }
 
     /**
@@ -460,7 +466,7 @@ public class ConnectionManager {
     public void disconnectFromEndpoint(String endpointID){
         Log.i(TAG,"Disconnect " + endpointID);
         connectionsClient.disconnectFromEndpoint(endpointID);
-        onDisconnectConsequences(endpointID);
+        onDisconnectConsequences(discoveredEndpoints.get(endpointID));
     }
     public void disconnectFromAllEndpoints() {
         for (String id : discoveredEndpoints.keySet()) {

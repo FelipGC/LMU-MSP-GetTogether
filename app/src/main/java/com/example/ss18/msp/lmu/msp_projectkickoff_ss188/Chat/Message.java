@@ -16,7 +16,7 @@ public class Message {
         return text;
     }
 
-    public String getData() {
+    public String getUserName() {
         return userName;
     }
 

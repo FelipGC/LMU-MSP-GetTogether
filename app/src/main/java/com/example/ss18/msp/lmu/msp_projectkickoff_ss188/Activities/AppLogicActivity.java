@@ -52,7 +52,7 @@ public class AppLogicActivity extends AppCompatActivity {
         //Connection
         connectionManager = ConnectionManager.getInstance(); //Singleton
         connectionManager.setUpConnectionsClient(this);
-        connectionManager.setServiceId(getPackageName());
+
         //Set up tabs
         TabPageAdapter tabPageAdapter = new TabPageAdapter(getSupportFragmentManager());
         switch (getUserRole().getRoleType()) {

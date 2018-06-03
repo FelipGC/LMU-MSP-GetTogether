@@ -18,7 +18,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionMa
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
 public class SelectParticipantsFragment extends Fragment {
-    private static final String TAG = "SelectParticipantsFragment";
+    private static final String TAG = "SelectParticipants";
     private static View mainView;
     private static ConnectionManager connectionManager;
     @Nullable
