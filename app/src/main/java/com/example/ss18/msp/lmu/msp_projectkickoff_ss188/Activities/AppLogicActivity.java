@@ -10,8 +10,8 @@ import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.SelectPresenterFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.SelectPresenterFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ShareFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.InboxFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.TabPageAdapter;
