@@ -7,33 +7,63 @@
     android:background="@android:color/transparent"
     tools:context=".Activities.SettingsActivity">
 
-    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:stretchColumns="1">
-        <TableRow>
-            <TextView
-                android:text="@string/change_username_setting"
-                android:padding="5dp"
-                android:textSize="40dp"
-                android:elevation="15dp"
-                android:textColor="@color/grayAccent"
-                android:textStyle="bold"
-                app:fontFamily="@font/capriola"
-                android:onClick="onClickChangeUsername"/>
-        </TableRow>
+    <TextView
+        android:id="@+id/settings_text"
+        android:text="@string/settings_text"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:padding="15dp"
+        android:gravity="center"
+        android:textSize="15dp"
+        android:textColor="@color/grayAccent"
+        android:textStyle="bold"
+        app:fontFamily="@font/capriola"
+        />
 
-        <TableRow>
-            <TextView
-                android:text="@string/change_photo_setting"
-                android:padding="5dp"
-                android:textSize="40dp"
-                android:elevation="15dp"
-                android:textColor="@color/grayAccent"
-                android:textStyle="bold"
-                app:fontFamily="@font/capriola"
-                android:onClick="onClickChangePhoto"/>
-        </TableRow>
-    </TableLayout>
+    <RelativeLayout
+        android:id="@+id/layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/settings_text">
+
+        <ImageView
+            android:id="@+id/user_image"
+            android:layout_width="match_parent"
+            android:layout_height="350dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="10dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/user_image" />
+
+        <ImageButton
+            android:id="@+id/imageButton"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_alignBottom="@id/user_image"
+            android:layout_alignRight="@id/user_image"
+            android:background="@drawable/circle"
+            android:scaleType="fitXY"
+            android:src="@drawable/plus_image" />
+
+    </RelativeLayout>
+
+    <EditText
+        android:id="@+id/enter_username"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:hint="@string/username"
+        app:layout_constraintTop_toBottomOf="@id/layout"
+        />
+
+    <Button
+        android:id="@+id/sign_up"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="@string/sign_up"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/enter_username"
+        />
 
 </android.support.constraint.ConstraintLayout>
