@@ -159,14 +159,8 @@ public class ConnectionManager {
         if(discoveredEndpoints.containsKey(endpoint.getId()))
             discoveredEndpoints.remove(endpoint.getId());
         //Clear in other classes
-        if(appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR) {
+        if(appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR)
             appLogicActivity.getSelectPresenterFragment().removeEndpointFromAdapters(endpoint);
-            stopDiscovering();
-            startDiscovering();
-        }else{
-            stopAdvertising();
-            startAdvertising();
-        }
         //Update the GUI finally
         updateGUI(endpoint);
 
@@ -301,9 +295,7 @@ public class ConnectionManager {
     public void startAdvertising() {
         Log.i(TAG, "Starting advertising..." +"  "+ AppLogicActivity.getUserRole().getUserName() + serviceID);
         //Clear list every time we try to re-discover
-        establishedConnections.clear();
-        discoveredEndpoints.clear();
-        pendingConnections.clear();
+        reset();
         // Note: Advertising may fail
         connectionsClient.startAdvertising(
                 AppLogicActivity.getUserRole().getUserName(), serviceID, connectionLifecycleCallback,
@@ -325,14 +317,23 @@ public class ConnectionManager {
     }
 
     /**
-     * Start the process of detecting nearby devices (connectors)
+     * Clears and resets everything needed for re-advertising or re-discovering
      */
-    public void startDiscovering() {
-        Log.i(TAG, "Starting discovering as: "+ AppLogicActivity.getUserRole().getUserName() +"  "+ serviceID);
+    private void reset(){
+        Log.i(TAG,"Resetting connection.");
+        //Disconnect from and potential connections
+        disconnectFromAllEndpoints();
         //Clear list every time we try to re-discover
         discoveredEndpoints.clear();
         pendingConnections.clear();
         establishedConnections.clear();
+    }
+    /**
+     * Start the process of detecting nearby devices (connectors)
+     */
+    public void startDiscovering() {
+        Log.i(TAG, "Starting discovering as: "+ AppLogicActivity.getUserRole().getUserName() +"  "+ serviceID);
+        reset();
         //Callbacks for finding devices
         //Finds nearby devices and stores them in "discoveredEndpoints"
         final EndpointDiscoveryCallback endpointDiscoveryCallback =
