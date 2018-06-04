@@ -25,8 +25,6 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "ChatFragment";
 
     private EditText editText;
-    private Message mes;
-    private String us;
     private MessageAdapter messageAdapter;
     private ListView messagesView;
     private ImageButton buttonSend;
@@ -43,8 +41,6 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         buttonSend.setOnClickListener(this);
 
         messagesView.setAdapter(messageAdapter);
-        Log.i("Main", "Hereee" + getActivity());
-
 
         return view;
     }
@@ -79,7 +75,6 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         Payload payload = dataToPayload(message);
         // Mapping the ID of the file payload to the filename
         String payloadStoringName = payload.getId() + ":" + LocalDataBase.getUserName() + ":" + message;
-        Log.i(TAG, "Eliiii2222  " + payloadStoringName);
 
         AppLogicActivity.getConnectionManager().sendPayload(payload,payloadStoringName);
     }
@@ -91,7 +86,6 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
     private Payload dataToPayload(String message) {
         // Create Bytes from String
         Payload payload = Payload.fromBytes(message.getBytes(Charset.forName("UTF-8")));
-        Log.i(TAG, "Eliiii  " + payload.getType());
         return payload;
     }
 
