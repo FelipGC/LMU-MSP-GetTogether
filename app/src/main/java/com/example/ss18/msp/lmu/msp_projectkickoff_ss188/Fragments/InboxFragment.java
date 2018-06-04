@@ -26,6 +26,6 @@ public class InboxFragment extends Fragment {
     public void storePayLoad(String fileName, File payloadFile) {
         //Rename file
         payloadFile.renameTo(new File(payloadFile.getParentFile(), fileName));
-        Log.i(TAG,"Renamed payload file to: " + payloadFile.getName());
+        Log.i(TAG,"Received and renamed payload file to: " + payloadFile.getName());
     }
 }

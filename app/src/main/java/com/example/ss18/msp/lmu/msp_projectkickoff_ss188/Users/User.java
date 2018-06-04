@@ -26,11 +26,8 @@ public abstract class User implements Serializable {
         return LocalDataBase.getUserName();
     }
 
-    public void setUserName(String userName) {
-        LocalDataBase.setUserName(userName);
-    }
-
     public UserRole getRoleType() {
         return roleType;
     }
+
 }
