@@ -28,10 +28,6 @@
         <activity android:name=".Activities.AppLogicActivity" />
         <activity android:name=".Activities.SettingsActivity" />
         <activity android:name=".Activities.RegisterActivity" />
-        <activity
-            android:name=".Activities.InboxActivity"
-            android:label="@string/title_activity_inbox"
-            android:theme="@style/AppTheme.Launcher.NoActionBar"></activity>
     </application>
 
 </manifest>

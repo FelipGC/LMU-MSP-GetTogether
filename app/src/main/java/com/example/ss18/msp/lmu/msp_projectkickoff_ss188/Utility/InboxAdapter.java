@@ -1,4 +1,4 @@
-package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Inbox;
+package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility;
 
 import android.app.Activity;
 import android.content.Context;
@@ -33,36 +33,36 @@ public class InboxAdapter extends BaseAdapter {
      *An array list which stores/displays all
      *data or files received from a particular presenter (advertiser)
      */
-    private final ArrayList<InboxAdapterItem> inboxList = new ArrayList<>();
+    private final ArrayList<ConnectionEndpoint> inboxList = new ArrayList<>();
     private Context context;
 
     public InboxAdapter(Context context) {
         this.context = context;
     }
 
-    public void add(ConnectionEndpoint endpoint, File file) {
-        Log.i(TAG, "Add to inBoxList: " + file.getName());
+    public void add(ConnectionEndpoint endpoint) {
+        Log.i(TAG, "Add to inBoxList: " + endpoint.getName());
         boolean containsID = false;
-        for (InboxAdapterItem h : inboxList ){
-            if(h.getClass().equals(endpoint.getId())){
-                h.getFiles().add(file);
+        for (ConnectionEndpoint c : inboxList ){
+            if(c.getId().equals(endpoint.getId())){
                 containsID = true;
             }
             break;
         }
         // If not already existing, create entry.
         if(!containsID)
-            inboxList.add(new InboxAdapterItem(endpoint, file));
+            inboxList.add(endpoint);
         // To render the list we need to notify.
         notifyDataSetChanged();
     }
 
-    public void remove(String endpointID,File file) {
-        Log.i(TAG, "Remove from inBoxList: " + file.getName());
-        for (InboxAdapterItem h : inboxList ){
-            if(h.getClass().equals(endpointID))
-                h.getFiles().remove(file);
-            break;
+    public void remove(String endpointID) {
+        Log.i(TAG, "Remove from inBoxList: ID=" + endpointID);
+        for (ConnectionEndpoint c : inboxList ){
+            if(c.getId().equals(endpointID)){
+                inboxList.remove(c);
+                break;
+            }
         }
         // To render the list we need to notify.
         notifyDataSetChanged();
