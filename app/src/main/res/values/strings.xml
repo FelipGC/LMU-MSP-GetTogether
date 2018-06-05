@@ -52,4 +52,6 @@
     <string name="pending_devices">Awaiting response from:</string>
     <string name="leave">Leave</string>
     <string name="chat_input_field">Write a message</string>
+    <string name="inbox">Inbox</string>
+    <string name="title_activity_inbox">InboxActivity</string>
 </resources>

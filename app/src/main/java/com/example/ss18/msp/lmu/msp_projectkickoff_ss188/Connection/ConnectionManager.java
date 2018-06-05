@@ -3,6 +3,7 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
@@ -239,8 +240,9 @@ public class ConnectionManager {
                                 File payloadFile = payload.asFile().asJavaFile();
                                 String fileName = filePayloadFilenames.remove(endpointId);
                                 Log.i(TAG, "Payload name: " + payloadFile.getName());
+                                ConnectionEndpoint connectionEndpoint = discoveredEndpoints.get(endpointId);
                                 //Update inbox-fragment.
-                                appLogicActivity.getInboxFragment().storePayLoad(fileName, payloadFile);
+                                appLogicActivity.getInboxFragment().storePayLoad(connectionEndpoint,fileName, payloadFile);
                             }
                         }
                     } else if (update.getStatus() == PayloadTransferUpdate.Status.FAILURE) {
