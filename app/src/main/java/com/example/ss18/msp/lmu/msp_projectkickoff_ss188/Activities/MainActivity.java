@@ -41,9 +41,8 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);
-        actionbar.setHomeAsUpIndicator(R.drawable.ic_send_black_24dp);
+        actionbar.setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24px);
         mDrawerLayout = findViewById(R.id.drawer_layout);
-
 
         //Views
         presenter = findViewById(R.id.buttonPresenter);

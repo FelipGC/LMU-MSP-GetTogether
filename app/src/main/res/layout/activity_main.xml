@@ -18,41 +18,42 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            android:theme="@style/ThemeOverlay.AppCompat.ActionBar" />
+            android:foregroundTint="#fff"
+            android:theme="@style/AppTheme.Toolbar" />
 
 
-            <ImageButton
-                android:id="@+id/buttonPresenter"
-                android:layout_width="190dp"
-                android:layout_height="190dp"
-                android:background="@drawable/button_presentor"
-                android:contentDescription="@string/presenter"
-                android:elevation="10dp"
-                android:onClick="presenterButtonClicked"
-                android:scaleType="fitCenter"
-                android:src="@drawable/presenter_icon" />
+        <ImageButton
+            android:id="@+id/buttonPresenter"
+            android:layout_width="190dp"
+            android:layout_height="190dp"
+            android:background="@drawable/button_presentor"
+            android:contentDescription="@string/presenter"
+            android:elevation="10dp"
+            android:onClick="presenterButtonClicked"
+            android:scaleType="fitCenter"
+            android:src="@drawable/presenter_icon" />
 
-            <TextView
-                android:id="@+id/textViewTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="73dp"
-                android:gravity="center"
-                android:text="@string/introInfo" />
+        <TextView
+            android:id="@+id/textViewTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="73dp"
+            android:gravity="center"
+            android:text="@string/introInfo" />
 
-            <ImageButton
-                android:id="@+id/buttonSpectator"
-                android:layout_width="190dp"
-                android:layout_height="190dp"
-                android:layout_marginEnd="97dp"
-                android:layout_marginLeft="97dp"
-                android:layout_marginRight="97dp"
-                android:layout_marginStart="97dp"
-                android:background="@drawable/button_viewer"
-                android:contentDescription="@string/spectator"
-                android:elevation="10dp"
-                android:onClick="spectatorButtonClicked"
-                android:scaleType="fitCenter"
-                android:src="@drawable/viewer_icon"/>
+        <ImageButton
+            android:id="@+id/buttonSpectator"
+            android:layout_width="190dp"
+            android:layout_height="190dp"
+            android:layout_marginEnd="97dp"
+            android:layout_marginLeft="97dp"
+            android:layout_marginRight="97dp"
+            android:layout_marginStart="97dp"
+            android:background="@drawable/button_viewer"
+            android:contentDescription="@string/spectator"
+            android:elevation="10dp"
+            android:onClick="spectatorButtonClicked"
+            android:scaleType="fitCenter"
+            android:src="@drawable/viewer_icon"/>
 
     </LinearLayout>
     <android.support.design.widget.NavigationView
