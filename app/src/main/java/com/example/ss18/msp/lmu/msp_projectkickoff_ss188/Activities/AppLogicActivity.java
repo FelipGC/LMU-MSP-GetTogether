@@ -152,6 +152,13 @@ public class AppLogicActivity extends AppCompatActivity {
             return;
         shareFragment.performFileSearch();
     }
+
+    @Override
+    protected void onDestroy() {
+        Log.i(TAG,"onDestroy() -> terminating nearby connection");
+        connectionManager.terminateConnection();
+        super.onDestroy();
+    }
     //Getters and Setters
 
     public static ConnectionManager getConnectionManager() {

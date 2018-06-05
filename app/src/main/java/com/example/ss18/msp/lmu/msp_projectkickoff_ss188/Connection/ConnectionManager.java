@@ -324,8 +324,8 @@ public class ConnectionManager {
      */
     private void reset() {
         Log.i(TAG, "Resetting connection.");
-        //Disconnect from and potential connections
-        disconnectFromAllEndpoints();
+        //Disconnect from any potential connections and stop advertising/discovering
+        terminateConnection();
         //Clear list every time we try to re-discover
         discoveredEndpoints.clear();
         pendingConnections.clear();
@@ -530,6 +530,20 @@ public class ConnectionManager {
         LocalDataBase.sentPayLoadData.put(payload.getId(), payload);
     }
 
+    /**
+     * Disconnects from all endpoints and stops advertising/discovering
+     */
+    public void terminateConnection(){
+        disconnectFromAllEndpoints();
+        switch (appLogicActivity.getUserRole().getRoleType()) {
+            case SPECTATOR:
+                stopDiscovering();
+                break;
+            case PRESENTER:
+                stopAdvertising();
+                break;
+        }
+    }
     /**
      * Updates the presenters which are available
      */
