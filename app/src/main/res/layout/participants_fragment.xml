@@ -27,11 +27,9 @@
             android:layout_height="wrap_content"
             android:background="@android:drawable/dialog_holo_light_frame"
             android:text="@string/participants"
-            android:textColor="@color/grayAccent"
+            android:textColor="@color/colorPrimaryLight"
             android:textSize="40dp"
-            android:onClick="manageParticipants"
-            android:textStyle="bold"
-            app:fontFamily="@font/capriola" />
+            android:onClick="manageParticipants"/>
 
         <TextView
             android:id="@+id/numberOfParticipants"
@@ -43,8 +41,6 @@
             android:text="None :("
             android:textAlignment="center"
             android:textAllCaps="false"
-            android:textSize="90sp"
-            app:fontFamily="@font/capriola"
             tools:layout_editor_absoluteY="66dp" />
 
         <Button
@@ -54,22 +50,16 @@
             android:background="@color/colorPrimaryDark"
             android:elevation="15dp"
             android:text="@string/poke"
-            android:textColor="@color/grayAccent"
-            android:textSize="40dp"
-            android:textStyle="bold"
-            app:fontFamily="@font/capriola" />
+            android:textColor="@color/colorPrimaryLight"/>
 
         <Button
             android:id="@+id/callButton"
             android:layout_width="match_parent"
             android:layout_height="86dp"
-            android:background="@color/yellowAccent"
+            android:background="@color/colorAccent"
             android:elevation="15dp"
             android:text="@string/call"
-            android:textColor="@color/grayAccent"
-            android:textSize="40dp"
-            android:textStyle="bold"
-            app:fontFamily="@font/capriola" />
+            android:textColor="@color/colorPrimaryLight" />
 
     </LinearLayout>
 

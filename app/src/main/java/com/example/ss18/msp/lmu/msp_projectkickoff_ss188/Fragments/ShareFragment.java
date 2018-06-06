@@ -70,7 +70,7 @@ public class ShareFragment extends Fragment {
             // The document selected by the user won't be returned in the intent.
             // Instead, a URI to that document will be contained in the return intent
             // provided to this method as a parameter.
-            // Pull that URI using resultData.getData().
+            // Pull that URI using resultData.getUserName().
             Uri uri = resultData.getData();
             Log.i(TAG, "Uri: " + uri.toString());
             //dataToPayload

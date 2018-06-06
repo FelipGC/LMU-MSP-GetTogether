@@ -60,7 +60,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
             // scroll the ListView to the last added element
             messagesView.setSelection(messagesView.getCount() - 1);
 
-            sendDataToEndpoint(messageText);
+            sendDataToEndpoints(messageText);
 
             editText.getText().clear();
         }
@@ -70,11 +70,13 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
      * Sends the message to (all) endpoints
      * @param message is a string
      */
-    private void sendDataToEndpoint(String message) {
+    private void sendDataToEndpoints(String message) {
         //String name = LocalDataBase.getUserName();
         Payload payload = dataToPayload(message);
-        // Mapping the ID of the file payload to the filename
-        String payloadStoringName = payload.getId() + ":" + LocalDataBase.getUserName() + ":" + message;
+        // Adding the CHAT tag to identify chat messages on receive.
+        String payloadStoringName = "CHAT" + ":" + LocalDataBase.getUserName() + ":" + message;
+        Log.i(TAG, "SendDataToEndpoint: " + payloadStoringName);
+        //Send message
 
         AppLogicActivity.getConnectionManager().sendPayload(payload,payloadStoringName);
     }
@@ -86,6 +88,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
     private Payload dataToPayload(String message) {
         // Create Bytes from String
         Payload payload = Payload.fromBytes(message.getBytes(Charset.forName("UTF-8")));
+        Log.i(TAG, "Data to payload:  " + payload.getType());
         return payload;
     }
 

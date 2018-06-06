@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:clipToPadding="false"
-    android:background="@color/whiteAccent"
+    android:background="@android:color/transparent"
     android:focusableInTouchMode="true"
     tools:context=".Activities.AppLogicActivity">
 
@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:ems="10"
-            android:hint="Write a message"
+            android:hint="@string/chat_input_field"
             android:inputType="text"
             android:paddingHorizontal="10dp"
             android:text="" />

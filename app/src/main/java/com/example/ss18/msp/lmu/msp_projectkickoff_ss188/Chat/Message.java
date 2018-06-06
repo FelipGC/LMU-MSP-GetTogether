@@ -1,7 +1,5 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
-
 public class Message {
 
     private String text; // message body
@@ -18,11 +16,11 @@ public class Message {
         return text;
     }
 
-    public String getData() {
+    public String getUserName() {
         return userName;
     }
 
-    public boolean isBelongsToCurrentUser() {
+    public boolean belongsToCurrentUser() {
         return belongsToCurrentUser;
     }
 }

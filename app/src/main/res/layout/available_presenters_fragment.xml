@@ -30,17 +30,14 @@
             android:id="@+id/noDevicesFound"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/capriola"
             android:text="@string/no_devices_found"
             android:textAlignment="center"
-            android:textSize="36sp"
             android:visibility="gone" />
 
         <TextView
             android:id="@+id/presentersListViewTitle_established"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/capriola"
             android:text="@string/joined_presenters"
             android:textAlignment="textStart"
             android:textSize="14sp" />
@@ -57,7 +54,6 @@
             android:id="@+id/presentersListViewTitle_available"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/capriola"
             android:text="@string/available_presenters"
             android:textAlignment="textStart"
             android:textSize="14sp" />
@@ -73,7 +69,7 @@
             android:id="@+id/presentersListViewTitle_pending"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/yellowAccent"
+            android:background="@color/colorAccent"
             android:text="See pending connection(s)"
             android:textAlignment="center"
             android:textSize="14sp" />
