@@ -23,8 +23,10 @@ public class SplashActivity extends AppCompatActivity {
 
     private static final String PREFS_NAME = "preferences_title";
     private static final String PREF_USER = "preferences_username";
+    private static final String PREF_IMAGE = "preferences_image";
 
     private boolean userNameAlreadyEntered = false;
+    private boolean userImageAlreadyChosen = false;
 
     /**
      * ACCESS_COARSE_LOCATION is considered dangerous, so we need to explicitly
@@ -67,6 +69,7 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         loadPreferences();
+        loadImagePreferences();
         if (!userNameAlreadyEntered) {
             Intent intent = new Intent(this,SettingsActivity.class);
             startActivity(intent);
@@ -87,6 +90,21 @@ public class SplashActivity extends AppCompatActivity {
         {
             LocalDataBase.setUserName(settings.getString(PREF_USER,LocalDataBase.getUserName()));
             Log.i(TAG,"Load username: " + LocalDataBase.getUserName());
+        }
+    }
+
+    /**
+     * Loads the username form the preferences
+     */
+    private void loadImagePreferences() {
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME,
+                Context.MODE_PRIVATE);
+        // Set username if already existing
+        if(userImageAlreadyChosen = settings.contains(PREF_IMAGE))
+        {
+            String image = settings.getString(PREF_IMAGE,LocalDataBase.getProfilePictureAsString());
+            LocalDataBase.setProfilePicture(LocalDataBase.getProfilePictureAsBitmap(image));
+            Log.i(TAG,"Load user image: " + LocalDataBase.getProfilePicture());
         }
     }
 

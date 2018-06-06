@@ -2,6 +2,7 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
 import android.app.NotificationManager;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.SimpleArrayMap;
@@ -143,9 +144,9 @@ public class ConnectionManager {
     /*
      * Sends the received message from the endpoint to the device
      */
-    public void onChatMessageSent(String message) {
+    public void onChatMessageSent(String message, Bitmap profilePicture) {
         ChatFragment chat = getAppLogicActivity().getChatFragment();
-        chat.getDataFromEndPoint(message);
+        chat.getDataFromEndPoint(message, profilePicture);
     }
 
     /**
@@ -204,7 +205,9 @@ public class ConnectionManager {
                             switch (payloadId) {
                                 case "CHAT":
                                     Log.i(TAG, "Received CHAT MESSAGES");
-                                    onChatMessageSent(filename);
+                                    ConnectionEndpoint connectionEndpoint = discoveredEndpoints.get(endpointId);
+                                    Bitmap profilePicture = connectionEndpoint.getProfilePicture();
+                                    onChatMessageSent(filename, profilePicture);
                                     break;
                                 default:
                                     Log.i(TAG, "Received FILE NAME");
@@ -432,6 +435,7 @@ public class ConnectionManager {
      * Puts the name together with the mapmap as string into one new string
      */
     private String getMergedNameBitmap(){
+        Log.i("Eliiiii699: " , AppLogicActivity.getUserRole().getUserName() + ":" + LocalDataBase.getProfilePictureAsString());
         return AppLogicActivity.getUserRole().getUserName() + ":" + LocalDataBase.getProfilePictureAsString();
     }
     /**

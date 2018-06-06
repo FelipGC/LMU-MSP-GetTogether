@@ -1,5 +1,7 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments;
 
+import android.arch.lifecycle.LifecycleOwner;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -55,7 +57,8 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         if (!messageText.isEmpty()) {
             
             String name = LocalDataBase.getUserName();
-            Message msg = new Message(messageText, name, true);
+            Bitmap profilePicture = LocalDataBase.getProfilePicture();
+            Message msg = new Message(messageText, name, profilePicture, true);
             messageAdapter.add(msg);
             // scroll the ListView to the last added element
             messagesView.setSelection(messagesView.getCount() - 1);
@@ -95,14 +98,15 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
     /*
     ** Gets the message from the endpoint
      */
-    public void getDataFromEndPoint(String receivedMessage) {
+    public void getDataFromEndPoint(String receivedMessage, Bitmap profilePicture) {
 
         //Extracts the payloadSender and the message from the message and converts it into
         //Message(). The format is sender:filename.
+        Log.i(TAG, "Message is full: " + receivedMessage + "   " + profilePicture);
         int substringDividerIndex = receivedMessage.indexOf(':');
         String payloadSender = receivedMessage.substring(0, substringDividerIndex);
         String message = receivedMessage.substring(substringDividerIndex + 1);
-        Message received = new Message(message, payloadSender, false);
+        Message received = new Message(message, payloadSender, profilePicture, false);
         messageAdapter.add(received);
         // scroll the ListView to the last added element
         messagesView.setSelection(messagesView.getCount() - 1);

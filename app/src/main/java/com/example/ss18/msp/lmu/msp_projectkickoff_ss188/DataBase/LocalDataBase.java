@@ -44,6 +44,7 @@ public final class LocalDataBase {
     }
 
     public static String getProfilePictureAsString() {
+        profilePicture = getProfilePicture();
         if(profilePicture == null) return "NO_PROFILE_PICTURE";
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         profilePicture.compress(Bitmap.CompressFormat.PNG, 100, baos);
