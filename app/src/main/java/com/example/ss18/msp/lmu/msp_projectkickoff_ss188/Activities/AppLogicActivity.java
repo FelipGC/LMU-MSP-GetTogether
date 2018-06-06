@@ -1,5 +1,6 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -17,10 +18,11 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.InboxFragment
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.TabPageAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.SelectParticipantsFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.LiveViewFragment;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Presentation.StartPresentationFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
-public class AppLogicActivity extends AppCompatActivity {
+public class AppLogicActivity extends AppCompatActivity implements StartPresentationFragment.StartPresentationContext {
     /**
      * Tag for Logging/Debugging
      */
@@ -70,6 +72,7 @@ public class AppLogicActivity extends AppCompatActivity {
                 //Add tabs for presenter
                 tabPageAdapter.addFragment(selectParticipantsFragment = new SelectParticipantsFragment(), "Participants");
                 tabPageAdapter.addFragment(shareFragment = new ShareFragment(), "Share");
+                tabPageAdapter.addFragment(new StartPresentationFragment(), "Live Presentation");
                 tabPageAdapter.addFragment(chatFragment = new ChatFragment(), "Chat");
                 break;
             default:
@@ -175,5 +178,20 @@ public class AppLogicActivity extends AppCompatActivity {
 
     public SelectPresenterFragment getSelectPresenterFragment() {
         return selectPresenterFragment;
+    }
+
+    @Override
+    public void presentDocument(Uri uriToDocument) {
+        // TODO: Switch tabs and presentationFragment
+    }
+
+    @Override
+    public void displayError(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public String getStringById(int id) {
+        return getString(id);
     }
 }

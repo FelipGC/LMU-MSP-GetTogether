@@ -54,4 +54,6 @@
     <string name="chat_input_field">Write a message</string>
     <string name="inbox">Inbox</string>
     <string name="title_activity_inbox">InboxActivity</string>
+    <string name="startPresentationFragment_openDocumentErrorMessage">Bitte wählen sie eine gültige Präsentation aus.</string>
+    <string name="startPresentationFragment_openPresentationRequestCode">1</string>
 </resources>
