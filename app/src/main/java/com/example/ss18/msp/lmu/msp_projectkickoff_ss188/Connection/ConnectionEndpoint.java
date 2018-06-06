@@ -25,7 +25,7 @@ public final class ConnectionEndpoint {
     private final String TAG = "ConnectionEndpoint";
 
     public ConnectionEndpoint(@NonNull String id, @NonNull String nameAndBitmap) {
-        Log.i(TAG,"nameANdBitmap = " + nameAndBitmap);
+        Log.i(TAG,"ConnectionEndpoint created with ID="+id);
         this.id = id;
         //Since we can`t pass a bitmap (= profile picture) directly via the connection process
         //and since we actually want to pass a profile picture before establishing a connection,
