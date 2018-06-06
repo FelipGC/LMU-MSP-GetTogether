@@ -27,7 +27,6 @@
         <activity android:name=".Activities.MainActivity" />
         <activity android:name=".Activities.AppLogicActivity" />
         <activity android:name=".Activities.SettingsActivity" />
-        <activity android:name=".Activities.RegisterActivity" />
     </application>
 
 </manifest>

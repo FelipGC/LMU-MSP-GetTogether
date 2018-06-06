@@ -41,8 +41,6 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         buttonSend.setOnClickListener(this);
 
         messagesView.setAdapter(messageAdapter);
-        Log.i("Main", "Hereee" + getActivity());
-
 
         return view;
     }
@@ -79,6 +77,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         String payloadStoringName = "CHAT" + ":" + LocalDataBase.getUserName() + ":" + message;
         Log.i(TAG, "SendDataToEndpoint: " + payloadStoringName);
         //Send message
+
         AppLogicActivity.getConnectionManager().sendPayload(payload,payloadStoringName);
     }
 

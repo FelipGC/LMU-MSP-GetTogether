@@ -68,7 +68,7 @@ public class SplashActivity extends AppCompatActivity {
 
         loadPreferences();
         if (!userNameAlreadyEntered) {
-            Intent intent = new Intent(this,RegisterActivity.class);
+            Intent intent = new Intent(this,SettingsActivity.class);
             startActivity(intent);
         } else {
             Intent intent = new Intent(this, MainActivity.class);
