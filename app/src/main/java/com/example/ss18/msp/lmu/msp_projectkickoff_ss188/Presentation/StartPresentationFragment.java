@@ -65,7 +65,7 @@ public class StartPresentationFragment extends Fragment {
     private void showErrorToast() {
         int errorMessageId = R.string.startPresentationFragment_openDocumentErrorMessage;
         String errorMessage = context.getStringById(errorMessageId);
-        context.displayError(errorMessage);
+        context.displayShortMessage(errorMessage);
     }
 
     @Override

@@ -186,7 +186,7 @@ public class AppLogicActivity extends AppCompatActivity implements StartPresenta
     }
 
     @Override
-    public void displayError(String message) {
+    public void displayShortMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
