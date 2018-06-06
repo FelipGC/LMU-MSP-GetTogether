@@ -3,7 +3,6 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
@@ -303,7 +302,7 @@ public class ConnectionManager {
         reset();
         // Note: Advertising may fail
         connectionsClient.startAdvertising(
-                AppLogicActivity.getUserRole().getUserName(), serviceID, connectionLifecycleCallback,
+                getMergedNameBitmap(), serviceID, connectionLifecycleCallback,
                 new AdvertisingOptions(STRATEGY)).addOnSuccessListener(
                 new OnSuccessListener<Void>() {
                     @Override
@@ -430,6 +429,12 @@ public class ConnectionManager {
     }
 
     /**
+     * Puts the name together with the mapmap as string into one new string
+     */
+    private String getMergedNameBitmap(){
+        return AppLogicActivity.getUserRole().getUserName() + ":" + LocalDataBase.getProfilePictureAsString();
+    }
+    /**
      * Only for discoverers (Viewers)
      * If the advertisers wishes to establish a connection to a presenter (advertiser), then a connection is needed.
      * According to the documentation, both sides must explicitly accept the connection. Therefor we
@@ -440,9 +445,8 @@ public class ConnectionManager {
     public void requestConnection(final ConnectionEndpoint endpoint) {
         Log.i(TAG, String.format("Requesting connection for (endpointId=%s, endpointName=%s)",
                 endpoint.getId(), endpoint.getName()));
-        String nameAndBitmap = AppLogicActivity.getUserRole().getUserName() + ":" + LocalDataBase.getProfilePictureAsString();
         connectionsClient.requestConnection(
-                nameAndBitmap,
+                getMergedNameBitmap(),
                 endpoint.getId(),
                 connectionLifecycleCallback)
                 .addOnSuccessListener(
