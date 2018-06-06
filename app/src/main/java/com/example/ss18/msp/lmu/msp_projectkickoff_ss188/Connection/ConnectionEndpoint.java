@@ -25,6 +25,7 @@ public final class ConnectionEndpoint {
     private final String TAG = "ConnectionEndpoint";
 
     public ConnectionEndpoint(@NonNull String id, @NonNull String nameAndBitmap) {
+        Log.i(TAG,"nameANdBitmap = " + nameAndBitmap);
         this.id = id;
         //Since we can`t pass a bitmap (= profile picture) directly via the connection process
         //and since we actually want to pass a profile picture before establishing a connection,
@@ -42,7 +43,7 @@ public final class ConnectionEndpoint {
      * @return bitmap
      */
     private String extractName(String nameAndBitmap) {
-        //Last index of since the user could use ':' in their username
+        //Last indexOf since the user could use ':' in their username
         int substringDividerIndex = nameAndBitmap.lastIndexOf(':');
         String name = nameAndBitmap.substring(0, substringDividerIndex);
         Log.i(TAG,"extractName() = " + name);
@@ -58,7 +59,7 @@ public final class ConnectionEndpoint {
         //Last index of since the user could use ':' in their username
         int substringDividerIndex = nameAndBitmap.lastIndexOf(':');
         String bitmapString = nameAndBitmap.substring(substringDividerIndex + 1);
-        Log.i(TAG,"extractName() = " + bitmapString);
+        Log.i(TAG,"extractBitMap() = " + bitmapString);
         if(bitmapString.equals("NO_PROFILE_PICTURE"))
             return null;
         try {
