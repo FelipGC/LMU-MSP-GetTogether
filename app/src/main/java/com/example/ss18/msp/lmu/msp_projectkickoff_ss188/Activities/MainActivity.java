@@ -20,7 +20,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.Presenter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.Spectator;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 
-public class MainActivity extends AppCompatActivity {
+public class  MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MAIN_ACTIVITY";
 

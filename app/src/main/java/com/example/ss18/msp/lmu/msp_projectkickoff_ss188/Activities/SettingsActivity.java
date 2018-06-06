@@ -77,8 +77,11 @@ public class SettingsActivity extends AppCompatActivity {
         if (!enteredUsername.getText().toString().isEmpty()) {
             LocalDataBase.setUserName(enteredUsername.getText().toString());
             savePreferences();
-            Toast.makeText(SettingsActivity.this, "You successfully changed your username to " +
-                    LocalDataBase.getUserName()+ "!", Toast.LENGTH_LONG).show();
+            Toast.makeText(SettingsActivity.this,
+                    getString(R.string.welcomeUser, LocalDataBase.getUserName()),
+                    Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(SettingsActivity.this,MainActivity.class);
+            startActivity(intent);
             } else {
             Toast.makeText(SettingsActivity.this, "You didn't enter any new nickname!", Toast.LENGTH_LONG).show();
         }
