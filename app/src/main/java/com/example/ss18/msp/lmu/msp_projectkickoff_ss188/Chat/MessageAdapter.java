@@ -2,11 +2,14 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
@@ -55,10 +58,11 @@ public class MessageAdapter extends BaseAdapter {
         else if (message.belongsToCurrentUser()) { // this message was sent by us so let's create a basic chat bubble on the right
             convertView = messageInflater.inflate(R.layout.view_message_mine, null);
         } else { // this message was sent by someone else so let's create an advanced chat bubble on the left
-            convertView = messageInflater.inflate(R.layout.view_message_their, null);
-            //holder.avatar = (View) convertView.findViewById(R.id.avatar);
+            convertView = messageInflater.inflate(R.layout.their_message, null);
+            holder.avatar = (ImageView) convertView.findViewById(R.id.avatar);
             holder.name = (TextView) convertView.findViewById(R.id.name);
-            holder.name.setText(message.getUserName());
+            holder.messageBody.setText(message.getText());
+            holder.avatar.setImageBitmap(message.getProfilePicture());
             //GradientDrawable drawable = (GradientDrawable) holder.avatar.getBackground();
             //drawable.setColor(Color.GREEN);
         }
@@ -73,4 +77,5 @@ public class MessageAdapter extends BaseAdapter {
 class MessageViewHolder {
     public TextView name;
     public TextView messageBody;
+    public ImageView avatar;
 }

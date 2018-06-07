@@ -159,9 +159,9 @@ public class ConnectionManager {
     /*
      * Sends the received message from the endpoint to the device
      */
-    public void onChatMessageSent(String message) {
+    public void onChatMessageSent(String message, Bitmap profilePicture) {
         ChatFragment chat = getAppLogicActivity().getChatFragment();
-        chat.getDataFromEndPoint(message);
+        chat.getDataFromEndPoint(message, profilePicture);
     }
 
     /**
@@ -222,7 +222,10 @@ public class ConnectionManager {
                             switch (payloadId) {
                                 case "CHAT":
                                     Log.i(TAG, "Received CHAT MESSAGES");
-                                    onChatMessageSent(filename);
+                                    ConnectionEndpoint connectionEndpoint = discoveredEndpoints.get(endpointId);
+                                    Bitmap profilePicture = connectionEndpoint.getProfilePicture();
+                                    Log.i(TAG, "Received CHAT MESSAGES" + filename + " " + profilePicture);
+                                    onChatMessageSent(filename, profilePicture);
                                     break;
                                 default:
                                     Log.i(TAG, "Received FILE-NAME: " + filename);

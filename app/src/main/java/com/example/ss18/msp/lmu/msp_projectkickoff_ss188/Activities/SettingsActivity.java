@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class SettingsActivity extends BaseActivity {
@@ -107,10 +109,14 @@ public class SettingsActivity extends BaseActivity {
             //dataToPayload
             try {
                 //Getting the Bitmap from Gallery
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                Bitmap toEncode = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                 //Resize the image/bitmap
                 //TODO: Maybe rather corp the image instead of resizing
-                bitmap = Bitmap.createScaledBitmap (bitmap, 200,200,true);
+                toEncode = Bitmap.createScaledBitmap (toEncode, 128,128,true);
+                //Compress the file so that the JAVA Binder doesn't crash
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                toEncode.compress(Bitmap.CompressFormat.PNG, 100, out);
+                Bitmap bitmap = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
                 userImage.setImageBitmap(bitmap);
                 LocalDataBase.setProfilePicture(bitmap);
                 saveImagePreferences(this);
@@ -158,22 +164,15 @@ public class SettingsActivity extends BaseActivity {
     /**
      * Saves the user image to the preferences
      */
-    private static void saveImagePreferences(final SettingsActivity activity) {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                SharedPreferences settings = activity.getSharedPreferences(PREFS_NAME,
+    private void saveImagePreferences(final SettingsActivity activity) {
+        SharedPreferences settings = activity.getSharedPreferences(PREFS_NAME,
                         Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = settings.edit();
-
-                // Edit and commit
-                String bitmapString = LocalDataBase.getProfilePictureAsString();
-                Log.i(TAG,"Save user image: " + bitmapString);
-                editor.putString(PREF_IMAGE, bitmapString);
-                editor.commit();
-                return null;
-            }
-        }.execute();
+        SharedPreferences.Editor editor = settings.edit();
+        // Edit and commit
+        String bitmapString = LocalDataBase.getProfilePictureAsString();
+        Log.i(TAG,"Save user image: " + bitmapString);
+        editor.putString(PREF_IMAGE, bitmapString);
+        editor.commit();
 
     }
 
