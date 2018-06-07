@@ -2,32 +2,26 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ShareFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-
-import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -35,7 +29,6 @@ public class SettingsActivity extends AppCompatActivity {
     private static final String PREF_USER = "preferences_username";
     private static final String PREF_IMAGE = "preferences_image";
     private boolean userNameAlreadyEntered = false;
-    private boolean userImageAlreadyChosen = false;
     private EditText enteredUsername;
     private Button signUpButton;
     private TextView settingsText;
@@ -63,8 +56,8 @@ public class SettingsActivity extends AppCompatActivity {
         userImage = (ImageView) findViewById(R.id.user_image);
 
         enteredUsername = (EditText) findViewById(R.id.enter_username);
-        loadPreferences();
-        loadImagePreferences();
+        loadUserNamePreferences();
+        loadImagePreferences(this);
 
         if (userNameAlreadyEntered) {
             signUpButton.setText("Save");
@@ -113,9 +106,12 @@ public class SettingsActivity extends AppCompatActivity {
             try {
                 //Getting the Bitmap from Gallery
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                //Resize the image/bitmap
+                //TODO: Maybe rather corp the image instead of resizing
+                bitmap = Bitmap.createScaledBitmap (bitmap, 128,128,true);
                 userImage.setImageBitmap(bitmap);
                 LocalDataBase.setProfilePicture(bitmap);
-                saveImagePreferences();
+                saveImagePreferences(this);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -146,7 +142,7 @@ public class SettingsActivity extends AppCompatActivity {
     /**
      * Saves the username to the preferences
      */
-    private void savePreferences() {
+    private void saveUserNamePreferences() {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME,
                 Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
@@ -160,45 +156,65 @@ public class SettingsActivity extends AppCompatActivity {
     /**
      * Saves the user image to the preferences
      */
-    private void saveImagePreferences() {
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME,
-                Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = settings.edit();
+    private static void saveImagePreferences(final SettingsActivity activity) {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                SharedPreferences settings = activity.getSharedPreferences(PREFS_NAME,
+                        Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = settings.edit();
 
-        // Edit and commit
-        Log.i(TAG,"Save user image: " + LocalDataBase.getProfilePictureAsString());
-        editor.putString(PREF_IMAGE, LocalDataBase.getProfilePictureAsString());
-        editor.commit();
+                // Edit and commit
+                String bitmapString = LocalDataBase.getProfilePictureAsString();
+                Log.i(TAG,"Save user image: " + bitmapString);
+                editor.putString(PREF_IMAGE, bitmapString);
+                editor.commit();
+                return null;
+            }
+        }.execute();
+
     }
 
     /**
      * Loads the username form the preferences
      */
-    private void loadPreferences() {
+    private void loadUserNamePreferences() {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME,
                 Context.MODE_PRIVATE);
         // Set username if already existing
         if(userNameAlreadyEntered = settings.contains(PREF_USER))
         {
             LocalDataBase.setUserName(settings.getString(PREF_USER,LocalDataBase.getUserName()));
-            Log.i(TAG,"Load username: " + LocalDataBase.getUserName());
+            Log.i(TAG,"Load user name: " + LocalDataBase.getUserName());
         }
     }
 
     /**
      * Loads the username form the preferences
      */
-    private void loadImagePreferences() {
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME,
-                Context.MODE_PRIVATE);
-        // Set username if already existing
-        if(userImageAlreadyChosen = settings.contains(PREF_IMAGE))
-        {
-            String image = settings.getString(PREF_IMAGE,LocalDataBase.getProfilePictureAsString());
-            LocalDataBase.setProfilePicture(LocalDataBase.getProfilePictureAsBitmap(image));
-            userImage.setImageBitmap(LocalDataBase.getProfilePicture());
-            Log.i(TAG,"Load user image: " + LocalDataBase.getProfilePicture() + userImageAlreadyChosen);
-        }
+    private static void loadImagePreferences(final SettingsActivity activity) {
+        new AsyncTask<Void, Void, Bitmap>() {
+            @Override
+            protected Bitmap doInBackground(Void... voids) {
+                SharedPreferences settings = activity.getSharedPreferences(PREFS_NAME,
+                        Context.MODE_PRIVATE);
+                // Set username if already existing
+                if (settings.contains(PREF_IMAGE))
+
+                {
+                    String stringImage = settings.getString(PREF_IMAGE, LocalDataBase.getProfilePictureAsString());
+                    LocalDataBase.setProfilePicture(LocalDataBase.getProfilePictureAsBitmap(stringImage));
+                    Log.i(TAG, "Load user image: " + LocalDataBase.getProfilePicture());
+                }
+                return LocalDataBase.getProfilePicture();
+            }
+
+            @Override
+            protected void onPostExecute(Bitmap bitmap) {
+                activity.getUserImage().setImageBitmap(bitmap);
+                super.onPostExecute(bitmap);
+            }
+        }.execute();
     }
 
     /**
@@ -208,7 +224,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         if (!enteredUsername.getText().toString().isEmpty()) {
             LocalDataBase.setUserName(enteredUsername.getText().toString());
-            savePreferences();
+            saveUserNamePreferences();
             if (userNameAlreadyEntered) {
                 Toast.makeText(SettingsActivity.this, R.string.changedInfo,
                         Toast.LENGTH_LONG).show();
@@ -219,5 +235,8 @@ public class SettingsActivity extends AppCompatActivity {
             }
         }
     }
-}
 
+    public ImageView getUserImage() {
+        return userImage;
+    }
+}
