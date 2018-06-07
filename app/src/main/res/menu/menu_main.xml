@@ -6,7 +6,7 @@
     <item
         android:id="@+id/settings"
         android:onClick="onClickSettings"
-        android:title="@string/settings" />
+        android:title="@string/settings_user" />
     <item
         android:id="@+id/help"
         android:onClick="onClickHelp"
