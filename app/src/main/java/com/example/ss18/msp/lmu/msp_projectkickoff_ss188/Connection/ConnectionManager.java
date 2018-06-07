@@ -2,6 +2,7 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
 import android.app.NotificationManager;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;

@@ -58,7 +58,7 @@ public class MessageAdapter extends BaseAdapter {
         else if (message.belongsToCurrentUser()) { // this message was sent by us so let's create a basic chat bubble on the right
             convertView = messageInflater.inflate(R.layout.view_message_mine, null);
         } else { // this message was sent by someone else so let's create an advanced chat bubble on the left
-            convertView = messageInflater.inflate(R.layout.their_message, null);
+            convertView = messageInflater.inflate(R.layout.view_message_their, null);
             holder.avatar = (ImageView) convertView.findViewById(R.id.avatar);
             holder.name = (TextView) convertView.findViewById(R.id.name);
             holder.messageBody.setText(message.getText());
