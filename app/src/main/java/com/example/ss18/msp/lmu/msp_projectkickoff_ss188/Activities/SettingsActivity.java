@@ -81,7 +81,8 @@ public class SettingsActivity extends AppCompatActivity {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
 
         // Filter what we want to search for (*/* == everything)
-        intent.setType("*/*");
+        //Only select images
+        intent.setType("image/*");
 
         startActivityForResult(intent, READ_REQUEST_CODE);
     }
@@ -108,7 +109,7 @@ public class SettingsActivity extends AppCompatActivity {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                 //Resize the image/bitmap
                 //TODO: Maybe rather corp the image instead of resizing
-                bitmap = Bitmap.createScaledBitmap (bitmap, 128,128,true);
+                bitmap = Bitmap.createScaledBitmap (bitmap, 200,200,true);
                 userImage.setImageBitmap(bitmap);
                 LocalDataBase.setProfilePicture(bitmap);
                 saveImagePreferences(this);

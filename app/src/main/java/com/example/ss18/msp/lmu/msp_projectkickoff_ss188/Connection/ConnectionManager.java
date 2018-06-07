@@ -174,8 +174,8 @@ public class ConnectionManager {
     private final PayloadCallback payloadCallback =
             new PayloadCallback() {
                 //SimpleArrayMap is a more efficient data structure when lots of changes occur (in comparision to hash map)
-                private final SimpleArrayMap<String, Payload> incomingPayloads = new SimpleArrayMap<>();
-                private final SimpleArrayMap<String, String> filePayloadFilenames = new SimpleArrayMap<>();
+                private final SimpleArrayMap<Long, Payload> incomingPayloads = new SimpleArrayMap<>();
+                private final SimpleArrayMap<Long, String> filePayloadFilenames = new SimpleArrayMap<>();
 
 
                 //Note: onPayloadReceived() is called when the first byte of a Payload is received;
@@ -207,16 +207,18 @@ public class ConnectionManager {
                                     onChatMessageSent(filename);
                                     break;
                                 default:
-                                    Log.i(TAG, "Received FILE NAME");
-                                    filePayloadFilenames.put(payloadId, filename);
+                                    Log.i(TAG, "Received FILE-NAME: "+filename);
+                                    filePayloadFilenames.put(Long.valueOf(payloadId), filename);
                                     break;
                             }
                         } catch (Exception e) {
                             return;
                         }
                     } else if (payload.getType() == Payload.Type.FILE) {
+                        Log.i(TAG, "Received FILE: ID="+payload.getId());
                         // Add this to our tracking map, so that we can retrieve the payload later.
-                        incomingPayloads.put(endpointId, payload);
+                        incomingPayloads.put(payload.getId(), payload);
+                        //TODO: Sending files may take some time. Display progressbar or something
                     }
                 }
 
@@ -224,26 +226,30 @@ public class ConnectionManager {
                 public void onPayloadTransferUpdate(String endpointId, PayloadTransferUpdate update) {
                     if (update.getStatus() == PayloadTransferUpdate.Status.SUCCESS) {
                         //Data fully received.
-                        Log.i(TAG, "Payload data fully received!");
+                        Log.i(TAG, "Payload data fully received! ID=" +endpointId);
                         //Display a notification.
                         displayNotification("Document received",
                                 String.format("%s has sent you a document...", establishedConnections.get(endpointId)),
                                 NotificationCompat.PRIORITY_DEFAULT);
                         Payload payload = incomingPayloads.get(update.getPayloadId());
-                        Log.i(TAG, "Eli5555" + payload + incomingPayloads + filePayloadFilenames);
+                        Log.i(TAG, "onPayloadTransferUpdate()" + payload +
+                                "\n" + incomingPayloads.toString() +
+                                "\n"+ filePayloadFilenames.toString());
 
                         if (payload != null) {
                             //Load data
                             if (payload.getType() == Payload.Type.FILE) {
                                 // Retrieve the filename and corresponding payload.
                                 File payloadFile = payload.asFile().asJavaFile();
-                                String fileName = filePayloadFilenames.remove(endpointId);
-                                Log.i(TAG, "Payload name: " + payloadFile.getName());
+                                String fileName = filePayloadFilenames.remove(update.getPayloadId());
+                                Log.i(TAG, "Payload file name: " + payloadFile.getName());
                                 ConnectionEndpoint connectionEndpoint = discoveredEndpoints.get(endpointId);
                                 //Update inbox-fragment.
                                 appLogicActivity.getInboxFragment().storePayLoad(connectionEndpoint,fileName, payloadFile);
                             }
                         }
+                        else Log.i(TAG, "Payload NULL!");
+
                     } else if (update.getStatus() == PayloadTransferUpdate.Status.FAILURE) {
                         Log.i(TAG, "Payload status: PayloadTransferUpdate.Status.FAILURE");
                     }
