@@ -20,7 +20,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.LiveViewFragm
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
-public class AppLogicActivity extends AppCompatActivity {
+public class AppLogicActivity extends BaseActivity {
     /**
      * Tag for Logging/Debugging
      */
@@ -45,7 +45,10 @@ public class AppLogicActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.app_logic_activity);
+        super.onCreate(R.layout.app_logic_activity);
+
+        getSupportActionBar().setTitle("Gruppenname"); //TODO
+
         //Get object from intent
         setUserRole((User) getIntent().getSerializableExtra("UserRole"));
         Log.i(TAG, "Secondary activity created as: " + getUserRole().getRoleType());
