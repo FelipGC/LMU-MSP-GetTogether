@@ -5,10 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.graphics.BitmapCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -21,6 +23,8 @@ import android.widget.Toast;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -105,10 +109,14 @@ public class SettingsActivity extends AppCompatActivity {
             //dataToPayload
             try {
                 //Getting the Bitmap from Gallery
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                Bitmap toEncode = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                 //Resize the image/bitmap
                 //TODO: Maybe rather corp the image instead of resizing
-                bitmap = Bitmap.createScaledBitmap (bitmap, 128,128,true);
+                toEncode = Bitmap.createScaledBitmap (toEncode, 128,128,true);
+                //Compress the file so that the JAVA Binder doesn't crash
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                toEncode.compress(Bitmap.CompressFormat.PNG, 100, out);
+                Bitmap bitmap = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
                 userImage.setImageBitmap(bitmap);
                 LocalDataBase.setProfilePicture(bitmap);
                 saveImagePreferences(this);

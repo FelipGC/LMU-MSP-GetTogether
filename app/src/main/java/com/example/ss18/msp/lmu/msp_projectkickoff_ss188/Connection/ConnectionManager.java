@@ -207,6 +207,7 @@ public class ConnectionManager {
                                     Log.i(TAG, "Received CHAT MESSAGES");
                                     ConnectionEndpoint connectionEndpoint = discoveredEndpoints.get(endpointId);
                                     Bitmap profilePicture = connectionEndpoint.getProfilePicture();
+                                    Log.i(TAG, "Received CHAT MESSAGES" + filename + " " + profilePicture);
                                     onChatMessageSent(filename, profilePicture);
                                     break;
                                 default:
