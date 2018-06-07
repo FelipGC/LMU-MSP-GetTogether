@@ -18,5 +18,4 @@
     <style name="AppTheme.Toolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="android:tint">@color/white</item>
     </style>
-
 </resources>

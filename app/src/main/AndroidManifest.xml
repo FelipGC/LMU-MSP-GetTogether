@@ -3,11 +3,11 @@
     package="com.example.ss18.msp.lmu.msp_projectkickoff_ss188">
 
     <!-- Required for Nearby Connections -->
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
@@ -20,14 +20,13 @@
         <activity android:name=".Activities.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Activities.MainActivity"/>
-        <activity android:name=".Activities.AppLogicActivity"/>
-        <activity android:name=".Activities.SettingsActivity"/>
-        <activity android:name=".Activities.RegisterActivity"/>
-
+        <activity android:name=".Activities.MainActivity" />
+        <activity android:name=".Activities.AppLogicActivity" />
+        <activity android:name=".Activities.SettingsActivity" />
     </application>
 
 </manifest>

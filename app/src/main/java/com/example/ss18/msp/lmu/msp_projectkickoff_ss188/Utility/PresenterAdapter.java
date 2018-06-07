@@ -46,7 +46,7 @@ public class PresenterAdapter extends BaseAdapter {
     }
 
     /**
-     * Removes an ConnectionEnpoint from the list if it exists
+     * Removes an ConnectionEndpoint from the list if it exists
      *
      * @param endpoint The endpoint to remove
      */
@@ -81,7 +81,7 @@ public class PresenterAdapter extends BaseAdapter {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Log.i("TAG", "getView()");
+        Log.i(TAG, "getView()");
         LayoutInflater messageInflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         final ConnectionEndpoint connectionEndpoint = endpointList.get(position);
         convertView = messageInflater.inflate(R.layout.presenter_list_entry, null);
