@@ -164,22 +164,15 @@ public class SettingsActivity extends AppCompatActivity {
     /**
      * Saves the user image to the preferences
      */
-    private static void saveImagePreferences(final SettingsActivity activity) {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                SharedPreferences settings = activity.getSharedPreferences(PREFS_NAME,
+    private void saveImagePreferences(final SettingsActivity activity) {
+        SharedPreferences settings = activity.getSharedPreferences(PREFS_NAME,
                         Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = settings.edit();
-
-                // Edit and commit
-                String bitmapString = LocalDataBase.getProfilePictureAsString();
-                Log.i(TAG,"Save user image: " + bitmapString);
-                editor.putString(PREF_IMAGE, bitmapString);
-                editor.commit();
-                return null;
-            }
-        }.execute();
+        SharedPreferences.Editor editor = settings.edit();
+        // Edit and commit
+        String bitmapString = LocalDataBase.getProfilePictureAsString();
+        Log.i(TAG,"Save user image: " + bitmapString);
+        editor.putString(PREF_IMAGE, bitmapString);
+        editor.commit();
 
     }
 
