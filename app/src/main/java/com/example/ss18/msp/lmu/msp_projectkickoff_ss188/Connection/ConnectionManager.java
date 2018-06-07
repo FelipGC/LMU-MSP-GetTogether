@@ -2,6 +2,7 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
 import android.app.NotificationManager;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.SimpleArrayMap;
@@ -71,7 +72,7 @@ public class ConnectionManager {
             new ConnectionLifecycleCallback() {
                 @Override
                 //We have received a connection request. Now both sides must either accept or reject the connection.
-                public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
+                public void onConnectionInitiated(final String endpointId, final ConnectionInfo connectionInfo) {
                     Log.i(TAG, String.format("onConnectionInitiated(endpointId=%s, endpointName=%s)",
                             endpointId, connectionInfo.getEndpointName()));
                     pendingConnections.remove(endpointId);
@@ -89,19 +90,30 @@ public class ConnectionManager {
                             //If we are the presenter, we need to verify if he really
                             //wants to allow the connection to the discoverer (= viewer)
 
-                            //Create endpoint and add it to the list
-                            ConnectionEndpoint connectionEndpoint =
-                                    new ConnectionEndpoint(endpointId, connectionInfo.getEndpointName());
-                            discoveredEndpoints.put(endpointId, connectionEndpoint);
-                            displayNotification("Viewer found!", connectionInfo.getEndpointName()
-                                    + " is asking for joining your session", NotificationCompat.PRIORITY_DEFAULT);
-                            Toast.makeText(getAppLogicActivity(), String.format(String.format("Viewer %s found!",
-                                    connectionEndpoint.getName())), Toast.LENGTH_SHORT).show();
-                            updateParticipantsCount();
+                            new AsyncTask<Void,Void,ConnectionEndpoint>(){
+
+                                @Override
+                                protected ConnectionEndpoint doInBackground(Void... voids) {
+                                    //Create endpoint and add it to the list
+                                    ConnectionEndpoint connectionEndpoint =
+                                            new ConnectionEndpoint(endpointId, connectionInfo.getEndpointName());
+                                    return connectionEndpoint;
+                                }
+
+                                @Override
+                                protected void onPostExecute(ConnectionEndpoint connectionEndpoint) {
+                                    discoveredEndpoints.put(endpointId, connectionEndpoint);
+                                    displayNotification("Viewer found!", connectionInfo.getEndpointName()
+                                            + " is asking for joining your session", NotificationCompat.PRIORITY_DEFAULT);
+                                    Toast.makeText(getAppLogicActivity(), String.format(String.format("Viewer %s found!",
+                                            connectionEndpoint.getName())), Toast.LENGTH_SHORT).show();
+                                    updateParticipantsCount();
+                                    super.onPostExecute(connectionEndpoint);
+                                }
+                            }.execute();
                             break;
                     }
                 }
-
                 @Override
                 public void onConnectionResult(String endpointId, ConnectionResolution result) {
                     Log.i(TAG, String.format("onConnectionResponse(endpointId=%s, result=%s)", endpointId, result.getStatus()));
@@ -350,14 +362,26 @@ public class ConnectionManager {
         final EndpointDiscoveryCallback endpointDiscoveryCallback =
                 new EndpointDiscoveryCallback() {
                     @Override
-                    public void onEndpointFound(String endpointId, DiscoveredEndpointInfo info) {
+                    public void onEndpointFound(final String endpointId, final DiscoveredEndpointInfo info) {
                         Log.i(TAG, String.format("onEndpointFound(endpointId = %s,endpointName = %s)", endpointId, info.getEndpointName()));
-                        //Create and define a new ConnectionEndpoint
-                        ConnectionEndpoint connectionEndpoint = new ConnectionEndpoint(endpointId, info.getEndpointName());
-                        discoveredEndpoints.put(connectionEndpoint.getId(), connectionEndpoint);
-                        displayNotification("Presenter found!", info.getEndpointName()
-                                + " can be added to the presentation", NotificationCompat.PRIORITY_LOW);
-                        updatePresenters(connectionEndpoint);
+                        new AsyncTask<Void,Void,ConnectionEndpoint>(){
+
+                            @Override
+                            protected ConnectionEndpoint doInBackground(Void... voids) {
+                                return new ConnectionEndpoint(endpointId, info.getEndpointName());
+                            }
+
+                            @Override
+                            protected void onPostExecute(ConnectionEndpoint connectionEndpoint) {
+                                //Create and define a new ConnectionEndpoint
+                                discoveredEndpoints.put(connectionEndpoint.getId(), connectionEndpoint);
+                                displayNotification("Presenter found!", info.getEndpointName()
+                                        + " can be added to the presentation", NotificationCompat.PRIORITY_LOW);
+                                updatePresenters(connectionEndpoint);
+                                super.onPostExecute(connectionEndpoint);
+                            }
+                        }.execute();
+
                     }
 
                     @Override

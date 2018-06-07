@@ -2,7 +2,6 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
@@ -33,7 +32,7 @@ public final class ConnectionEndpoint {
         //we pass the serialized bitmap inside the user name, so me must extract it from it and
         // separate it from the user name.
         //The format for nameAndBitmap is = USERNAME : BITMAP
-        extractBitMap(nameAndBitmap,this);
+        this.profilePicture = extractBitMap(nameAndBitmap);
         this.originalName = this.name = extractName(nameAndBitmap);
         checkForDuplicatedNames();
     }
@@ -53,37 +52,22 @@ public final class ConnectionEndpoint {
 
     /**
      * Extracts the bitmap from the passed string
-     * Runs as an AsyncTask.
-     * @return
      */
-    private static void extractBitMap(final String nameAndBitmap, final ConnectionEndpoint endpoint) {
-        new AsyncTask<String, Void, Bitmap>() {
-            @Override
-            protected Bitmap doInBackground(String... strings) {
-                //Last index of since the user could use ':' in their username
-                int substringDividerIndex = nameAndBitmap.lastIndexOf(':');
-                String bitmapString = nameAndBitmap.substring(substringDividerIndex + 1);
-                Log.i(TAG,"extractBitMap() = " + bitmapString);
-                if(bitmapString.equals("NO_PROFILE_PICTURE"))
-                    return null;
-                try {
-                    byte [] encodeByte= Base64.decode(bitmapString,Base64.DEFAULT);
-                    Bitmap bitmap= BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
-                    return bitmap;
-                } catch(Exception e) {
-                    e.getMessage();
-                    return null;
-                }
-            }
-
-            @Override
-            protected void onPostExecute(Bitmap bitmap) {
-                endpoint.setProfilePicture(bitmap);
-                super.onPostExecute(bitmap);
-            }
-
-            /*Your code(e.g. doInBackground )*/
-        }.execute();
+    private Bitmap extractBitMap(final String nameAndBitmap) {
+        //Last index of since the user could use ':' in their username
+        int substringDividerIndex = nameAndBitmap.lastIndexOf(':');
+        String bitmapString = nameAndBitmap.substring(substringDividerIndex + 1);
+        Log.i(TAG,"extractBitMap() = " + bitmapString);
+        if(bitmapString.equals("NO_PROFILE_PICTURE"))
+            return null;
+        try {
+            byte [] encodeByte= Base64.decode(bitmapString,Base64.DEFAULT);
+            Bitmap bitmap= BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+            return bitmap;
+        } catch(Exception e) {
+            e.getMessage();
+            return null;
+        }
     }
     /**
      * Checks if the device name (NOT the id) is already occupied locally! If so, rename it.
@@ -135,9 +119,5 @@ public final class ConnectionEndpoint {
 
     public Bitmap getProfilePicture() {
         return profilePicture;
-    }
-
-    public void setProfilePicture(Bitmap profilePicture) {
-        this.profilePicture = profilePicture;
     }
 }
