@@ -107,4 +107,13 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         // scroll the ListView to the last added element
         messagesView.setSelection(messagesView.getCount() - 1);
     }
+    /**
+     * Displays a neutral system chat message in the chat
+     */
+    public void displaySystemNotification(String message) {
+        Message received = new Message(message, "SYSTEM", false);
+        messageAdapter.add(received);
+        // scroll the ListView to the last added element
+        messagesView.setSelection(messagesView.getCount() - 1);
+    }
 }

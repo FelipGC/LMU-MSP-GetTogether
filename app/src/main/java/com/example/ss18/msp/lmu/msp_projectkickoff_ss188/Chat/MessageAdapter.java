@@ -47,28 +47,24 @@ public class MessageAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View convertView, ViewGroup viewGroup) {
         MessageViewHolder holder = new MessageViewHolder();
-        Log.i("Eli", "hereee");
         LayoutInflater messageInflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         Message message = messages.get(i);
-
-        if (message.belongsToCurrentUser()) { // this message was sent by us so let's create a basic chat bubble on the right
+        if(message.getUserName().equals("SYSTEM")){
+            convertView = messageInflater.inflate(R.layout.view_message_system, null);
+        }
+        else if (message.belongsToCurrentUser()) { // this message was sent by us so let's create a basic chat bubble on the right
             convertView = messageInflater.inflate(R.layout.view_message_mine, null);
-            holder.messageBody = (TextView) convertView.findViewById(R.id.message_body);
-            convertView.setTag(holder);
-            holder.messageBody.setText(message.getText());
         } else { // this message was sent by someone else so let's create an advanced chat bubble on the left
             convertView = messageInflater.inflate(R.layout.view_message_their, null);
             //holder.avatar = (View) convertView.findViewById(R.id.avatar);
             holder.name = (TextView) convertView.findViewById(R.id.name);
-            holder.messageBody = (TextView) convertView.findViewById(R.id.message_body);
-            convertView.setTag(holder);
-
             holder.name.setText(message.getUserName());
-            holder.messageBody.setText(message.getText());
             //GradientDrawable drawable = (GradientDrawable) holder.avatar.getBackground();
             //drawable.setColor(Color.GREEN);
         }
-
+        convertView.setTag(holder);
+        holder.messageBody = (TextView) convertView.findViewById(R.id.message_body);
+        holder.messageBody.setText(message.getText());
         return convertView;
     }
 

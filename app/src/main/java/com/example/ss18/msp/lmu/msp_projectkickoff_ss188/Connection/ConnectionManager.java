@@ -90,7 +90,7 @@ public class ConnectionManager {
                             //If we are the presenter, we need to verify if he really
                             //wants to allow the connection to the discoverer (= viewer)
 
-                            new AsyncTask<Void,Void,ConnectionEndpoint>(){
+                            new AsyncTask<Void, Void, ConnectionEndpoint>() {
 
                                 @Override
                                 protected ConnectionEndpoint doInBackground(Void... voids) {
@@ -114,6 +114,7 @@ public class ConnectionManager {
                             break;
                     }
                 }
+
                 @Override
                 public void onConnectionResult(String endpointId, ConnectionResolution result) {
                     Log.i(TAG, String.format("onConnectionResponse(endpointId=%s, result=%s)", endpointId, result.getStatus()));
@@ -121,8 +122,11 @@ public class ConnectionManager {
                     switch (result.getStatus().getStatusCode()) {
                         case ConnectionsStatusCodes.STATUS_OK:
                             Log.i(TAG, "WE ARE CONNECTED");
+                            //Displaya system message inside the chat window
+                            appLogicActivity.getChatFragment().displaySystemNotification(
+                                    String.format("Connection to %s established.", endpoint.getName()));
                             // We're connected! Can now start sending and receiving data.
-                            establishedConnections.put(endpointId, discoveredEndpoints.get(endpointId));
+                            establishedConnections.put(endpointId, endpoint);
                             if (pendingConnections.containsKey(endpointId))
                                 pendingConnections.remove(endpointId);
                             break;
@@ -175,6 +179,8 @@ public class ConnectionManager {
         //Clear in other classes
         if (appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR)
             appLogicActivity.getSelectPresenterFragment().removeEndpointFromAdapters(endpoint);
+        appLogicActivity.getChatFragment().displaySystemNotification(
+                String.format("%s has disconnected...",endpoint.getName()));
         //Update the GUI finally
         updateGUI(endpoint);
 
@@ -219,7 +225,7 @@ public class ConnectionManager {
                                     onChatMessageSent(filename);
                                     break;
                                 default:
-                                    Log.i(TAG, "Received FILE-NAME: "+filename);
+                                    Log.i(TAG, "Received FILE-NAME: " + filename);
                                     filePayloadFilenames.put(Long.valueOf(payloadId), filename);
                                     break;
                             }
@@ -227,7 +233,7 @@ public class ConnectionManager {
                             return;
                         }
                     } else if (payload.getType() == Payload.Type.FILE) {
-                        Log.i(TAG, "Received FILE: ID="+payload.getId());
+                        Log.i(TAG, "Received FILE: ID=" + payload.getId());
                         // Add this to our tracking map, so that we can retrieve the payload later.
                         incomingPayloads.put(payload.getId(), payload);
                         //TODO: Sending files may take some time. Display progressbar or something
@@ -238,7 +244,7 @@ public class ConnectionManager {
                 public void onPayloadTransferUpdate(String endpointId, PayloadTransferUpdate update) {
                     if (update.getStatus() == PayloadTransferUpdate.Status.SUCCESS) {
                         //Data fully received.
-                        Log.i(TAG, "Payload data fully received! ID=" +endpointId);
+                        Log.i(TAG, "Payload data fully received! ID=" + endpointId);
                         //Display a notification.
                         displayNotification("Document received",
                                 String.format("%s has sent you a document...", establishedConnections.get(endpointId)),
@@ -246,7 +252,7 @@ public class ConnectionManager {
                         Payload payload = incomingPayloads.get(update.getPayloadId());
                         Log.i(TAG, "onPayloadTransferUpdate()" + payload +
                                 "\n" + incomingPayloads.toString() +
-                                "\n"+ filePayloadFilenames.toString());
+                                "\n" + filePayloadFilenames.toString());
 
                         if (payload != null) {
                             //Load data
@@ -257,10 +263,9 @@ public class ConnectionManager {
                                 Log.i(TAG, "Payload file name: " + payloadFile.getName());
                                 ConnectionEndpoint connectionEndpoint = discoveredEndpoints.get(endpointId);
                                 //Update inbox-fragment.
-                                appLogicActivity.getInboxFragment().storePayLoad(connectionEndpoint,fileName, payloadFile);
+                                appLogicActivity.getInboxFragment().storePayLoad(connectionEndpoint, fileName, payloadFile);
                             }
-                        }
-                        else Log.i(TAG, "Payload NULL!");
+                        } else Log.i(TAG, "Payload NULL!");
 
                     } else if (update.getStatus() == PayloadTransferUpdate.Status.FAILURE) {
                         Log.i(TAG, "Payload status: PayloadTransferUpdate.Status.FAILURE");
@@ -364,7 +369,7 @@ public class ConnectionManager {
                     @Override
                     public void onEndpointFound(final String endpointId, final DiscoveredEndpointInfo info) {
                         Log.i(TAG, String.format("onEndpointFound(endpointId = %s,endpointName = %s)", endpointId, info.getEndpointName()));
-                        new AsyncTask<Void,Void,ConnectionEndpoint>(){
+                        new AsyncTask<Void, Void, ConnectionEndpoint>() {
 
                             @Override
                             protected ConnectionEndpoint doInBackground(Void... voids) {
@@ -461,9 +466,10 @@ public class ConnectionManager {
     /**
      * Puts the name together with the mapmap as string into one new string
      */
-    private String getMergedNameBitmap(){
+    private String getMergedNameBitmap() {
         return AppLogicActivity.getUserRole().getUserName() + ":" + LocalDataBase.getProfilePictureAsString();
     }
+
     /**
      * Only for discoverers (Viewers)
      * If the advertisers wishes to establish a connection to a presenter (advertiser), then a connection is needed.
@@ -569,7 +575,7 @@ public class ConnectionManager {
     /**
      * Disconnects from all endpoints and stops advertising/discovering
      */
-    public void terminateConnection(){
+    public void terminateConnection() {
         disconnectFromAllEndpoints();
         switch (appLogicActivity.getUserRole().getRoleType()) {
             case SPECTATOR:
@@ -580,6 +586,7 @@ public class ConnectionManager {
                 break;
         }
     }
+
     /**
      * Updates the presenters which are available
      */
