@@ -23,7 +23,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
 import java.io.IOException;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends BaseActivity {
 
     private static final String PREFS_NAME = "preferences_title";
     private static final String PREF_USER = "preferences_username";
@@ -46,12 +46,13 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
+        super.onCreate(R.layout.settings_fragment);
+        getSupportActionBar().setTitle(R.string.settings_user);
+
         //Get the intent from MainActivity that someone selected the "Settings" option
         //on the activity menu
         Intent intent = getIntent();
-        setContentView(R.layout.settings_fragment);
         signUpButton = (Button) findViewById(R.id.sign_up);
         settingsText = (TextView) findViewById(R.id.settings_text);
         userImage = (ImageView) findViewById(R.id.user_image);
