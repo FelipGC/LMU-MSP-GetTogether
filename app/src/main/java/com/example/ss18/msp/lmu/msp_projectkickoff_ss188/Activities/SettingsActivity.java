@@ -31,6 +31,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         //Get the intent from MainActivity that someone selected the "Settings" option
         //on the activity menu
