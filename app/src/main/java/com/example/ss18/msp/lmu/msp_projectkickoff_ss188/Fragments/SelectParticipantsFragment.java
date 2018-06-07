@@ -24,7 +24,7 @@ public class SelectParticipantsFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        mainView = inflater.inflate(R.layout.participants_fragment,container,false);
+        mainView = inflater.inflate(R.layout.fragment_participants,container,false);
         connectionManager = AppLogicActivity.getConnectionManager();
         return mainView;
     }

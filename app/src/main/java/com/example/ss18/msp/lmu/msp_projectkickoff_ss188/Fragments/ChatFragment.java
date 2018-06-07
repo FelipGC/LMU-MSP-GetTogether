@@ -33,7 +33,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.chat_fragment,container,false);
+        View view = inflater.inflate(R.layout.fragment_chat,container,false);
         editText = (EditText) view.findViewById(R.id.editText);
         messagesView = (ListView) view.findViewById(R.id.messages_view);
         messageAdapter = new MessageAdapter(getActivity());

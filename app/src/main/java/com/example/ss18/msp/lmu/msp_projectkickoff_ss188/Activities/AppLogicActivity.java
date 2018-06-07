@@ -3,7 +3,6 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -45,7 +44,7 @@ public class AppLogicActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        super.onCreate(R.layout.app_logic_activity);
+        super.onCreate(R.layout.activity_app_logic);
 
         getSupportActionBar().setTitle("Gruppenname"); //TODO
 
@@ -148,7 +147,7 @@ public class AppLogicActivity extends BaseActivity {
     }
 
     /**
-     * Gets executed when a presentor presses to "select file" button inside the share_fragment
+     * Gets executed when a presentor presses to "select file" button inside the fragment_share
      */
     public void selectFileButtonClicked(View view) {
         if(shareFragment == null)
