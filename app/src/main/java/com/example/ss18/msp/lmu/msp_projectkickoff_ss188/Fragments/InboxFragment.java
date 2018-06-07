@@ -19,7 +19,6 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.InboxAdapter;
 
 import java.io.File;
-import java.net.URI;
 
 public class InboxFragment extends Fragment {
     private static final String TAG = "InboxFragment";
@@ -30,7 +29,7 @@ public class InboxFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.inbox_fragment, container, false);
+        View view = inflater.inflate(R.layout.fragment_inbox, container, false);
         ListView inboxListView = view.findViewById(R.id.inboxListView);
         inboxListView.setAdapter(inboxAdapter = new InboxAdapter(getActivity()));
         //Set ClickListener (normal click)
