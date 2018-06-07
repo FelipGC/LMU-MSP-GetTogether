@@ -2,6 +2,7 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
@@ -22,17 +23,17 @@ public final class ConnectionEndpoint {
 
     private Bitmap profilePicture;
 
-    private final String TAG = "ConnectionEndpoint";
+    private final static String TAG = "ConnectionEndpoint";
 
     public ConnectionEndpoint(@NonNull String id, @NonNull String nameAndBitmap) {
-        Log.i(TAG,"nameANdBitmap = " + nameAndBitmap);
+        Log.i(TAG,"ConnectionEndpoint created with ID="+id);
         this.id = id;
         //Since we can`t pass a bitmap (= profile picture) directly via the connection process
         //and since we actually want to pass a profile picture before establishing a connection,
         //we pass the serialized bitmap inside the user name, so me must extract it from it and
         // separate it from the user name.
         //The format for nameAndBitmap is = USERNAME : BITMAP
-        this.profilePicture  = extractBitMap(nameAndBitmap);
+        extractBitMap(nameAndBitmap,this);
         this.originalName = this.name = extractName(nameAndBitmap);
         checkForDuplicatedNames();
     }
@@ -51,29 +52,41 @@ public final class ConnectionEndpoint {
     }
 
     /**
-     * Extracts the username from the passed string
-     *
+     * Extracts the bitmap from the passed string
+     * Runs as an AsyncTask.
      * @return
      */
-    private Bitmap extractBitMap(String nameAndBitmap) {
-        //Last index of since the user could use ':' in their username
-        int substringDividerIndex = nameAndBitmap.lastIndexOf(':');
-        String bitmapString = nameAndBitmap.substring(substringDividerIndex + 1);
-        Log.i(TAG,"extractBitMap() = " + bitmapString);
-        if(bitmapString.equals("NO_PROFILE_PICTURE"))
-            return null;
-        try {
-            byte [] encodeByte= Base64.decode(bitmapString,Base64.DEFAULT);
-            Bitmap bitmap= BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
-            return bitmap;
-        } catch(Exception e) {
-            e.getMessage();
-            return null;
-        }
-    }
+    private static void extractBitMap(final String nameAndBitmap, final ConnectionEndpoint endpoint) {
+        new AsyncTask<String, Void, Bitmap>() {
+            @Override
+            protected Bitmap doInBackground(String... strings) {
+                //Last index of since the user could use ':' in their username
+                int substringDividerIndex = nameAndBitmap.lastIndexOf(':');
+                String bitmapString = nameAndBitmap.substring(substringDividerIndex + 1);
+                Log.i(TAG,"extractBitMap() = " + bitmapString);
+                if(bitmapString.equals("NO_PROFILE_PICTURE"))
+                    return null;
+                try {
+                    byte [] encodeByte= Base64.decode(bitmapString,Base64.DEFAULT);
+                    Bitmap bitmap= BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+                    return bitmap;
+                } catch(Exception e) {
+                    e.getMessage();
+                    return null;
+                }
+            }
 
+            @Override
+            protected void onPostExecute(Bitmap bitmap) {
+                endpoint.setProfilePicture(bitmap);
+                super.onPostExecute(bitmap);
+            }
+
+            /*Your code(e.g. doInBackground )*/
+        }.execute();
+    }
     /**
-     * Checks if the device name (NOT the id) is already occupied locacly! If so, rename it.
+     * Checks if the device name (NOT the id) is already occupied locally! If so, rename it.
      */
     private void checkForDuplicatedNames() {
         int nrDuplicates = 0;
@@ -122,5 +135,9 @@ public final class ConnectionEndpoint {
 
     public Bitmap getProfilePicture() {
         return profilePicture;
+    }
+
+    public void setProfilePicture(Bitmap profilePicture) {
+        this.profilePicture = profilePicture;
     }
 }
