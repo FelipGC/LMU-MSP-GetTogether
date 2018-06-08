@@ -18,17 +18,17 @@ import java.util.List;
 
 public class MessageAdapter extends BaseAdapter {
 
-    private List<Message> messages = new ArrayList<Message>();
+    private static List<Message> messages = new ArrayList<Message>();
     private Context context;
 
     public MessageAdapter(Context context) {
         this.context = context;
     }
 
-    public void add(Message message) {
-        this.messages.add(message);
+    public static void add(Message message) {
+        messages.add(message);
         Log.i("Eli" , "Hereee add");
-        notifyDataSetChanged(); // to render the list we need to notify
+        //notifyDataSetChanged(); // to render the list we need to notify
     }
 
     @Override
@@ -46,11 +46,11 @@ public class MessageAdapter extends BaseAdapter {
         return i;
     }
 
-    // This is the backbone of the class, it handles the creation of single ListView row (chat bubble)
+    // Handles the creation of single ListView row (chat bubble)
     @Override
     public View getView(int i, View convertView, ViewGroup viewGroup) {
         MessageViewHolder holder = new MessageViewHolder();
-        Log.i("Eli", "hereee");
+        Log.i("Eli", "hereee in message adapter");
         LayoutInflater messageInflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         Message message = messages.get(i);
 

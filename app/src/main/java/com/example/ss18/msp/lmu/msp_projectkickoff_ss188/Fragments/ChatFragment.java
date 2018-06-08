@@ -63,9 +63,9 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
             // scroll the ListView to the last added element
             messagesView.setSelection(messagesView.getCount() - 1);
 
+            editText.getText().clear();
             sendDataToEndpoints(messageText);
 
-            editText.getText().clear();
         }
     }
 
