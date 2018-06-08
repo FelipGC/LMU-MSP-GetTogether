@@ -59,7 +59,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
             String name = LocalDataBase.getUserName();
             Bitmap profilePicture = LocalDataBase.getProfilePicture();
             Message msg = new Message(messageText, name, profilePicture, true);
-            messageAdapter.add(msg);
+            messageAdapter.addMessage(msg);
             // scroll the ListView to the last added element
             messagesView.setSelection(messagesView.getCount() - 1);
 
@@ -107,7 +107,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         String payloadSender = receivedMessage.substring(0, substringDividerIndex);
         String message = receivedMessage.substring(substringDividerIndex + 1);
         Message received = new Message(message, payloadSender, profilePicture, false);
-        messageAdapter.add(received);
+        messageAdapter.addMessage(received);
         // scroll the ListView to the last added element
         messagesView.setSelection(messagesView.getCount() - 1);
     }

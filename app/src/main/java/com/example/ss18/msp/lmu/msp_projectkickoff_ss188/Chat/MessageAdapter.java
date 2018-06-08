@@ -25,11 +25,12 @@ public class MessageAdapter extends BaseAdapter {
         this.context = context;
     }
 
-    public static void add(Message message) {
+    public static void addMessage(Message message) {
         messages.add(message);
-        Log.i("Eli" , "Hereee add");
+        Log.i("Eli" , "Hereee add static");
         //notifyDataSetChanged(); // to render the list we need to notify
     }
+
 
     @Override
     public int getCount() {

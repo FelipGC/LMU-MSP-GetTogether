@@ -25,7 +25,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".Activities.MainActivity" />
-        <activity android:name=".Activities.AppLogicActivity" />
+        <activity android:name=".Activities.AppLogicActivity"
+                  android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".Activities.SettingsActivity" />
     </application>
 
