@@ -67,6 +67,7 @@ public class SplashActivity extends AppCompatActivity {
         loadImagePreferences();
         if (!userNameAlreadyEntered) {
             Intent intent = new Intent(this,SettingsActivity.class);
+            intent.putExtra("newUser",true);
             startActivity(intent);
         } else {
             Intent intent = new Intent(this, MainActivity.class);

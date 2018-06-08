@@ -16,6 +16,7 @@
     <string name="settings_text">Welcome to Get Together! In order to connect to nearby devices, please sign up!</string>
     <string name="changedInfo">You successfully made changes to your profile!</string>
     <string name="settings_user">Nutzereinstellungen</string>
+    <string name="register_new">Registrierung</string>
 
     <string name="about">About</string>
     <string name="settings">Settings</string>

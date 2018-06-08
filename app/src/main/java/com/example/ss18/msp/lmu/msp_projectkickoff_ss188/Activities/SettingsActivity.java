@@ -50,11 +50,18 @@ public class SettingsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.onCreate(R.layout.activity_settings);
-        getSupportActionBar().setTitle(R.string.settings_user);
 
         //Get the intent from MainActivity that someone selected the "Settings" option
         //on the activity menu
         Intent intent = getIntent();
+        if(intent.hasExtra("newUser") && intent.getBooleanExtra("newUser",false)){
+            getSupportActionBar().setTitle(R.string.register_new);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            getSupportActionBar().setDisplayShowHomeEnabled(false);
+        }else {
+            getSupportActionBar().setTitle(R.string.settings_user);
+        }
+
         signUpButton = (Button) findViewById(R.id.sign_up);
         settingsText = (TextView) findViewById(R.id.settings_text);
         userImage = (ImageView) findViewById(R.id.user_image);
