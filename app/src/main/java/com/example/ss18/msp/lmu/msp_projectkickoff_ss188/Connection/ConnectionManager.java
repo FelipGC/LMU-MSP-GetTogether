@@ -234,7 +234,7 @@ public class ConnectionManager {
                                 String.format("%s has sent you a document...", establishedConnections.get(endpointId)),
                                 NotificationCompat.PRIORITY_DEFAULT);
                         Payload payload = incomingPayloads.get(update.getPayloadId());
-                        Log.i(TAG, "Eli5555" + payload + incomingPayloads + filePayloadFilenames);
+                        Log.i(TAG, "Payload is:" + payload + incomingPayloads + filePayloadFilenames);
 
                         if (payload != null) {
                             //Load data
@@ -436,7 +436,7 @@ public class ConnectionManager {
      * Puts the name together with the mapmap as string into one new string
      */
     private String getMergedNameBitmap(){
-        Log.i("Eliiiii699: " , AppLogicActivity.getUserRole().getUserName() + ":" + LocalDataBase.getProfilePictureAsString());
+        Log.i(TAG , "Result of mergeNameBitmap is: " + AppLogicActivity.getUserRole().getUserName() + ":" + LocalDataBase.getProfilePictureAsString());
         return AppLogicActivity.getUserRole().getUserName() + ":" + LocalDataBase.getProfilePictureAsString();
     }
     /**

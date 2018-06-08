@@ -111,4 +111,12 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         // scroll the ListView to the last added element
         messagesView.setSelection(messagesView.getCount() - 1);
     }
+
+    /*
+     ** Clears all messages, if the connection was destroyed
+     */
+    public void clearContent() {
+        Log.i("TAG", "Clear the chat content.");
+        messageAdapter.clearContent();
+    }
 }

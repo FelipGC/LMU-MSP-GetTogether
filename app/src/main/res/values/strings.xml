@@ -26,8 +26,8 @@
     </string>
     <string name="poke">Poke</string>
     <string name="call">call</string>
-    <string name="welcome">Willkommen</string>
-    <string name="welcomeUser">Willkommen %1$s!</string>
+    <string name="welcome">Welcome</string>
+    <string name="welcomeUser">Welcome %1$s!</string>
     <string name="dismiss">Dismiss</string>
     <string name="selectDevices">Select devices for file sharing:</string>
     <string name="deselectAll">Deselect all</string>

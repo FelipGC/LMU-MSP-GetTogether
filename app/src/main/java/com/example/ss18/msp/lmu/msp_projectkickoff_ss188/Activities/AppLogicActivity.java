@@ -157,6 +157,9 @@ public class AppLogicActivity extends AppCompatActivity {
     protected void onDestroy() {
         Log.i(TAG,"onDestroy() -> terminating nearby connection");
         connectionManager.terminateConnection();
+        if (chatFragment != null) {
+            chatFragment.clearContent();
+        }
         super.onDestroy();
     }
     //Getters and Setters

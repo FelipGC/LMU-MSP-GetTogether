@@ -18,6 +18,8 @@ import java.util.List;
 
 public class MessageAdapter extends BaseAdapter {
 
+    private static final String TAG = "MessageAdapter";
+
     private static List<Message> messages = new ArrayList<Message>();
     private Context context;
 
@@ -27,10 +29,18 @@ public class MessageAdapter extends BaseAdapter {
 
     public static void addMessage(Message message) {
         messages.add(message);
-        Log.i("Eli" , "Hereee add static");
+        Log.i(TAG , "Added new message to listView.");
         //notifyDataSetChanged(); // to render the list we need to notify
     }
 
+    /*
+     ** Clears the list of messages and notifies the adapter
+     */
+    public void clearContent() {
+        Log.i(TAG, "Cleared content.");
+        messages.clear();
+        notifyDataSetChanged();
+    }
 
     @Override
     public int getCount() {
@@ -51,7 +61,7 @@ public class MessageAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View convertView, ViewGroup viewGroup) {
         MessageViewHolder holder = new MessageViewHolder();
-        Log.i("Eli", "hereee in message adapter");
+        Log.i(TAG, "View for message bubble created.");
         LayoutInflater messageInflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         Message message = messages.get(i);
 
