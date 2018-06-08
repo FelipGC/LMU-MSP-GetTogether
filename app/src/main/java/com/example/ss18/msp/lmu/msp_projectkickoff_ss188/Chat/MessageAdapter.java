@@ -2,6 +2,7 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
@@ -62,7 +63,9 @@ public class MessageAdapter extends BaseAdapter {
             convertView = messageInflater.inflate(R.layout.view_message_their, null);
             holder.avatar = (ImageView) convertView.findViewById(R.id.avatar);
             holder.name = (TextView) convertView.findViewById(R.id.name);
-            holder.avatar.setImageBitmap(LocalDataBase.getBitmapFromUser(message.getId()));
+            Bitmap bitmap = LocalDataBase.getBitmapFromUser(message.getId());
+            holder.avatar.setImageBitmap(bitmap);
+            Log.i(TAG,"Loading image into avatar: " + bitmap);
             //GradientDrawable drawable = (GradientDrawable) holder.avatar.getBackground();
             //drawable.setColor(Color.GREEN);
         }

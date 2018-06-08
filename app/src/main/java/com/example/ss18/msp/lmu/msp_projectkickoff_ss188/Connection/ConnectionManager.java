@@ -254,6 +254,7 @@ public class ConnectionManager {
                                     final Bitmap bitmap2 = LocalDataBase.getProfilePicture();
                                     final String stringBytes2 = "BITMAP:"+LocalDataBase.getProfilePictureAsString(bitmap2);
                                     final Payload payloadNew2 = Payload.fromBytes(stringBytes2.getBytes());
+                                    Log.i(TAG,"OWN BITMAP IS: " + stringBytes2);
                                     sendPayload(payloadNew2,"VIEWER_BITMAP_STORAGE");
                                     break;
                                 case "CHAT":
