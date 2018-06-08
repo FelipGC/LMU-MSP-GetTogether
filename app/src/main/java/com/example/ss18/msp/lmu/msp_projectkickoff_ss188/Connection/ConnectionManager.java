@@ -134,8 +134,7 @@ public class ConnectionManager {
                             //Send the image to the presenter
                             if (appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR){
                                 Log.i(TAG,"Sending viewerBitMap to presenter.");
-                                final Bitmap bitmap = LocalDataBase.getBitmapFromUser(endpointId);
-                                final String stringBytes = "VIEWER_BITMAP:"+LocalDataBase.getProfilePictureAsString(bitmap);
+                                final String stringBytes = "VIEWER_BITMAP:"+LocalDataBase.getProfilePictureAsString();
                                 Log.i(TAG,"viewerBitMap: " + stringBytes);
                                 final Payload payload = Payload.fromBytes(stringBytes.getBytes());
                                 try {
