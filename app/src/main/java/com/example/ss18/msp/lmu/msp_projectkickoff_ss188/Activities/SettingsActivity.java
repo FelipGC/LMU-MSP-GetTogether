@@ -51,6 +51,14 @@ public class SettingsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         super.onCreate(R.layout.activity_settings);
 
+        signUpButton = (Button) findViewById(R.id.sign_up);
+        settingsText = (TextView) findViewById(R.id.settings_text);
+        userImage = (ImageView) findViewById(R.id.user_image);
+        enteredUsername = (EditText) findViewById(R.id.enter_username);
+
+        loadUserNamePreferences();
+        loadImagePreferences(this);
+
         //Get the intent from MainActivity that someone selected the "Settings" option
         //on the activity menu
         Intent intent = getIntent();
@@ -60,15 +68,8 @@ public class SettingsActivity extends BaseActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(false);
         }else {
             getSupportActionBar().setTitle(R.string.settings_user);
+            enteredUsername.setText(LocalDataBase.getUserName());
         }
-
-        signUpButton = (Button) findViewById(R.id.sign_up);
-        settingsText = (TextView) findViewById(R.id.settings_text);
-        userImage = (ImageView) findViewById(R.id.user_image);
-
-        enteredUsername = (EditText) findViewById(R.id.enter_username);
-        loadUserNamePreferences();
-        loadImagePreferences(this);
 
         if (userNameAlreadyEntered) {
             signUpButton.setText("Save");
