@@ -58,7 +58,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
             
             String name = LocalDataBase.getUserName();
             Bitmap profilePicture = LocalDataBase.getProfilePicture();
-            Message msg = new Message(messageText, name, profilePicture, true);
+            Message msg = new Message(messageText,null, name, true);
             messageAdapter.add(msg);
             // scroll the ListView to the last added element
             messagesView.setSelection(messagesView.getCount() - 1);
@@ -98,15 +98,15 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
     /*
     ** Gets the message from the endpoint
      */
-    public void getDataFromEndPoint(String receivedMessage, Bitmap profilePicture) {
+    public void getDataFromEndPoint(String id, String receivedMessage) {
 
         //Extracts the payloadSender and the message from the message and converts it into
         //Message(). The format is sender:filename.
-        Log.i(TAG, "Message is full: " + receivedMessage + "   " + profilePicture);
+        Log.i(TAG, "Message is full: " + receivedMessage);
         int substringDividerIndex = receivedMessage.indexOf(':');
         String payloadSender = receivedMessage.substring(0, substringDividerIndex);
         String message = receivedMessage.substring(substringDividerIndex + 1);
-        Message received = new Message(message, payloadSender, profilePicture, false);
+        Message received = new Message(message, id, payloadSender, false);
         messageAdapter.add(received);
         // scroll the ListView to the last added element
         messagesView.setSelection(messagesView.getCount() - 1);
@@ -115,7 +115,10 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
      * Displays a neutral system chat message in the chat
      */
     public void displaySystemNotification(String message) {
-        Message received = new Message(message, "SYSTEM",null, false);
+        if(messageAdapter == null)
+            return;
+
+        Message received = new Message(message, null, "SYSTEM", false);
         messageAdapter.add(received);
         // scroll the ListView to the last added element
         messagesView.setSelection(messagesView.getCount() - 1);

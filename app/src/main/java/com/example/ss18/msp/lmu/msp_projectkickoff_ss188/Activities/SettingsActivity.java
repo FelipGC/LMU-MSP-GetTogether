@@ -27,7 +27,7 @@ import java.io.IOException;
 
 public class SettingsActivity extends BaseActivity {
 
-    private static final String PREFS_NAME = "preferences_title";
+    private static final String PREFS_NAME = "preferences_title_123";
     private static final String PREF_USER = "preferences_username";
     private static final String PREF_IMAGE = "preferences_image";
     private boolean userNameAlreadyEntered = false;
@@ -113,7 +113,7 @@ public class SettingsActivity extends BaseActivity {
                 Bitmap toEncode = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                 //Resize the image/bitmap
                 //TODO: Maybe rather corp the image instead of resizing
-                toEncode = Bitmap.createScaledBitmap (toEncode, 128,128,true);
+                toEncode = Bitmap.createScaledBitmap (toEncode, 200,200,true);
                 //Compress the file so that the JAVA Binder doesn't crash
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 toEncode.compress(Bitmap.CompressFormat.PNG, 100, out);
@@ -205,7 +205,7 @@ public class SettingsActivity extends BaseActivity {
 
                 {
                     String stringImage = settings.getString(PREF_IMAGE, LocalDataBase.getProfilePictureAsString());
-                    LocalDataBase.setProfilePicture(LocalDataBase.getProfilePictureAsBitmap(stringImage));
+                    LocalDataBase.setProfilePicture(LocalDataBase.stringToBitmap(stringImage));
                     Log.i(TAG, "Load user image: " + LocalDataBase.getProfilePicture());
                 }
                 return LocalDataBase.getProfilePicture();

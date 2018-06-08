@@ -130,6 +130,20 @@ public class ConnectionManager {
                             establishedConnections.put(endpointId, endpoint);
                             if (pendingConnections.containsKey(endpointId))
                                 pendingConnections.remove(endpointId);
+
+                            //Send the image to the presenter
+                            if (appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR){
+                                Log.i(TAG,"Sending viewerBitMap to presenter.");
+                                final Bitmap bitmap = LocalDataBase.getBitmapFromUser(endpointId);
+                                final String stringBytes = "VIEWER_BITMAP:"+LocalDataBase.getProfilePictureAsString(bitmap);
+                                Log.i(TAG,"viewerBitMap: " + stringBytes);
+                                final Payload payload = Payload.fromBytes(stringBytes.getBytes());
+                                try {
+                                    sendPayload(endpointId,payload,"VIEWER_BITMAP_STORAGE");
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                }
+                            }
                             break;
                         case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
                             Log.i(TAG, "CONNECTION REJECTED");
@@ -160,9 +174,9 @@ public class ConnectionManager {
     /*
      * Sends the received message from the endpoint to the device
      */
-    public void onChatMessageSent(String message, Bitmap profilePicture) {
+    public void onChatMessageSent(String id,String message) {
         ChatFragment chat = getAppLogicActivity().getChatFragment();
-        chat.getDataFromEndPoint(message, profilePicture);
+        chat.getDataFromEndPoint(id,message);
     }
 
     /**
@@ -217,20 +231,39 @@ public class ConnectionManager {
                         try {
                             int substringDividerIndex = payloadFilenameMessage.indexOf(':');
                             String payloadId = payloadFilenameMessage.substring(0, substringDividerIndex);
-                            String filename = payloadFilenameMessage.substring(substringDividerIndex + 1);
-                            //We must check wheter we are receiving a file name (in order to rename a file)
+                            String fileContent = payloadFilenameMessage.substring(substringDividerIndex + 1);
+                            //We must check whether we are receiving a file name (in order to rename a file)
                             //or a chat message
                             switch (payloadId) {
+
+                                case "BITMAP":
+                                    Log.i(TAG, "Received BITMAP: " + fileContent);
+                                    LocalDataBase.addBitmapToUser(endpointId,
+                                            LocalDataBase.stringToBitmap(fileContent));
+                                    break;
+                                case "VIEWER_BITMAP":
+                                    Log.i(TAG, "Received VIEWER_BITMAP: ID="+endpointId  +" : " + fileContent);
+                                    LocalDataBase.addBitmapToUser(endpointId,
+                                            LocalDataBase.stringToBitmap(fileContent));
+                                    //Send bitmap to to others
+                                    final Bitmap bitmap = LocalDataBase.getBitmapFromUser(endpointId);
+                                    final String stringBytes = "BITMAP:"+LocalDataBase.getProfilePictureAsString(bitmap);
+                                    final Payload payloadNew = Payload.fromBytes(stringBytes.getBytes());
+                                    sendPayload(payloadNew,"VIEWER_BITMAP_STORAGE");
+                                    //Send own bitmap to others
+                                    final Bitmap bitmap2 = LocalDataBase.getProfilePicture();
+                                    final String stringBytes2 = "BITMAP:"+LocalDataBase.getProfilePictureAsString(bitmap2);
+                                    final Payload payloadNew2 = Payload.fromBytes(stringBytes2.getBytes());
+                                    sendPayload(payloadNew2,"VIEWER_BITMAP_STORAGE");
+                                    break;
                                 case "CHAT":
-                                    Log.i(TAG, "Received CHAT MESSAGES");
-                                    ConnectionEndpoint connectionEndpoint = discoveredEndpoints.get(endpointId);
-                                    Bitmap profilePicture = connectionEndpoint.getProfilePicture();
-                                    Log.i(TAG, "Received CHAT MESSAGES" + filename + " " + profilePicture);
-                                    onChatMessageSent(filename, profilePicture);
+                                    Bitmap profilePicture = LocalDataBase.getBitmapFromUser(endpointId);
+                                    Log.i(TAG, "Received CHAT MESSAGES" + fileContent + " " + profilePicture);
+                                    onChatMessageSent(endpointId,fileContent);
                                     break;
                                 default:
-                                    Log.i(TAG, "Received FILE-NAME: " + filename);
-                                    filePayloadFilenames.put(Long.valueOf(payloadId), filename);
+                                    Log.i(TAG, "Received FILE-NAME: " + fileContent);
+                                    filePayloadFilenames.put(Long.valueOf(payloadId), fileContent);
                                     break;
                             }
                         } catch (Exception e) {
@@ -329,7 +362,7 @@ public class ConnectionManager {
         reset();
         // Note: Advertising may fail
         connectionsClient.startAdvertising(
-                getMergedNameBitmap(), serviceID, connectionLifecycleCallback,
+                AppLogicActivity.getUserRole().getUserName(), serviceID, connectionLifecycleCallback,
                 new AdvertisingOptions(STRATEGY)).addOnSuccessListener(
                 new OnSuccessListener<Void>() {
                     @Override
@@ -372,7 +405,7 @@ public class ConnectionManager {
                 new EndpointDiscoveryCallback() {
                     @Override
                     public void onEndpointFound(final String endpointId, final DiscoveredEndpointInfo info) {
-                        Log.i(TAG, String.format("onEndpointFound(endpointId = %s,endpointName = %s)", endpointId, info.getEndpointName()));
+                        Log.i(TAG, String.format("discovererOnEndpointFound(endpointId = %s,endpointName = %s)", endpointId, info.getEndpointName()));
                         new AsyncTask<Void, Void, ConnectionEndpoint>() {
 
                             @Override
@@ -468,13 +501,6 @@ public class ConnectionManager {
     }
 
     /**
-     * Puts the name together with the mapmap as string into one new string
-     */
-    private String getMergedNameBitmap() {
-        return AppLogicActivity.getUserRole().getUserName() + ":" + LocalDataBase.getProfilePictureAsString();
-    }
-
-    /**
      * Only for discoverers (Viewers)
      * If the advertisers wishes to establish a connection to a presenter (advertiser), then a connection is needed.
      * According to the documentation, both sides must explicitly accept the connection. Therefor we
@@ -486,7 +512,7 @@ public class ConnectionManager {
         Log.i(TAG, String.format("Requesting connection for (endpointId=%s, endpointName=%s)",
                 endpoint.getId(), endpoint.getName()));
         connectionsClient.requestConnection(
-                getMergedNameBitmap(),
+                AppLogicActivity.getUserRole().getUserName(),
                 endpoint.getId(),
                 connectionLifecycleCallback)
                 .addOnSuccessListener(

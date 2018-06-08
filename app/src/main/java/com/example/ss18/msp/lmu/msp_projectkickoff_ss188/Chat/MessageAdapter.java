@@ -12,6 +12,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,14 +21,14 @@ public class MessageAdapter extends BaseAdapter {
 
     private List<Message> messages = new ArrayList<Message>();
     private Context context;
-
+    private final String TAG = "MessageAdapter";
     public MessageAdapter(Context context) {
         this.context = context;
     }
 
     public void add(Message message) {
         this.messages.add(message);
-        Log.i("Eli" , "Hereee add");
+        Log.i(TAG , "add()");
         notifyDataSetChanged(); // to render the list we need to notify
     }
 
@@ -61,14 +62,15 @@ public class MessageAdapter extends BaseAdapter {
             convertView = messageInflater.inflate(R.layout.view_message_their, null);
             holder.avatar = (ImageView) convertView.findViewById(R.id.avatar);
             holder.name = (TextView) convertView.findViewById(R.id.name);
-            holder.messageBody.setText(message.getText());
-            holder.avatar.setImageBitmap(message.getProfilePicture());
+            holder.avatar.setImageBitmap(LocalDataBase.getBitmapFromUser(message.getId()));
             //GradientDrawable drawable = (GradientDrawable) holder.avatar.getBackground();
             //drawable.setColor(Color.GREEN);
         }
-        convertView.setTag(holder);
+
         holder.messageBody = (TextView) convertView.findViewById(R.id.message_body);
         holder.messageBody.setText(message.getText());
+        convertView.setTag(holder);
+
         return convertView;
     }
 

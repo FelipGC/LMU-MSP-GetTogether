@@ -95,7 +95,8 @@ public class AppLogicActivity extends BaseActivity {
      * Updates the amount of presenters on the GUI
      */
     public void updatePresentersGUI(ConnectionEndpoint endpoint){
-        selectPresenterFragment.updateDeviceList(endpoint);
+        if(selectPresenterFragment != null)
+            selectPresenterFragment.updateDeviceList(endpoint);
     }
 
     //Advertising and Discovery
