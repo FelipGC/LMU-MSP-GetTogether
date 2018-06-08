@@ -30,11 +30,12 @@ public class SettingsActivity extends BaseActivity {
     private static final String PREFS_NAME = "preferences_title_123";
     private static final String PREF_USER = "preferences_username";
     private static final String PREF_IMAGE = "preferences_image";
-    private boolean userNameAlreadyEntered = false;
     private EditText enteredUsername;
     private Button signUpButton;
     private TextView settingsText;
     private ImageView userImage;
+
+    private boolean firstStart = false;
 
     /**
      * Code id for reading
@@ -51,7 +52,7 @@ public class SettingsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         super.onCreate(R.layout.activity_settings);
 
-        signUpButton = (Button) findViewById(R.id.sign_up);
+        signUpButton = (Button) findViewById(R.id.btn_signup);
         settingsText = (TextView) findViewById(R.id.settings_text);
         userImage = (ImageView) findViewById(R.id.user_image);
         enteredUsername = (EditText) findViewById(R.id.enter_username);
@@ -62,18 +63,38 @@ public class SettingsActivity extends BaseActivity {
         //Get the intent from MainActivity that someone selected the "Settings" option
         //on the activity menu
         Intent intent = getIntent();
-        if(intent.hasExtra("newUser") && intent.getBooleanExtra("newUser",false)){
+        firstStart = intent.hasExtra("newUser") && intent.getBooleanExtra("newUser",false);
+        if(firstStart){
             getSupportActionBar().setTitle(R.string.register_new);
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             getSupportActionBar().setDisplayShowHomeEnabled(false);
+            signUpButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onSignUpButtonClicked();
+                }
+            });
         }else {
+            signUpButton.setVisibility(View.GONE);
             getSupportActionBar().setTitle(R.string.settings_user);
             enteredUsername.setText(LocalDataBase.getUserName());
         }
+    }
 
-        if (userNameAlreadyEntered) {
-            signUpButton.setText("Save");
-            settingsText.setVisibility(View.INVISIBLE);
+    @Override
+    public void onBackPressed() {
+        if(!LocalDataBase.getUserName().equals(enteredUsername.getText().toString())){
+            if(!setUsername()){
+                return;
+            }
+        }
+        super.onBackPressed();
+    }
+
+    private void onSignUpButtonClicked(){
+        if(setUsername()) {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
         }
     }
 
@@ -84,16 +105,8 @@ public class SettingsActivity extends BaseActivity {
     public void performFileSearch() {
         Log.i(TAG,"Performing file search");
 
-        // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file
-        // browser.
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-
-        // Filter to only show results that can be "opened", such as a
-        // file (as opposed to a list of contacts or timezones)
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-
-        // Filter what we want to search for (*/* == everything)
-        //Only select images
         intent.setType("image/*");
 
         startActivityForResult(intent, READ_REQUEST_CODE);
@@ -104,18 +117,9 @@ public class SettingsActivity extends BaseActivity {
                                  Intent resultData) {
         Log.i(TAG, "Received onActivityResult");
 
-        // The ACTION_OPEN_DOCUMENT intent was sent with the request code
-        // READ_REQUEST_CODE. If the request code seen here doesn't match, it's the
-        // response to some other intent, and the code below shouldn't run at all.
-
         if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK && resultData != null) {
-            // The document selected by the user won't be returned in the intent.
-            // Instead, a URI to that document will be contained in the return intent
-            // provided to this method as a parameter.
-            // Pull that URI using resultData.getUserName().
             Uri uri = resultData.getData();
             Log.i(TAG, "Uri: " + uri.toString());
-            //dataToPayload
             try {
                 //Getting the Bitmap from Gallery
                 Bitmap toEncode = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
@@ -135,17 +139,6 @@ public class SettingsActivity extends BaseActivity {
         }
         //Calling super is mandatory!
         super.onActivityResult(requestCode, resultCode, resultData);
-    }
-
-    /**
-     * Gets called when the user clicks the "Save" button
-     */
-    public void onClickSaveChanges(View button){
-        Log.i(TAG,"Save button clicked");
-        setUsername();
-        Intent intent = new Intent(SettingsActivity.this,MainActivity.class);
-        startActivity(intent);
-
     }
 
     /**
@@ -182,7 +175,6 @@ public class SettingsActivity extends BaseActivity {
         Log.i(TAG,"Save user image: " + bitmapString);
         editor.putString(PREF_IMAGE, bitmapString);
         editor.commit();
-
     }
 
     /**
@@ -192,7 +184,7 @@ public class SettingsActivity extends BaseActivity {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME,
                 Context.MODE_PRIVATE);
         // Set username if already existing
-        if(userNameAlreadyEntered = settings.contains(PREF_USER))
+        if(!firstStart)
         {
             LocalDataBase.setUserName(settings.getString(PREF_USER,LocalDataBase.getUserName()));
             Log.i(TAG,"Load user name: " + LocalDataBase.getUserName());
@@ -210,7 +202,6 @@ public class SettingsActivity extends BaseActivity {
                         Context.MODE_PRIVATE);
                 // Set username if already existing
                 if (settings.contains(PREF_IMAGE))
-
                 {
                     String stringImage = settings.getString(PREF_IMAGE, LocalDataBase.getProfilePictureAsString());
                     LocalDataBase.setProfilePicture(LocalDataBase.stringToBitmap(stringImage));
@@ -221,7 +212,7 @@ public class SettingsActivity extends BaseActivity {
 
             @Override
             protected void onPostExecute(Bitmap bitmap) {
-                activity.getUserImage().setImageBitmap(bitmap);
+                activity.userImage.setImageBitmap(bitmap);
                 super.onPostExecute(bitmap);
             }
         }.execute();
@@ -230,12 +221,11 @@ public class SettingsActivity extends BaseActivity {
     /**
      * Saves the username, that the user picked
      */
-    private void setUsername() {
-
+    private boolean setUsername() {
         if (!enteredUsername.getText().toString().isEmpty()) {
             LocalDataBase.setUserName(enteredUsername.getText().toString());
             saveUserNamePreferences();
-            if (userNameAlreadyEntered) {
+            if (!firstStart) {
                 Toast.makeText(SettingsActivity.this, R.string.changedInfo,
                         Toast.LENGTH_LONG).show();
             } else {
@@ -243,10 +233,11 @@ public class SettingsActivity extends BaseActivity {
                         getString(R.string.welcomeUser, LocalDataBase.getUserName()),
                         Toast.LENGTH_LONG).show();
             }
+            return true;
         }
-    }
-
-    public ImageView getUserImage() {
-        return userImage;
+        Toast.makeText(SettingsActivity.this,
+                R.string.username_empty,
+                Toast.LENGTH_LONG).show();
+        return false;
     }
 }

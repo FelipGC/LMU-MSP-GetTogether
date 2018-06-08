@@ -12,9 +12,10 @@
     <string name="change_username_setting">Change Username</string>
     <string name="change_photo_setting">Change Photo</string>
     <string name="change_username">Please enter your new nickname!</string>
-    <string name="sign_up">Sign Up!</string>
+    <string name="sign_up">Anmelden</string>
     <string name="settings_text">Welcome to Get Together! In order to connect to nearby devices, please sign up!</string>
-    <string name="changedInfo">You successfully made changes to your profile!</string>
+    <string name="username_empty">Bitte geben Sie einen Nutzernamen an.</string>
+    <string name="changedInfo">Ihre Nutzereinstellungen wurden aktualisiert.</string>
     <string name="settings_user">Nutzereinstellungen</string>
     <string name="register_new">Registrierung</string>
 
