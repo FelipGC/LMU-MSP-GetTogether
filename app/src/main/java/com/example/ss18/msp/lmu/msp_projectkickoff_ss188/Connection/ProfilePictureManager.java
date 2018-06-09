@@ -40,19 +40,22 @@ public class ProfilePictureManager {
 
     private static final ProfilePictureManager profilePictureManager = new ProfilePictureManager();
 
-    public static ProfilePictureManager getInstance(){
+    public static ProfilePictureManager getInstance() {
         return profilePictureManager;
     }
-    private ProfilePictureManager() {}
 
-    public void start(boolean presenter){
+    private ProfilePictureManager() {
+    }
+
+    public void start(boolean presenter) {
         connectionsClient = Nearby.getConnectionsClient(ConnectionManager.getAppLogicActivity());
         reset();
         this.presenter = presenter;
-        if(presenter)
+        if (presenter)
             startAdvertising();
         else startDiscovering();
     }
+
     /**
      * Start the process of detecting nearby devices (connectors)
      */
@@ -83,6 +86,7 @@ public class ProfilePictureManager {
     private void stopDiscovering() {
         connectionsClient.stopDiscovery();
     }
+
     /**
      * Callbacks for connections to other devices.
      */
@@ -102,12 +106,10 @@ public class ProfilePictureManager {
                     switch (result.getStatus().getStatusCode()) {
                         case ConnectionsStatusCodes.STATUS_OK:
                             Log.i(TAG, "Ready to send profile picture!");
-                            if(!presenter) {
-                                try {
-                                    sendPayload(endpointId,bitmapToBytesPayload(LocalDataBase.getProfilePicture()));
-                                } catch (UnsupportedEncodingException e) {
-                                    e.printStackTrace();
-                                }
+                            try {
+                                sendPayload(endpointId, bitmapToBytesPayload(LocalDataBase.getProfilePicture()));
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
                             }
                             break;
                         default:
@@ -145,26 +147,36 @@ public class ProfilePictureManager {
                     //We will be receiving data
                     Log.i(TAG, String.format("onPayloadReceived(endpointId=%s, payload=%s)", endpointId, payload));
                     if (payload.getType() == Payload.Type.BYTES) {
-                        if(presenter){
-                            sendOneBitmapToAllEndpoint(endpointId,payload);
+                        String payloadFilenameMessage = null;
+                        try {
+                            payloadFilenameMessage = new String(payload.asBytes(), "UTF-8");
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                            return;
+                        }
+                        if (presenter) {
+                            //Add to own database
+                            Bitmap bitmap = LocalDataBase.stringToBitmap(payloadFilenameMessage);
+                            LocalDataBase.addBitmapToUser(endpointId, bitmap);
+                            //Send to others
+                            sendOneBitmapToAllEndpoint(endpointId, payload);
                             sendAllBitmapsToOneEndpoint(endpointId);
-                        }else{
+                        } else {
                             //We received a profile picture
                             Log.i(TAG, String.format("Profile picture received from endpointId=%s", endpointId));
-                            try {
-                                String payloadFilenameMessage = new String(payload.asBytes(), "UTF-8");
                                 int substringDividerIndex = payloadFilenameMessage.indexOf(':');
-                                String id = payloadFilenameMessage.substring(0, substringDividerIndex);
+                                String id;
+                                if(substringDividerIndex == -1)
+                                    id = endpointId;
+                                else
+                                    id = payloadFilenameMessage.substring(0, substringDividerIndex);
                                 String fileContent = payloadFilenameMessage.substring(substringDividerIndex + 1);
                                 Bitmap bitmap = LocalDataBase.stringToBitmap(fileContent);
-                                LocalDataBase.addBitmapToUser(id,bitmap);
-                            } catch (UnsupportedEncodingException e) {
-                                e.printStackTrace();
-                            }
-
+                                LocalDataBase.addBitmapToUser(id, bitmap);
                         }
                     }
                 }
+
                 //We will only receive bytes here, so this method is useless
                 @Override
                 public void onPayloadTransferUpdate(String endpointId, PayloadTransferUpdate update) {
@@ -207,7 +219,7 @@ public class ProfilePictureManager {
         Log.i(TAG, "Resetting connection.");
         //Disconnect from any potential connections and stop advertising/discovering
         disconnectFromAllEndpoints();
-        if(presenter)
+        if (presenter)
             stopAdvertising();
         else stopDiscovering();
         //Clear list every time we try to re-discover
@@ -278,8 +290,8 @@ public class ProfilePictureManager {
         }
     }
 
-    private Payload bitmapToBytesPayload(final Bitmap bitmap){
-        final String stringBytes = "BITMAP:"+LocalDataBase.getProfilePictureAsString(bitmap);
+    private Payload bitmapToBytesPayload(final Bitmap bitmap) {
+        final String stringBytes = "BITMAP:" + LocalDataBase.getProfilePictureAsString(bitmap);
         final Payload payloadNew = Payload.fromBytes(stringBytes.getBytes());
         return payloadNew;
     }
