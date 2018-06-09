@@ -9,7 +9,6 @@ import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ProfilePictureManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.SelectPresenterFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ShareFragment;
@@ -85,25 +84,25 @@ public class AppLogicActivity extends BaseActivity {
 
         TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
-
-        //@Felip
-        ProfilePictureManager.getInstance().start(getUserRole().getRoleType() == User.UserRole.PRESENTER);
     }
+
     /**
      * Updates the amount of participants on the GUI
      */
-    public void updateParticipantsGUI(int newSize, int maxSize){
-        selectParticipantsFragment.updateParticipantsGUI(newSize,maxSize);
+    public void updateParticipantsGUI(int newSize, int maxSize) {
+        selectParticipantsFragment.updateParticipantsGUI(newSize, maxSize);
     }
+
     /**
      * Updates the amount of presenters on the GUI
      */
-    public void updatePresentersGUI(ConnectionEndpoint endpoint){
-        if(selectPresenterFragment != null)
+    public void updatePresentersGUI(ConnectionEndpoint endpoint) {
+        if (selectPresenterFragment != null)
             selectPresenterFragment.updateDeviceList(endpoint);
     }
 
     //Advertising and Discovery
+
     /**
      * Calls startAdvertising() on the connectionManager
      */
@@ -118,6 +117,7 @@ public class AppLogicActivity extends BaseActivity {
     private void stopAdvertising() {
         connectionManager.stopAdvertising();
     }
+
     /**
      * Calls startDiscovering() on the connectionManager
      */
@@ -125,6 +125,7 @@ public class AppLogicActivity extends BaseActivity {
         Toast.makeText(this, R.string.startAdvertising, Toast.LENGTH_LONG).show();
         connectionManager.startDiscovering();
     }
+
     /**
      * Calls stopDiscovering() on the connectionManager
      */
@@ -145,9 +146,10 @@ public class AppLogicActivity extends BaseActivity {
     /**
      * Displays options to manage (allow/deny) file sharing with devices.
      * That is selecting devices you want to enable file sharing
+     *
      * @param view
      */
-    public void manageParticipants(View view){
+    public void manageParticipants(View view) {
         selectParticipantsFragment.manageParticipants(view);
     }
 
@@ -155,16 +157,15 @@ public class AppLogicActivity extends BaseActivity {
      * Gets executed when a presentor presses to "select file" button inside the fragment_share
      */
     public void selectFileButtonClicked(View view) {
-        if(shareFragment == null)
+        if (shareFragment == null)
             return;
         shareFragment.performFileSearch();
     }
 
     @Override
     protected void onDestroy() {
-        Log.i(TAG,"onDestroy() -> terminating nearby connection");
+        Log.i(TAG, "onDestroy() -> terminating nearby connection");
         connectionManager.terminateConnection();
-        ProfilePictureManager.getInstance().reset();
         super.onDestroy();
     }
     //Getters and Setters
