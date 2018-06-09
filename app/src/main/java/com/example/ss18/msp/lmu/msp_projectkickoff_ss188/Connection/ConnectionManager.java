@@ -161,9 +161,9 @@ public class ConnectionManager {
     /*
      * Sends the received message from the endpoint to the device
      */
-    public void onChatMessageSent(String id,String message) {
+    public void onChatMessageSent(String id, String message) {
         ChatFragment chat = getAppLogicActivity().getChatFragment();
-        chat.getDataFromEndPoint(id,message);
+        chat.getDataFromEndPoint(id, message);
     }
 
     /**
@@ -182,7 +182,7 @@ public class ConnectionManager {
         if (appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR)
             appLogicActivity.getSelectPresenterFragment().removeEndpointFromAdapters(endpoint);
         appLogicActivity.getChatFragment().displaySystemNotification(
-                String.format("%s has disconnected...",endpoint.getName()));
+                String.format("%s has disconnected...", endpoint.getName()));
         //Update the GUI finally
         updateGUI(endpoint);
 
@@ -225,7 +225,7 @@ public class ConnectionManager {
                                 case "CHAT":
                                     Bitmap profilePicture = LocalDataBase.getBitmapFromUser(endpointId);
                                     Log.i(TAG, "Received CHAT MESSAGES" + fileContent + " " + profilePicture);
-                                    onChatMessageSent(endpointId,fileContent);
+                                    onChatMessageSent(endpointId, fileContent);
                                     break;
                                 default:
                                     Log.i(TAG, "Received FILE-NAME: " + fileContent);
@@ -352,7 +352,7 @@ public class ConnectionManager {
     private void reset() {
         Log.i(TAG, "Resetting connection.");
         //Disconnect from any potential connections and stop advertising/discovering
-        terminateConnection();
+        disconnectFromAllEndpoints();
         //Clear list every time we try to re-discover
         discoveredEndpoints.clear();
         pendingConnections.clear();
