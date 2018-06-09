@@ -27,12 +27,10 @@ import java.io.IOException;
 
 public class SettingsActivity extends BaseActivity {
 
-    private static final String PREFS_NAME = "preferences_title_123";
+    private static final String PREFS_NAME = "preferences_title_id";
     private static final String PREF_USER = "preferences_username";
     private static final String PREF_IMAGE = "preferences_image";
     private EditText enteredUsername;
-    private Button signUpButton;
-    private TextView settingsText;
     private ImageView userImage;
 
     private boolean firstStart = false;
@@ -52,8 +50,8 @@ public class SettingsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         super.onCreate(R.layout.activity_settings);
 
-        signUpButton = (Button) findViewById(R.id.btn_signup);
-        settingsText = (TextView) findViewById(R.id.settings_text);
+        Button signUpButton = (Button) findViewById(R.id.btn_signup);
+        TextView settingsText = (TextView) findViewById(R.id.settings_text);
         userImage = (ImageView) findViewById(R.id.user_image);
         enteredUsername = (EditText) findViewById(R.id.enter_username);
 

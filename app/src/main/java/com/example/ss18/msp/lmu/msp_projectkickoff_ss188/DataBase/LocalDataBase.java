@@ -5,11 +5,9 @@ import android.graphics.BitmapFactory;
 import android.util.Base64;
 import android.util.Log;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.google.android.gms.nearby.connection.Payload;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Collection;
 import java.util.HashMap;
 
 /**
@@ -32,13 +30,13 @@ public final class LocalDataBase {
     /**
      * Stores other viewers inside the specific presentation
      */
-    public final static HashMap<String, Bitmap> otherViewers = new HashMap<>();
+    public final static HashMap<String, Bitmap> idToBitmap = new HashMap<>();
 
     /**
      * Returns a bitmap from a specific viewer
      */
     public static Bitmap getBitmapFromUser(String endPointID) {
-        return otherViewers.get(endPointID);
+        return idToBitmap.get(endPointID);
     }
 
     /**
@@ -46,7 +44,7 @@ public final class LocalDataBase {
      */
     public static void addBitmapToUser(String id, Bitmap bitmap){
         Log.i(TAG,"addBitmapToUser() ID="+id + " bitmap: " + bitmap);
-        otherViewers.put(id,bitmap);
+        idToBitmap.put(id,bitmap);
     }
 
     //Getter & Setter

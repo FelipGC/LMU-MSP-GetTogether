@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ProfilePictureManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.SelectPresenterFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ShareFragment;
@@ -84,6 +85,9 @@ public class AppLogicActivity extends BaseActivity {
 
         TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+
+        //@Felip
+        ProfilePictureManager.getInstance().start(getUserRole().getRoleType() == User.UserRole.PRESENTER);
     }
     /**
      * Updates the amount of participants on the GUI
@@ -160,6 +164,7 @@ public class AppLogicActivity extends BaseActivity {
     protected void onDestroy() {
         Log.i(TAG,"onDestroy() -> terminating nearby connection");
         connectionManager.terminateConnection();
+        ProfilePictureManager.getInstance().reset();
         super.onDestroy();
     }
     //Getters and Setters

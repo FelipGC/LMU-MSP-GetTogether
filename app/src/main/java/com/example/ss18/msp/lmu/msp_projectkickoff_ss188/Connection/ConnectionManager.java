@@ -50,7 +50,7 @@ public class ConnectionManager {
     /**
      * The id of the NearbyConnection service. (package name of the main activity)
      */
-    private String serviceID = "fjkgldsjf38SAIOsksjd348";
+    private String serviceID = getClass().getCanonicalName();
 
     private final String CHANNEL_ID = "CHANNEL_ID_42";
 
@@ -123,7 +123,7 @@ public class ConnectionManager {
                     switch (result.getStatus().getStatusCode()) {
                         case ConnectionsStatusCodes.STATUS_OK:
                             Log.i(TAG, "WE ARE CONNECTED");
-                            //Displaya system message inside the chat window
+                            //Display system message inside the chat window
                             appLogicActivity.getChatFragment().displaySystemNotification(
                                     String.format("Connection to %s established.", endpoint.getName()));
                             // We're connected! Can now start sending and receiving data.
@@ -131,18 +131,6 @@ public class ConnectionManager {
                             if (pendingConnections.containsKey(endpointId))
                                 pendingConnections.remove(endpointId);
 
-                            //Send the image to the presenter
-                            if (appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR){
-                                Log.i(TAG,"Sending viewerBitMap to presenter.");
-                                final String stringBytes = "VIEWER_BITMAP:"+LocalDataBase.getProfilePictureAsString();
-                                Log.i(TAG,"viewerBitMap: " + stringBytes);
-                                final Payload payload = Payload.fromBytes(stringBytes.getBytes());
-                                try {
-                                    sendPayload(endpointId,payload,"VIEWER_BITMAP_STORAGE");
-                                } catch (UnsupportedEncodingException e) {
-                                    e.printStackTrace();
-                                }
-                            }
                             break;
                         case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
                             Log.i(TAG, "CONNECTION REJECTED");
@@ -234,28 +222,6 @@ public class ConnectionManager {
                             //We must check whether we are receiving a file name (in order to rename a file)
                             //or a chat message
                             switch (payloadId) {
-
-                                case "BITMAP":
-                                    Log.i(TAG, "Received BITMAP: " + fileContent);
-                                    LocalDataBase.addBitmapToUser(endpointId,
-                                            LocalDataBase.stringToBitmap(fileContent));
-                                    break;
-                                case "VIEWER_BITMAP":
-                                    Log.i(TAG, "Received VIEWER_BITMAP: ID="+endpointId  +" : " + fileContent);
-                                    LocalDataBase.addBitmapToUser(endpointId,
-                                            LocalDataBase.stringToBitmap(fileContent));
-                                    //Send bitmap to to others
-                                    final Bitmap bitmap = LocalDataBase.getBitmapFromUser(endpointId);
-                                    final String stringBytes = "BITMAP:"+LocalDataBase.getProfilePictureAsString(bitmap);
-                                    final Payload payloadNew = Payload.fromBytes(stringBytes.getBytes());
-                                    sendPayload(payloadNew,"VIEWER_BITMAP_STORAGE");
-                                    //Send own bitmap to others
-                                    final Bitmap bitmap2 = LocalDataBase.getProfilePicture();
-                                    final String stringBytes2 = "BITMAP:"+LocalDataBase.getProfilePictureAsString(bitmap2);
-                                    final Payload payloadNew2 = Payload.fromBytes(stringBytes2.getBytes());
-                                    Log.i(TAG,"OWN BITMAP IS: " + stringBytes2);
-                                    sendPayload(payloadNew2,"VIEWER_BITMAP_STORAGE");
-                                    break;
                                 case "CHAT":
                                     Bitmap profilePicture = LocalDataBase.getBitmapFromUser(endpointId);
                                     Log.i(TAG, "Received CHAT MESSAGES" + fileContent + " " + profilePicture);
@@ -460,12 +426,14 @@ public class ConnectionManager {
      * Stops looking for new devices/endpoints to connect to
      */
     public void stopDiscovering() {
+        connectionsClient.stopDiscovery();
     }
 
     /**
      * Stops advertising to new discoverers
      */
     public void stopAdvertising() {
+        connectionsClient.stopAdvertising();
     }
 
     public ConnectionsClient getConnectionsClient() {
