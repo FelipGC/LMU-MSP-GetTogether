@@ -1,5 +1,6 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -283,11 +284,10 @@ public class ConnectionManager {
                 .setSmallIcon(R.drawable.file_icon)
                 .setContentTitle(title)
                 .setContentText(message)
+                .setDefaults(Notification.DEFAULT_ALL)
                 .setStyle(new NotificationCompat.BigTextStyle()
                         .bigText(message))
                 .setPriority(priority);
-        //TODO: ADD VIBRATION AND SOUND!
-        //...
         mBuilder.build();
         NotificationManager mNotificationManager = (NotificationManager) getAppLogicActivity().getSystemService(Context.NOTIFICATION_SERVICE);
         // notificationID allows you to update the notification later on.
@@ -307,12 +307,11 @@ public class ConnectionManager {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getAppLogicActivity(), CHANNEL_ID)
                 .setSmallIcon(R.drawable.chat_icon)
                 .setContentTitle(title)
+                .setDefaults(Notification.DEFAULT_ALL)
                 .setContentText(message)
                 .setStyle(new NotificationCompat.BigTextStyle()
                         .bigText(message))
                 .setPriority(priority);
-        //TODO: ADD VIBRATION AND SOUND!
-        //...
         mBuilder.build();
         NotificationManager mNotificationManager = (NotificationManager) getAppLogicActivity().getSystemService(Context.NOTIFICATION_SERVICE);
         // notificationID allows you to update the notification later on.
