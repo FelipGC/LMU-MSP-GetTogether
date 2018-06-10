@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,7 +17,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.ProfilePicture;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
 public class SplashActivity extends AppCompatActivity {
@@ -42,6 +40,7 @@ public class SplashActivity extends AppCompatActivity {
                     Manifest.permission.BLUETOOTH_ADMIN,
                     Manifest.permission.ACCESS_WIFI_STATE,
                     Manifest.permission.CHANGE_WIFI_STATE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
             };
     /**
      * Called when our Activity has been made visible to the user.
@@ -102,8 +101,8 @@ public class SplashActivity extends AppCompatActivity {
         // Set username if already existing
         if(userImageAlreadyChosen = settings.contains(PREF_IMAGE))
         {
-            String imageUri = settings.getString(PREF_IMAGE,LocalDataBase.getProfilePictureUri());
-            LocalDataBase.setProfilePicture(Uri.parse(imageUri));
+            String imageUri = settings.getString(PREF_IMAGE, String.valueOf(LocalDataBase.getProfilePictureUri()));
+            LocalDataBase.setProfilePictureUri(Uri.parse(imageUri));
             Log.i(TAG,"Load user image: " + imageUri);
         }
     }

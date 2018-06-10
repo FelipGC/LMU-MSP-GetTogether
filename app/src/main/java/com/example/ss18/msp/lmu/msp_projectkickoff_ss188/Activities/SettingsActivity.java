@@ -7,9 +7,9 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -19,14 +19,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.ProfilePicture;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class SettingsActivity extends BaseActivity implements ProfilePicture {
+public class SettingsActivity extends BaseActivity {
 
     private static final String PREFS_NAME = "preferences_id_345983";
     private static final String PREF_USER = "preferences_username";
@@ -119,9 +121,12 @@ public class SettingsActivity extends BaseActivity implements ProfilePicture {
         if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK && resultData != null) {
             Uri uri = resultData.getData();
             Log.i(TAG, "Uri: " + uri.toString());
-            LocalDataBase.setProfilePicture(uri);
-            LocalDataBase.getProfilePictureAsBitMap(this);
 
+            //TODO: Resize the image (300,300) and save it somewhere and overwrite uri = new file!!!!!!!
+
+            LocalDataBase.setProfilePictureUri(uri);
+            saveImagePreferences();
+            setImage();
         }
         //Calling super is mandatory!
         super.onActivityResult(requestCode, resultCode, resultData);
@@ -157,7 +162,7 @@ public class SettingsActivity extends BaseActivity implements ProfilePicture {
                 Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         // Edit and commit
-        String pictureURI = LocalDataBase.getProfilePictureUri();
+        String pictureURI = String.valueOf(LocalDataBase.getProfilePictureUri());
         Log.i(TAG, "Save user image: " + pictureURI);
         editor.putString(PREF_IMAGE, pictureURI);
         editor.commit();
@@ -184,10 +189,22 @@ public class SettingsActivity extends BaseActivity implements ProfilePicture {
                 Context.MODE_PRIVATE);
         // Set username if already existing
         if (settings.contains(PREF_IMAGE)) {
-            String stringImage = settings.getString(PREF_IMAGE, LocalDataBase.getProfilePictureUri());
-            LocalDataBase.setProfilePicture(Uri.parse(stringImage));
+            String stringImage = settings.getString(PREF_IMAGE, String.valueOf(LocalDataBase.getProfilePictureUri()));
+            LocalDataBase.setProfilePictureUri(Uri.parse(stringImage));
         }
-        LocalDataBase.getProfilePictureAsBitMap(this);
+        setImage();
+    }
+
+    private void setImage() {
+        Uri uri = LocalDataBase.getProfilePictureUri();
+        Log.i(TAG, "Load user image: " + LocalDataBase.getProfilePictureUri());
+        //TODO: Add default profile picture in case it is null
+        if (uri == null) {
+            Log.i(TAG, "!!!!!!!!!WE MUST AD A DEFAUTL PROFILE PICTURE IN CASE IT IS NULL!!!!!!!!!");
+            userImage.setImageResource(R.drawable.user_image);
+        }
+        userImage.setImageURI(uri);
+        LocalDataBase.setProfilePictureUri(uri);
     }
 
 
@@ -212,18 +229,5 @@ public class SettingsActivity extends BaseActivity implements ProfilePicture {
                 R.string.username_empty,
                 Toast.LENGTH_LONG).show();
         return false;
-    }
-
-    @Override
-    public void setProfilePictureBitmap(Bitmap bitmap) {
-        Log.i(TAG, "Load user image: " + LocalDataBase.getProfilePictureUri());
-        //TODO: Add default profile picture iin case it is null
-        if(bitmap == null){
-            Log.i(TAG,"!!!!!!!!!WE MUST AD A DEFAUTL PROFILE PICTURE IN CASE IT IS NULL!!!!!!!!!");
-            //bitmap = ....
-        }
-        userImage.setImageBitmap(bitmap);
-        LocalDataBase.setProfilePictureBitmap(bitmap);
-        saveImagePreferences();
     }
 }

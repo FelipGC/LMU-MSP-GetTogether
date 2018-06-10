@@ -141,10 +141,9 @@ public class ConnectionManager {
 
                             final boolean SPECTATOR = appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR;
                                 try {
-                                    String uriString = LocalDataBase.getProfilePictureUri();
-                                    if(uriString.equals("NO_PROFILE_PICTURE"))
+                                    Uri uri = LocalDataBase.getProfilePictureUri();
+                                    if(uri == null)
                                         break;
-                                    Uri uri = Uri.parse(uriString);
                                     ParcelFileDescriptor file = appLogicActivity.getContentResolver().openFileDescriptor(uri, "r");
                                     Payload payload = Payload.fromFile(file);
                                     sendPayload(endpointId, payload, payload.getId() + (SPECTATOR ? ":PROF_PIC_V:" : ":PROF_PIC:"));
@@ -305,7 +304,7 @@ public class ConnectionManager {
                                     if (bitMapSender.length() == 0)
                                         bitMapSender = endpointId;
                                     //Store bitmap
-                                    LocalDataBase.addBitmapToUser(bitMapSender,Uri.fromFile(payloadFile),appLogicActivity.getContentResolver());
+                                    LocalDataBase.idToUri.put(bitMapSender,Uri.fromFile(payloadFile));
                                     switch (payLoadTag) {
                                         case "PROF_PIC_V":
                                             Log.i(TAG, "PROF_PIC_V");
@@ -318,10 +317,9 @@ public class ConnectionManager {
                                                 }
                                                 //Send all other endpoint`s bitmap to the endpoint
                                                 for (String id : establishedConnections.keySet()) {
-                                                    String uriString = LocalDataBase.getProfilePictureUri(id);
-                                                    if(uriString.equals("NO_PROFILE_PICTURE"))
+                                                    Uri uri = LocalDataBase.getProfilePictureUri(id);
+                                                    if(uri == null)
                                                         break;
-                                                    Uri uri = Uri.parse(uriString);
                                                     ParcelFileDescriptor file = appLogicActivity.getContentResolver().openFileDescriptor(uri, "r");
                                                     Payload profilePic = Payload.fromFile(file);
                                                     sendPayload(endpointId, profilePic, payload.getId() + ":PROF_PIC:" + id + ":");

@@ -94,7 +94,7 @@ public class PresenterAdapter extends BaseAdapter {
         TextView name = (TextView) convertView.findViewById(R.id.name);
         ImageView picture = (ImageView) convertView.findViewById(R.id.avatar);
         name.setText(connectionEndpoint.getName());
-        picture.setImageBitmap(connectionEndpoint.getProfilePicture());
+        picture.setImageURI(connectionEndpoint.getProfilePicture());
         convertView.setTag(connectionEndpoint);
         return convertView;
     }
