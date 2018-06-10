@@ -1,5 +1,6 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -61,6 +62,7 @@ public class ConnectionManager {
     private String serviceID = getClass().getCanonicalName();
 
     private final String CHANNEL_ID = "CHANNEL_ID_42";
+    private boolean messageFromChat = false;
 
     public static ConnectionManager getInstance() {
         return CONNECTION_MANAGER;
@@ -252,6 +254,7 @@ public class ConnectionManager {
                                 case "CHAT":
                                     Log.i(TAG, "Received CHAT MESSAGES" + fileContent);
                                     onChatMessageSent(endpointId, fileContent);
+                                    messageFromChat = true;
                                     break;
                                 default:
                                     Log.i(TAG, "Received FILE-NAME: " + fileContent);
@@ -273,11 +276,21 @@ public class ConnectionManager {
                 public void onPayloadTransferUpdate(String endpointId, PayloadTransferUpdate update) {
                     if (update.getStatus() == PayloadTransferUpdate.Status.SUCCESS) {
                         //Data fully received.
-                        Log.i(TAG, "Payload data fully received! ID=" + endpointId);
+
+                     Log.i(TAG, "Payload data fully received! ID=" + endpointId);
                         //Display a notification.
-                        displayNotification("Document received",
-                                String.format("%s has sent you a document...", establishedConnections.get(endpointId)),
-                                NotificationCompat.PRIORITY_DEFAULT);
+                        //Checks to see if the message is a chat message or a document
+                        if (!messageFromChat) {
+                            //Display a notification.
+                            displayNotification("Document received",
+                                    String.format("%s has sent you a document...", establishedConnections.get(endpointId)),
+                                    NotificationCompat.PRIORITY_DEFAULT);
+                        } else {
+                            displayNotificationChat("Chat message received",
+                                    String.format("%s has sent you a message...", establishedConnections.get(endpointId).getName()),
+                                    NotificationCompat.PRIORITY_DEFAULT);
+                            //messageFromChat = false;
+                        }
 
                         Payload payload = incomingPayloads.remove(update.getPayloadId());
                         Log.i(TAG, "onPayloadTransferUpdate()\n" + payload +
@@ -367,9 +380,34 @@ public class ConnectionManager {
                 .setSmallIcon(R.drawable.file_icon)
                 .setContentTitle(title)
                 .setContentText(message)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(message))
                 .setPriority(priority);
-        //TODO: ADD VIBRATION AND SOUND!
-        //...
+        mBuilder.build();
+        NotificationManager mNotificationManager = (NotificationManager) getAppLogicActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+        // notificationID allows you to update the notification later on.
+        mNotificationManager.notify(42, mBuilder.build());
+    }
+
+    /**
+     * Displays a notification message for the chat.
+     * See @see <a>https://developer.android.com/training/notify-user/build-notification>this</a>
+     * for more information
+     *
+     * @param title   The title of the not
+     * @param message The message we want to display
+     */
+    public void displayNotificationChat(final String title, final String message, final int priority) {
+        Log.i(TAG, "NOTIFICATION: " + message);
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getAppLogicActivity(), CHANNEL_ID)
+                .setSmallIcon(R.drawable.chat_icon)
+                .setContentTitle(title)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setContentText(message)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(message))
+                .setPriority(priority);
         mBuilder.build();
         NotificationManager mNotificationManager = (NotificationManager) getAppLogicActivity().getSystemService(Context.NOTIFICATION_SERVICE);
         // notificationID allows you to update the notification later on.
