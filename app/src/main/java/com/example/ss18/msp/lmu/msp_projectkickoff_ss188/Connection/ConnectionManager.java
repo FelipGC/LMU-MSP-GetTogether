@@ -52,6 +52,7 @@ public class ConnectionManager {
     private String serviceID = "fjkgldsjf38SAIOsksjd348";
 
     private final String CHANNEL_ID = "CHANNEL_ID_42";
+    private boolean messageFromChat = false;
 
     public static ConnectionManager getInstance() {
         return CONNECTION_MANAGER;
@@ -208,6 +209,8 @@ public class ConnectionManager {
                                     ConnectionEndpoint connectionEndpoint = discoveredEndpoints.get(endpointId);
                                     Bitmap profilePicture = connectionEndpoint.getProfilePicture();
                                     Log.i(TAG, "Received CHAT MESSAGES" + filename + " " + profilePicture);
+
+                                    messageFromChat = true;
                                     onChatMessageSent(filename, profilePicture);
                                     break;
                                 default:
@@ -229,10 +232,21 @@ public class ConnectionManager {
                     if (update.getStatus() == PayloadTransferUpdate.Status.SUCCESS) {
                         //Data fully received.
                         Log.i(TAG, "Payload data fully received!");
-                        //Display a notification.
-                        displayNotification("Document received",
-                                String.format("%s has sent you a document...", establishedConnections.get(endpointId)),
-                                NotificationCompat.PRIORITY_DEFAULT);
+
+                        //Check to see if the message is a chat message or a document
+                        if (!messageFromChat) {
+                            //Display a notification.
+                            displayNotification("Document received",
+                                    String.format("%s has sent you a document...", establishedConnections.get(endpointId)),
+                                    NotificationCompat.PRIORITY_DEFAULT);
+                        } else {
+                            Log.i("Eli6969696", "chatmessage");
+                            displayNotificationChat("Chat message received",
+                                    String.format("%s has sent you a message...", establishedConnections.get(endpointId).getName()),
+                                    NotificationCompat.PRIORITY_DEFAULT);
+                            //messageFromChat = false;
+                        }
+
                         Payload payload = incomingPayloads.get(update.getPayloadId());
                         Log.i(TAG, "Payload is:" + payload + incomingPayloads + filePayloadFilenames);
 
@@ -269,6 +283,33 @@ public class ConnectionManager {
                 .setSmallIcon(R.drawable.file_icon)
                 .setContentTitle(title)
                 .setContentText(message)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(message))
+                .setPriority(priority);
+        //TODO: ADD VIBRATION AND SOUND!
+        //...
+        mBuilder.build();
+        NotificationManager mNotificationManager = (NotificationManager) getAppLogicActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+        // notificationID allows you to update the notification later on.
+        mNotificationManager.notify(42, mBuilder.build());
+    }
+
+    /**
+     * Displays a notification message for the chat.
+     * See @see <a>https://developer.android.com/training/notify-user/build-notification>this</a>
+     * for more information
+     *
+     * @param title   The title of the not
+     * @param message The message we want to display
+     */
+    public void displayNotificationChat(final String title, final String message, final int priority) {
+        Log.i(TAG, "NOTIFICATION: " + message);
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getAppLogicActivity(), CHANNEL_ID)
+                .setSmallIcon(R.drawable.chat_icon)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(message))
                 .setPriority(priority);
         //TODO: ADD VIBRATION AND SOUND!
         //...
