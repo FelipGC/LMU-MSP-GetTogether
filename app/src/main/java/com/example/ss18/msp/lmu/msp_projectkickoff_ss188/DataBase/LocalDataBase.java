@@ -43,7 +43,7 @@ public final class LocalDataBase {
     }
 
     public static void setProfilePictureUri(Uri profilePicture) {
-        Log.i(TAG,"SETTING OWN USER PROFILE: " + profilePicture.toString());
+        Log.i(TAG,"SETTING OWN USER PROFILE: " + profilePicture);
         LocalDataBase.profilePicture = profilePicture;
     }
 

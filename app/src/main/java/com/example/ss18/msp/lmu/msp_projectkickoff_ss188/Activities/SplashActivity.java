@@ -22,9 +22,9 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 public class SplashActivity extends AppCompatActivity {
     private static final String TAG = "SPLASH_ACTIVITY";
 
-    private static final String PREFS_NAME = "preferences_title";
-    private static final String PREF_USER = "preferences_username";
-    private static final String PREF_IMAGE = "preferences_image";
+    static final String PREFS_NAME = "preferences_title_id_12345";
+    static final String PREF_USER = "preferences_username";
+    static final String PREF_IMAGE = "preferences_image";
 
     private boolean userNameAlreadyEntered = false;
     private boolean userImageAlreadyChosen = false;
@@ -42,6 +42,7 @@ public class SplashActivity extends AppCompatActivity {
                     Manifest.permission.CHANGE_WIFI_STATE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
             };
+
     /**
      * Called when our Activity has been made visible to the user.
      * This is only needed for newer devices
@@ -67,13 +68,17 @@ public class SplashActivity extends AppCompatActivity {
 
         loadPreferences();
         loadImagePreferences();
+        Log.i(TAG, "userNameAlreadyEntered: " + userNameAlreadyEntered);
         if (!userNameAlreadyEntered) {
-            Intent intent = new Intent(this,SettingsActivity.class);
-            intent.putExtra("newUser",true);
+            Intent intent = new Intent(this, SettingsActivity.class);
+            intent.putExtra("newUser", true);
             startActivity(intent);
         } else {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
+            Toast.makeText(getApplicationContext(),
+                    String.format("Welcome back %s!", LocalDataBase.getUserName()),
+                    Toast.LENGTH_LONG).show();
         }
         finish();
     }
@@ -85,10 +90,9 @@ public class SplashActivity extends AppCompatActivity {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME,
                 Context.MODE_PRIVATE);
         // Set username if already existing
-        if(userNameAlreadyEntered = settings.contains(PREF_USER))
-        {
-            LocalDataBase.setUserName(settings.getString(PREF_USER,LocalDataBase.getUserName()));
-            Log.i(TAG,"Load username: " + LocalDataBase.getUserName());
+        if (userNameAlreadyEntered = settings.contains(PREF_USER)) {
+            LocalDataBase.setUserName(settings.getString(PREF_USER, LocalDataBase.getUserName()));
+            Log.i(TAG, "Load username: " + LocalDataBase.getUserName());
         }
     }
 
@@ -99,11 +103,10 @@ public class SplashActivity extends AppCompatActivity {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME,
                 Context.MODE_PRIVATE);
         // Set username if already existing
-        if(userImageAlreadyChosen = settings.contains(PREF_IMAGE))
-        {
+        if (userImageAlreadyChosen = settings.contains(PREF_IMAGE)) {
             String imageUri = settings.getString(PREF_IMAGE, String.valueOf(LocalDataBase.getProfilePictureUri()));
             LocalDataBase.setProfilePictureUri(Uri.parse(imageUri));
-            Log.i(TAG,"Load user image: " + imageUri);
+            Log.i(TAG, "Load user image: " + imageUri);
         }
     }
 
