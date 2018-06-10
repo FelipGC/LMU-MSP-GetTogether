@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -217,10 +218,10 @@ public class SettingsActivity extends BaseActivity implements ProfilePicture {
     @Override
     public void setProfilePictureBitmap(Bitmap bitmap) {
         Log.i(TAG, "Load user image: " + LocalDataBase.getProfilePictureUri());
-        //TODO: Add default profile picture iin case it is null
+        //Add default profile picture in case it is null
         if(bitmap == null){
-            Log.i(TAG,"!!!!!!!!!WE MUST AD A DEFAUTL PROFILE PICTURE IN CASE IT IS NULL!!!!!!!!!");
-            //bitmap = ....
+            Log.i(TAG,"Add default image.");
+            bitmap = BitmapFactory.decodeResource(this.getBaseContext().getResources(), R.drawable.user_image);
         }
         userImage.setImageBitmap(bitmap);
         LocalDataBase.setProfilePictureBitmap(bitmap);
