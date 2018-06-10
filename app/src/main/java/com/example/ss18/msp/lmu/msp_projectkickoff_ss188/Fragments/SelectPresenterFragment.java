@@ -97,7 +97,7 @@ public class SelectPresenterFragment extends Fragment {
         Log.i(TAG,"REMOVE ENDPOINT FROM ADAPTERS");
         ((PresenterAdapter) availablePresenters.getAdapter()).remove(connectionEndpoint);
         ((PresenterAdapter) establishedPresenters.getAdapter()).remove(connectionEndpoint);
-        if(cM.getPendingConnections().size() == 0)
+        if(cM == null || cM.getPendingConnections().size() == 0)
             pendingButton.setVisibility(View.GONE);
         else pendingButton.setText(String.format("Pending Connection(s): %d", cM.getPendingConnections().size()));
     }
@@ -109,7 +109,7 @@ public class SelectPresenterFragment extends Fragment {
     public synchronized void updateDeviceList(ConnectionEndpoint endpoint) {
         Log.i(TAG, "updateDeviceList( "+endpoint+" )");
         //We found no device
-        if (cM.getDiscoveredEndpoints().size() == 0) {
+        if (cM == null || cM.getDiscoveredEndpoints().size() == 0) {
             for (View view : viewDevicesFound)
                 view.setVisibility(View.GONE);
             for (View viewNoDevice : viewNoDevices)

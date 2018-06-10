@@ -15,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.SettingsActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.Message;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.MessageAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
@@ -57,7 +58,6 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         if (!messageText.isEmpty()) {
             
             String name = LocalDataBase.getUserName();
-            Bitmap profilePicture = LocalDataBase.getProfilePicture();
 
             Message msg = new Message(messageText,null, name, true);
             messageAdapter.addMessage(msg);
@@ -76,7 +76,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
      */
     private void sendDataToEndpoints(String message) {
         //String name = LocalDataBase.getUserName();
-        Payload payload = dataToPayload(message);
+        Payload payload = null; //DO NOT CHANGE!
         // Adding the CHAT tag to identify chat messages on receive.
         String payloadStoringName = "CHAT" + ":" + LocalDataBase.getUserName() + ":" + message;
         Log.i(TAG, "SendDataToEndpoint: " + payloadStoringName);

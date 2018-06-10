@@ -3,7 +3,10 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.SimpleArrayMap;
@@ -32,9 +35,14 @@ import com.google.android.gms.nearby.connection.Strategy;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.Scanner;
 
 /**
  * Stores everything we need related to the NearbyConnection process.
@@ -131,6 +139,23 @@ public class ConnectionManager {
                             if (pendingConnections.containsKey(endpointId))
                                 pendingConnections.remove(endpointId);
 
+                            final boolean SPECTATOR = appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR;
+                                try {
+                                    String uriString = LocalDataBase.getProfilePictureUri();
+                                    if(uriString.equals("NO_PROFILE_PICTURE"))
+                                        break;
+                                    Uri uri = Uri.parse(uriString);
+                                    ParcelFileDescriptor file = appLogicActivity.getContentResolver().openFileDescriptor(uri, "r");
+                                    Payload payload = Payload.fromFile(file);
+                                    sendPayload(endpointId, payload, payload.getId() + (SPECTATOR ? ":PROF_PIC_V:" : ":PROF_PIC:"));
+
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
+
                             break;
                         case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
                             Log.i(TAG, "CONNECTION REJECTED");
@@ -170,6 +195,8 @@ public class ConnectionManager {
      * Executes consequences after a device has disconnected
      */
     private void onDisconnectConsequences(ConnectionEndpoint endpoint) {
+        if(endpoint == null)
+            return;
         Log.i(TAG, "Disconnected from endpoint " + endpoint.getOriginalName());
         //Clear in this class
         if (pendingConnections.containsKey(endpoint.getId()))
@@ -223,8 +250,7 @@ public class ConnectionManager {
                             //or a chat message
                             switch (payloadId) {
                                 case "CHAT":
-                                    Bitmap profilePicture = LocalDataBase.getBitmapFromUser(endpointId);
-                                    Log.i(TAG, "Received CHAT MESSAGES" + fileContent + " " + profilePicture);
+                                    Log.i(TAG, "Received CHAT MESSAGES" + fileContent);
                                     onChatMessageSent(endpointId, fileContent);
                                     break;
                                 default:
@@ -233,7 +259,7 @@ public class ConnectionManager {
                                     break;
                             }
                         } catch (Exception e) {
-                            return;
+                            e.printStackTrace();
                         }
                     } else if (payload.getType() == Payload.Type.FILE) {
                         Log.i(TAG, "Received FILE: ID=" + payload.getId());
@@ -252,9 +278,9 @@ public class ConnectionManager {
                         displayNotification("Document received",
                                 String.format("%s has sent you a document...", establishedConnections.get(endpointId)),
                                 NotificationCompat.PRIORITY_DEFAULT);
-                        Payload payload = incomingPayloads.get(update.getPayloadId());
 
-                        Log.i(TAG, "onPayloadTransferUpdate()" + payload +
+                        Payload payload = incomingPayloads.remove(update.getPayloadId());
+                        Log.i(TAG, "onPayloadTransferUpdate()\n" + payload +
                                 "\n" + incomingPayloads.toString() +
                                 "\n" + filePayloadFilenames.toString());
 
@@ -264,10 +290,59 @@ public class ConnectionManager {
                                 // Retrieve the filename and corresponding payload.
                                 File payloadFile = payload.asFile().asJavaFile();
                                 String fileName = filePayloadFilenames.remove(update.getPayloadId());
-                                Log.i(TAG, "Payload file name: " + payloadFile.getName());
-                                ConnectionEndpoint connectionEndpoint = discoveredEndpoints.get(endpointId);
-                                //Update inbox-fragment.
-                                appLogicActivity.getInboxFragment().storePayLoad(connectionEndpoint, fileName, payloadFile);
+
+                                if (fileName.contains("PROF_PIC")) {
+                                    int substringDividerIndex = fileName.indexOf(':');
+                                    Log.i(TAG,"Name to trim: " + fileName);
+                                    String payLoadTag = fileName.substring(0, substringDividerIndex);
+                                    String bitMapSender = fileName.substring(substringDividerIndex + 1);
+                                    //Store image
+                                    Log.i(TAG, "Received and renamed payload file to: " + fileName);
+                                    //TODO: Move and rename file to something good
+                                    //TODO: READ BITMAP FROM FILE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                                    Log.i(TAG, "CONTENT " + Uri.fromFile(payloadFile));
+
+                                    //Add to local DataBase
+                                    if (bitMapSender.length() == 0)
+                                        bitMapSender = endpointId;
+                                    //Store bitmap
+                                    LocalDataBase.addBitmapToUser(bitMapSender,Uri.fromFile(payloadFile),appLogicActivity.getContentResolver());
+                                    switch (payLoadTag) {
+                                        case "PROF_PIC_V":
+                                            Log.i(TAG, "PROF_PIC_V");
+
+                                            try {
+
+                                                //Send bitmap to all other endpoints
+                                                for (String id : establishedConnections.keySet()) {
+                                                    sendPayload(id, payload, payload.getId() + ":PROF_PIC:" + bitMapSender + ":");
+                                                }
+                                                //Send all other endpoint`s bitmap to the endpoint
+                                                for (String id : establishedConnections.keySet()) {
+                                                    String uriString = LocalDataBase.getProfilePictureUri(id);
+                                                    if(uriString.equals("NO_PROFILE_PICTURE"))
+                                                        break;
+                                                    Uri uri = Uri.parse(uriString);
+                                                    ParcelFileDescriptor file = appLogicActivity.getContentResolver().openFileDescriptor(uri, "r");
+                                                    Payload profilePic = Payload.fromFile(file);
+                                                    sendPayload(endpointId, profilePic, payload.getId() + ":PROF_PIC:" + id + ":");
+                                                }
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                            break;
+                                        case "PROF_PIC":
+                                            Log.i(TAG, "PROF_PIC");
+                                            //Send own bitmap to endpoint
+                                            LocalDataBase.idToUri.put(bitMapSender, Uri.fromFile(payloadFile));
+                                            break;
+                                    }
+                                } else {
+                                    Log.i(TAG, "Payload file name: " + payloadFile.getName());
+                                    ConnectionEndpoint connectionEndpoint = discoveredEndpoints.get(endpointId);
+                                    //Update inbox-fragment.
+                                    appLogicActivity.getInboxFragment().storePayLoad(connectionEndpoint, fileName, payloadFile);
+                                }
                             }
                         } else Log.i(TAG, "Payload NULL!");
 
@@ -469,17 +544,9 @@ public class ConnectionManager {
         } else establishedConnections.remove(endPoint.getId());
     }
 
+
     /**
-<<<<<<< HEAD
-     * Puts the name together with the mapmap as string into one new string
-     */
-    private String getMergedNameBitmap(){
-        Log.i(TAG , "Result of mergeNameBitmap is: " + AppLogicActivity.getUserRole().getUserName() + ":" + LocalDataBase.getProfilePictureAsString());
-        return AppLogicActivity.getUserRole().getUserName() + ":" + LocalDataBase.getProfilePictureAsString();
-    }
-    /**
-=======
->>>>>>> develop
+
      * Only for discoverers (Viewers)
      * If the advertisers wishes to establish a connection to a presenter (advertiser), then a connection is needed.
      * According to the documentation, both sides must explicitly accept the connection. Therefor we
@@ -571,14 +638,16 @@ public class ConnectionManager {
      * Sends a Payload object out to one specific endPoint
      */
     public void sendPayload(String endpointId, Payload payload, String payloadStoringName) throws UnsupportedEncodingException {
-        Log.i(TAG, "Sent: " + payload.getId() + "with type: " + payload.getType() + " to: " + endpointId);
         // Send the name of the payload/file as a bytes payload first!
         Nearby.getConnectionsClient(appLogicActivity).sendPayload(
                 endpointId, Payload.fromBytes(payloadStoringName.getBytes("UTF-8")));
-        //Send the payload data afterwards!
-        Nearby.getConnectionsClient(appLogicActivity).sendPayload(endpointId, payload);
-        //Add to receivedPayLoadData in our data
-        LocalDataBase.sentPayLoadData.put(payload.getId(), payload);
+        if(payload != null) {
+            Log.i(TAG, "Sent: " + payload.getId() + " with type: " + payload.getType() + " to: " + endpointId);
+            //Send the payload data afterwards!
+            Nearby.getConnectionsClient(appLogicActivity).sendPayload(endpointId, payload);
+            //Add to receivedPayLoadData in our data
+            LocalDataBase.sentPayLoadData.put(payload.getId(), payload);
+        }
     }
 
     /**
