@@ -57,11 +57,6 @@ public class SplashActivity extends AppCompatActivity {
             }
         }
     }
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,11 +67,13 @@ public class SplashActivity extends AppCompatActivity {
         loadImagePreferences();
         if (!userNameAlreadyEntered) {
             Intent intent = new Intent(this,SettingsActivity.class);
+            intent.putExtra("newUser",true);
             startActivity(intent);
         } else {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
         }
+        finish();
     }
 
     /**
@@ -103,7 +100,7 @@ public class SplashActivity extends AppCompatActivity {
         if(userImageAlreadyChosen = settings.contains(PREF_IMAGE))
         {
             String image = settings.getString(PREF_IMAGE,LocalDataBase.getProfilePictureAsString());
-            LocalDataBase.setProfilePicture(LocalDataBase.getProfilePictureAsBitmap(image));
+            LocalDataBase.setProfilePicture(LocalDataBase.stringToBitmap(image));
             Log.i(TAG,"Load user image: " + LocalDataBase.getProfilePicture());
         }
     }

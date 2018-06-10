@@ -2,12 +2,12 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 
 /**
  * Represents a device we can connect to.
@@ -21,56 +21,20 @@ public final class ConnectionEndpoint {
     @NonNull
     private final String originalName; //Doesnt need to be unique
 
-    private Bitmap profilePicture;
-
     private final static String TAG = "ConnectionEndpoint";
 
-    public ConnectionEndpoint(@NonNull String id, @NonNull String nameAndBitmap) {
-        Log.i(TAG,"ConnectionEndpoint created with ID="+id);
+    public ConnectionEndpoint(@NonNull String id, @NonNull String userName) {
+        Log.i(TAG,"ConnectionEndpoint created with ID="+id+"\n UserName:\n"+userName);
         this.id = id;
         //Since we can`t pass a bitmap (= profile picture) directly via the connection process
         //and since we actually want to pass a profile picture before establishing a connection,
         //we pass the serialized bitmap inside the user name, so me must extract it from it and
         // separate it from the user name.
         //The format for nameAndBitmap is = USERNAME : BITMAP
-        Bitmap image = extractBitMap(nameAndBitmap);
-        setProfilePicture(image);
-        this.originalName = this.name = extractName(nameAndBitmap);
+
+        //LocalDataBase.addBitmapToUser(id,extractBitMap(nameAndBitmap));
+        this.originalName = this.name = userName;
         checkForDuplicatedNames();
-    }
-
-    /**
-     * Extracts the bitmap (profile picture) from the passed string
-     *
-     * @return bitmap
-     */
-    private String extractName(String nameAndBitmap) {
-        //Last indexOf since the user could use ':' in their username
-        int substringDividerIndex = nameAndBitmap.lastIndexOf(':');
-        String name = nameAndBitmap.substring(0, substringDividerIndex);
-        Log.i(TAG,"extractName() = " + name);
-        return name;
-    }
-
-    /**
-     * Extracts the bitmap from the passed string
-     * @return BitMap
-     */
-    private Bitmap extractBitMap(final String nameAndBitmap) {
-        //Last index of since the user could use ':' in their username
-        int substringDividerIndex = nameAndBitmap.lastIndexOf(':');
-        String bitmapString = nameAndBitmap.substring(substringDividerIndex + 1);
-        Log.i(TAG,"extractBitMap() = " + bitmapString);
-        if(bitmapString.equals("NO_PROFILE_PICTURE"))
-            return null;
-        try {
-            byte [] encodeByte= Base64.decode(bitmapString,Base64.DEFAULT);
-            Bitmap bitmap= BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
-            return bitmap;
-        } catch(Exception e) {
-            e.getMessage();
-            return null;
-        }
     }
 
     /**
@@ -122,10 +86,8 @@ public final class ConnectionEndpoint {
     }
 
     public Bitmap getProfilePicture() {
-        return profilePicture;
-    }
-
-    public void setProfilePicture(Bitmap profilePicture) {
-        this.profilePicture = profilePicture;
+        Bitmap bitmap = LocalDataBase.getBitmapFromUser(id);
+        Log.i(TAG,"getProfilePicture() for: " + getName() + " result:\n" + bitmap);
+        return bitmap;
     }
 }

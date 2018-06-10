@@ -7,4 +7,6 @@
     <color name="backgroundColor">#ffffff</color>
     <color name="whiteAccent">#f4efef</color>
     <color name="grayAccent">#938f8f</color>
+
+    <color name="white">#ffffff</color>
 </resources>

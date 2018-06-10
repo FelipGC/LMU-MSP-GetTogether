@@ -3,6 +3,7 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.SimpleArrayMap;
@@ -49,7 +50,7 @@ public class ConnectionManager {
     /**
      * The id of the NearbyConnection service. (package name of the main activity)
      */
-    private String serviceID = "fjkgldsjf38SAIOsksjd348";
+    private String serviceID = getClass().getCanonicalName();
 
     private final String CHANNEL_ID = "CHANNEL_ID_42";
 
@@ -72,7 +73,7 @@ public class ConnectionManager {
             new ConnectionLifecycleCallback() {
                 @Override
                 //We have received a connection request. Now both sides must either accept or reject the connection.
-                public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
+                public void onConnectionInitiated(final String endpointId, final ConnectionInfo connectionInfo) {
                     Log.i(TAG, String.format("onConnectionInitiated(endpointId=%s, endpointName=%s)",
                             endpointId, connectionInfo.getEndpointName()));
                     pendingConnections.remove(endpointId);
@@ -90,15 +91,27 @@ public class ConnectionManager {
                             //If we are the presenter, we need to verify if he really
                             //wants to allow the connection to the discoverer (= viewer)
 
-                            //Create endpoint and add it to the list
-                            ConnectionEndpoint connectionEndpoint =
-                                    new ConnectionEndpoint(endpointId, connectionInfo.getEndpointName());
-                            discoveredEndpoints.put(endpointId, connectionEndpoint);
-                            displayNotification("Viewer found!", connectionInfo.getEndpointName()
-                                    + " is asking for joining your session", NotificationCompat.PRIORITY_DEFAULT);
-                            Toast.makeText(getAppLogicActivity(), String.format(String.format("Viewer %s found!",
-                                    connectionEndpoint.getName())), Toast.LENGTH_SHORT).show();
-                            updateParticipantsCount();
+                            new AsyncTask<Void, Void, ConnectionEndpoint>() {
+
+                                @Override
+                                protected ConnectionEndpoint doInBackground(Void... voids) {
+                                    //Create endpoint and add it to the list
+                                    ConnectionEndpoint connectionEndpoint =
+                                            new ConnectionEndpoint(endpointId, connectionInfo.getEndpointName());
+                                    return connectionEndpoint;
+                                }
+
+                                @Override
+                                protected void onPostExecute(ConnectionEndpoint connectionEndpoint) {
+                                    discoveredEndpoints.put(endpointId, connectionEndpoint);
+                                    displayNotification("Viewer found!", connectionInfo.getEndpointName()
+                                            + " is asking for joining your session", NotificationCompat.PRIORITY_DEFAULT);
+                                    Toast.makeText(getAppLogicActivity(), String.format(String.format("Viewer %s found!",
+                                            connectionEndpoint.getName())), Toast.LENGTH_SHORT).show();
+                                    updateParticipantsCount();
+                                    super.onPostExecute(connectionEndpoint);
+                                }
+                            }.execute();
                             break;
                     }
                 }
@@ -110,10 +123,14 @@ public class ConnectionManager {
                     switch (result.getStatus().getStatusCode()) {
                         case ConnectionsStatusCodes.STATUS_OK:
                             Log.i(TAG, "WE ARE CONNECTED");
+                            //Display system message inside the chat window
+                            appLogicActivity.getChatFragment().displaySystemNotification(
+                                    String.format("Connection to %s established.", endpoint.getName()));
                             // We're connected! Can now start sending and receiving data.
-                            establishedConnections.put(endpointId, discoveredEndpoints.get(endpointId));
+                            establishedConnections.put(endpointId, endpoint);
                             if (pendingConnections.containsKey(endpointId))
                                 pendingConnections.remove(endpointId);
+
                             break;
                         case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
                             Log.i(TAG, "CONNECTION REJECTED");
@@ -144,9 +161,9 @@ public class ConnectionManager {
     /*
      * Sends the received message from the endpoint to the device
      */
-    public void onChatMessageSent(String message, Bitmap profilePicture) {
+    public void onChatMessageSent(String id, String message) {
         ChatFragment chat = getAppLogicActivity().getChatFragment();
-        chat.getDataFromEndPoint(message, profilePicture);
+        chat.getDataFromEndPoint(id, message);
     }
 
     /**
@@ -164,6 +181,8 @@ public class ConnectionManager {
         //Clear in other classes
         if (appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR)
             appLogicActivity.getSelectPresenterFragment().removeEndpointFromAdapters(endpoint);
+        appLogicActivity.getChatFragment().displaySystemNotification(
+                String.format("%s has disconnected...", endpoint.getName()));
         //Update the GUI finally
         updateGUI(endpoint);
 
@@ -175,8 +194,8 @@ public class ConnectionManager {
     private final PayloadCallback payloadCallback =
             new PayloadCallback() {
                 //SimpleArrayMap is a more efficient data structure when lots of changes occur (in comparision to hash map)
-                private final SimpleArrayMap<String, Payload> incomingPayloads = new SimpleArrayMap<>();
-                private final SimpleArrayMap<String, String> filePayloadFilenames = new SimpleArrayMap<>();
+                private final SimpleArrayMap<Long, Payload> incomingPayloads = new SimpleArrayMap<>();
+                private final SimpleArrayMap<Long, String> filePayloadFilenames = new SimpleArrayMap<>();
 
 
                 //Note: onPayloadReceived() is called when the first byte of a Payload is received;
@@ -199,28 +218,28 @@ public class ConnectionManager {
                         try {
                             int substringDividerIndex = payloadFilenameMessage.indexOf(':');
                             String payloadId = payloadFilenameMessage.substring(0, substringDividerIndex);
-                            String filename = payloadFilenameMessage.substring(substringDividerIndex + 1);
-                            //We must check wheter we are receiving a file name (in order to rename a file)
+                            String fileContent = payloadFilenameMessage.substring(substringDividerIndex + 1);
+                            //We must check whether we are receiving a file name (in order to rename a file)
                             //or a chat message
                             switch (payloadId) {
                                 case "CHAT":
-                                    Log.i(TAG, "Received CHAT MESSAGES");
-                                    ConnectionEndpoint connectionEndpoint = discoveredEndpoints.get(endpointId);
-                                    Bitmap profilePicture = connectionEndpoint.getProfilePicture();
-                                    Log.i(TAG, "Received CHAT MESSAGES" + filename + " " + profilePicture);
-                                    onChatMessageSent(filename, profilePicture);
+                                    Bitmap profilePicture = LocalDataBase.getBitmapFromUser(endpointId);
+                                    Log.i(TAG, "Received CHAT MESSAGES" + fileContent + " " + profilePicture);
+                                    onChatMessageSent(endpointId, fileContent);
                                     break;
                                 default:
-                                    Log.i(TAG, "Received FILE NAME");
-                                    filePayloadFilenames.put(payloadId, filename);
+                                    Log.i(TAG, "Received FILE-NAME: " + fileContent);
+                                    filePayloadFilenames.put(Long.valueOf(payloadId), fileContent);
                                     break;
                             }
                         } catch (Exception e) {
                             return;
                         }
                     } else if (payload.getType() == Payload.Type.FILE) {
+                        Log.i(TAG, "Received FILE: ID=" + payload.getId());
                         // Add this to our tracking map, so that we can retrieve the payload later.
-                        incomingPayloads.put(endpointId, payload);
+                        incomingPayloads.put(payload.getId(), payload);
+                        //TODO: Sending files may take some time. Display progressbar or something
                     }
                 }
 
@@ -228,26 +247,30 @@ public class ConnectionManager {
                 public void onPayloadTransferUpdate(String endpointId, PayloadTransferUpdate update) {
                     if (update.getStatus() == PayloadTransferUpdate.Status.SUCCESS) {
                         //Data fully received.
-                        Log.i(TAG, "Payload data fully received!");
+                        Log.i(TAG, "Payload data fully received! ID=" + endpointId);
                         //Display a notification.
                         displayNotification("Document received",
                                 String.format("%s has sent you a document...", establishedConnections.get(endpointId)),
                                 NotificationCompat.PRIORITY_DEFAULT);
                         Payload payload = incomingPayloads.get(update.getPayloadId());
-                        Log.i(TAG, "Payload is:" + payload + incomingPayloads + filePayloadFilenames);
+
+                        Log.i(TAG, "onPayloadTransferUpdate()" + payload +
+                                "\n" + incomingPayloads.toString() +
+                                "\n" + filePayloadFilenames.toString());
 
                         if (payload != null) {
                             //Load data
                             if (payload.getType() == Payload.Type.FILE) {
                                 // Retrieve the filename and corresponding payload.
                                 File payloadFile = payload.asFile().asJavaFile();
-                                String fileName = filePayloadFilenames.remove(endpointId);
-                                Log.i(TAG, "Payload name: " + payloadFile.getName());
+                                String fileName = filePayloadFilenames.remove(update.getPayloadId());
+                                Log.i(TAG, "Payload file name: " + payloadFile.getName());
                                 ConnectionEndpoint connectionEndpoint = discoveredEndpoints.get(endpointId);
                                 //Update inbox-fragment.
-                                appLogicActivity.getInboxFragment().storePayLoad(connectionEndpoint,fileName, payloadFile);
+                                appLogicActivity.getInboxFragment().storePayLoad(connectionEndpoint, fileName, payloadFile);
                             }
-                        }
+                        } else Log.i(TAG, "Payload NULL!");
+
                     } else if (update.getStatus() == PayloadTransferUpdate.Status.FAILURE) {
                         Log.i(TAG, "Payload status: PayloadTransferUpdate.Status.FAILURE");
                     }
@@ -306,7 +329,7 @@ public class ConnectionManager {
         reset();
         // Note: Advertising may fail
         connectionsClient.startAdvertising(
-                getMergedNameBitmap(), serviceID, connectionLifecycleCallback,
+                AppLogicActivity.getUserRole().getUserName(), serviceID, connectionLifecycleCallback,
                 new AdvertisingOptions(STRATEGY)).addOnSuccessListener(
                 new OnSuccessListener<Void>() {
                     @Override
@@ -330,7 +353,7 @@ public class ConnectionManager {
     private void reset() {
         Log.i(TAG, "Resetting connection.");
         //Disconnect from any potential connections and stop advertising/discovering
-        terminateConnection();
+        disconnectFromAllEndpoints();
         //Clear list every time we try to re-discover
         discoveredEndpoints.clear();
         pendingConnections.clear();
@@ -348,14 +371,26 @@ public class ConnectionManager {
         final EndpointDiscoveryCallback endpointDiscoveryCallback =
                 new EndpointDiscoveryCallback() {
                     @Override
-                    public void onEndpointFound(String endpointId, DiscoveredEndpointInfo info) {
-                        Log.i(TAG, String.format("onEndpointFound(endpointId = %s,endpointName = %s)", endpointId, info.getEndpointName()));
-                        //Create and define a new ConnectionEndpoint
-                        ConnectionEndpoint connectionEndpoint = new ConnectionEndpoint(endpointId, info.getEndpointName());
-                        discoveredEndpoints.put(connectionEndpoint.getId(), connectionEndpoint);
-                        displayNotification("Presenter found!", info.getEndpointName()
-                                + " can be added to the presentation", NotificationCompat.PRIORITY_LOW);
-                        updatePresenters(connectionEndpoint);
+                    public void onEndpointFound(final String endpointId, final DiscoveredEndpointInfo info) {
+                        Log.i(TAG, String.format("discovererOnEndpointFound(endpointId = %s,endpointName = %s)", endpointId, info.getEndpointName()));
+                        new AsyncTask<Void, Void, ConnectionEndpoint>() {
+
+                            @Override
+                            protected ConnectionEndpoint doInBackground(Void... voids) {
+                                return new ConnectionEndpoint(endpointId, info.getEndpointName());
+                            }
+
+                            @Override
+                            protected void onPostExecute(ConnectionEndpoint connectionEndpoint) {
+                                //Create and define a new ConnectionEndpoint
+                                discoveredEndpoints.put(connectionEndpoint.getId(), connectionEndpoint);
+                                displayNotification("Presenter found!", info.getEndpointName()
+                                        + " can be added to the presentation", NotificationCompat.PRIORITY_LOW);
+                                updatePresenters(connectionEndpoint);
+                                super.onPostExecute(connectionEndpoint);
+                            }
+                        }.execute();
+
                     }
 
                     @Override
@@ -392,12 +427,14 @@ public class ConnectionManager {
      * Stops looking for new devices/endpoints to connect to
      */
     public void stopDiscovering() {
+        connectionsClient.stopDiscovery();
     }
 
     /**
      * Stops advertising to new discoverers
      */
     public void stopAdvertising() {
+        connectionsClient.stopAdvertising();
     }
 
     public ConnectionsClient getConnectionsClient() {
@@ -433,6 +470,7 @@ public class ConnectionManager {
     }
 
     /**
+<<<<<<< HEAD
      * Puts the name together with the mapmap as string into one new string
      */
     private String getMergedNameBitmap(){
@@ -440,6 +478,8 @@ public class ConnectionManager {
         return AppLogicActivity.getUserRole().getUserName() + ":" + LocalDataBase.getProfilePictureAsString();
     }
     /**
+=======
+>>>>>>> develop
      * Only for discoverers (Viewers)
      * If the advertisers wishes to establish a connection to a presenter (advertiser), then a connection is needed.
      * According to the documentation, both sides must explicitly accept the connection. Therefor we
@@ -451,7 +491,7 @@ public class ConnectionManager {
         Log.i(TAG, String.format("Requesting connection for (endpointId=%s, endpointName=%s)",
                 endpoint.getId(), endpoint.getName()));
         connectionsClient.requestConnection(
-                getMergedNameBitmap(),
+                AppLogicActivity.getUserRole().getUserName(),
                 endpoint.getId(),
                 connectionLifecycleCallback)
                 .addOnSuccessListener(
@@ -544,7 +584,7 @@ public class ConnectionManager {
     /**
      * Disconnects from all endpoints and stops advertising/discovering
      */
-    public void terminateConnection(){
+    public void terminateConnection() {
         disconnectFromAllEndpoints();
         switch (appLogicActivity.getUserRole().getRoleType()) {
             case SPECTATOR:
@@ -555,6 +595,7 @@ public class ConnectionManager {
                 break;
         }
     }
+
     /**
      * Updates the presenters which are available
      */

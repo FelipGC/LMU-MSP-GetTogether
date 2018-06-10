@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -18,7 +17,6 @@ import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.SelectPresenterFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
 import java.util.ArrayList;
@@ -84,7 +82,7 @@ public class PresenterAdapter extends BaseAdapter {
         Log.i(TAG, "getView()");
         LayoutInflater messageInflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         final ConnectionEndpoint connectionEndpoint = endpointList.get(position);
-        convertView = messageInflater.inflate(R.layout.presenter_list_entry, null);
+        convertView = messageInflater.inflate(R.layout.list_item_presenter, null);
         Switch sw = convertView.findViewById(R.id.switch1);
         sw.setChecked(enableSwitch);
         sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

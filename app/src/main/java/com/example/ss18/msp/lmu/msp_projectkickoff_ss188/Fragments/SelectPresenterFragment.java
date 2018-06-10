@@ -45,7 +45,7 @@ public class SelectPresenterFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.available_presenters_fragment, container, false);
+        View view = inflater.inflate(R.layout.fragment_available_presenters, container, false);
         cM = AppLogicActivity.getConnectionManager();
 
         viewDevicesFound.addAll(Arrays.asList(

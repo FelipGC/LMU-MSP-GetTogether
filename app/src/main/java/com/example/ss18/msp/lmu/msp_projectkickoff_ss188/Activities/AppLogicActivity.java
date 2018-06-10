@@ -3,7 +3,6 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -20,7 +19,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.LiveViewFragm
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
-public class AppLogicActivity extends AppCompatActivity {
+public class AppLogicActivity extends BaseActivity {
     /**
      * Tag for Logging/Debugging
      */
@@ -45,7 +44,10 @@ public class AppLogicActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.app_logic_activity);
+        super.onCreate(R.layout.activity_app_logic);
+
+        getSupportActionBar().setTitle("Gruppenname"); //TODO
+
         //Get object from intent
         setUserRole((User) getIntent().getSerializableExtra("UserRole"));
         Log.i(TAG, "Secondary activity created as: " + getUserRole().getRoleType());
@@ -83,20 +85,24 @@ public class AppLogicActivity extends AppCompatActivity {
         TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
     }
+
     /**
      * Updates the amount of participants on the GUI
      */
-    public void updateParticipantsGUI(int newSize, int maxSize){
-        selectParticipantsFragment.updateParticipantsGUI(newSize,maxSize);
+    public void updateParticipantsGUI(int newSize, int maxSize) {
+        selectParticipantsFragment.updateParticipantsGUI(newSize, maxSize);
     }
+
     /**
      * Updates the amount of presenters on the GUI
      */
-    public void updatePresentersGUI(ConnectionEndpoint endpoint){
-        selectPresenterFragment.updateDeviceList(endpoint);
+    public void updatePresentersGUI(ConnectionEndpoint endpoint) {
+        if (selectPresenterFragment != null)
+            selectPresenterFragment.updateDeviceList(endpoint);
     }
 
     //Advertising and Discovery
+
     /**
      * Calls startAdvertising() on the connectionManager
      */
@@ -111,6 +117,7 @@ public class AppLogicActivity extends AppCompatActivity {
     private void stopAdvertising() {
         connectionManager.stopAdvertising();
     }
+
     /**
      * Calls startDiscovering() on the connectionManager
      */
@@ -118,6 +125,7 @@ public class AppLogicActivity extends AppCompatActivity {
         Toast.makeText(this, R.string.startAdvertising, Toast.LENGTH_LONG).show();
         connectionManager.startDiscovering();
     }
+
     /**
      * Calls stopDiscovering() on the connectionManager
      */
@@ -138,24 +146,25 @@ public class AppLogicActivity extends AppCompatActivity {
     /**
      * Displays options to manage (allow/deny) file sharing with devices.
      * That is selecting devices you want to enable file sharing
+     *
      * @param view
      */
-    public void manageParticipants(View view){
+    public void manageParticipants(View view) {
         selectParticipantsFragment.manageParticipants(view);
     }
 
     /**
-     * Gets executed when a presentor presses to "select file" button inside the share_fragment
+     * Gets executed when a presentor presses to "select file" button inside the fragment_share
      */
     public void selectFileButtonClicked(View view) {
-        if(shareFragment == null)
+        if (shareFragment == null)
             return;
         shareFragment.performFileSearch();
     }
 
     @Override
     protected void onDestroy() {
-        Log.i(TAG,"onDestroy() -> terminating nearby connection");
+        Log.i(TAG, "onDestroy() -> terminating nearby connection");
         connectionManager.terminateConnection();
         if (chatFragment != null) {
             chatFragment.clearContent();
