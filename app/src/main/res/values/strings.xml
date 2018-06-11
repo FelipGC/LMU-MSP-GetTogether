@@ -65,4 +65,6 @@
     <string name="presentation_openPresentationRequestCode">1</string>
     <string name="yes">Yes</string>
     <string name="presentation_tabName">Live Presentation</string>
+    <string name="no_name_entered">Ooooops keinen Namen?</string>
+    <string name="generate_random_name">Du hast keinen Benutzernamen eingegeben. Möchtest du vielleicht einen zufälligen erstellen?</string>
 </resources>
