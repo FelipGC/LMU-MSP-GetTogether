@@ -14,33 +14,31 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/placeHolder"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text=" "
-            android:textSize="30sp" />
-
         <Button
             android:id="@+id/participantsButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:drawable/dialog_holo_light_frame"
+            android:fontFamily="serif"
+            android:onClick="manageParticipants"
             android:text="@string/participants"
             android:textColor="@color/colorPrimaryLight"
             android:textSize="40dp"
-            android:onClick="manageParticipants"/>
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/numberOfParticipants"
             android:layout_width="match_parent"
             android:layout_height="222dp"
             android:elevation="30dp"
+            android:fontFamily="serif"
             android:gravity="center|top"
             android:onClick="manageParticipants"
             android:text="None :("
             android:textAlignment="center"
             android:textAllCaps="false"
+            android:textSize="100sp"
+            android:textStyle="bold"
             tools:layout_editor_absoluteY="66dp" />
 
         <Button

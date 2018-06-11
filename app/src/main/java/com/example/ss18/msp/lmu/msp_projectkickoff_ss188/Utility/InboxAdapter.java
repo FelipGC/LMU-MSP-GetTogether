@@ -2,13 +2,16 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility;
 
 import android.app.Activity;
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
 import java.util.ArrayList;
@@ -36,8 +39,8 @@ public class InboxAdapter extends BaseAdapter {
         for (ConnectionEndpoint c : inboxList ){
             if(c.getId().equals(endpoint.getId())){
                 containsID = true;
+                break;
             }
-            break;
         }
         // If not already existing, create entry.
         if(!containsID)
@@ -82,6 +85,12 @@ public class InboxAdapter extends BaseAdapter {
         LayoutInflater messageInflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         convertView = messageInflater.inflate(R.layout.list_item_inbox, null);
         convertView.setTag(inboxList.get(position));
+        ImageView image = convertView.findViewById(R.id.avatar);
+        Uri uri = LocalDataBase.getProfilePictureUri(inboxList.get(position).getId());
+        if(uri != null) {
+            image.setImageURI(uri);
+            //TODO: Make image round
+        }
         return convertView;
     }
 }

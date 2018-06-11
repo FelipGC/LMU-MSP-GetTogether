@@ -2,6 +2,7 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
@@ -85,9 +86,9 @@ public final class ConnectionEndpoint {
         return String.format("ConnectionEndpoint{id=%s, name=%s}", id, name);
     }
 
-    public Bitmap getProfilePicture() {
-        Bitmap bitmap = LocalDataBase.getBitmapFromUser(id);
-        Log.i(TAG,"getProfilePicture() for: " + getName() + " result:\n" + bitmap);
-        return bitmap;
+    public Uri getProfilePicture() {
+        Uri uri = LocalDataBase.getProfilePictureUri(id);
+        Log.i(TAG,"getProfilePicture() for: " + getName() + " result:\n" + uri);
+        return uri;
     }
 }

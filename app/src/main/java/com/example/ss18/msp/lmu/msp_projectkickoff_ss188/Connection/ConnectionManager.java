@@ -19,6 +19,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.FileUtility;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
@@ -143,10 +144,9 @@ public class ConnectionManager {
 
                             final boolean SPECTATOR = appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR;
                                 try {
-                                    String uriString = LocalDataBase.getProfilePictureUri();
-                                    if(uriString.equals("NO_PROFILE_PICTURE"))
+                                    Uri uri = LocalDataBase.getProfilePictureUri();
+                                    if(uri == null)
                                         break;
-                                    Uri uri = Uri.parse(uriString);
                                     ParcelFileDescriptor file = appLogicActivity.getContentResolver().openFileDescriptor(uri, "r");
                                     Payload payload = Payload.fromFile(file);
                                     sendPayload(endpointId, payload, payload.getId() + (SPECTATOR ? ":PROF_PIC_V:" : ":PROF_PIC:"));
@@ -311,15 +311,16 @@ public class ConnectionManager {
                                     String bitMapSender = fileName.substring(substringDividerIndex + 1);
                                     //Store image
                                     Log.i(TAG, "Received and renamed payload file to: " + fileName);
-                                    //TODO: Move and rename file to something good
-                                    //TODO: READ BITMAP FROM FILE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                                    //TODO: Move and rename file to something good (NOT WORKING?)
+                                    FileUtility.storePayLoadUserProfile(fileName,payloadFile);
+                                    //
                                     Log.i(TAG, "CONTENT " + Uri.fromFile(payloadFile));
 
                                     //Add to local DataBase
                                     if (bitMapSender.length() == 0)
                                         bitMapSender = endpointId;
                                     //Store bitmap
-                                    LocalDataBase.addBitmapToUser(bitMapSender,Uri.fromFile(payloadFile),appLogicActivity.getContentResolver());
+                                    LocalDataBase.idToUri.put(bitMapSender,Uri.fromFile(payloadFile));
                                     switch (payLoadTag) {
                                         case "PROF_PIC_V":
                                             Log.i(TAG, "PROF_PIC_V");
@@ -332,10 +333,9 @@ public class ConnectionManager {
                                                 }
                                                 //Send all other endpoint`s bitmap to the endpoint
                                                 for (String id : establishedConnections.keySet()) {
-                                                    String uriString = LocalDataBase.getProfilePictureUri(id);
-                                                    if(uriString.equals("NO_PROFILE_PICTURE"))
+                                                    Uri uri = LocalDataBase.getProfilePictureUri(id);
+                                                    if(uri == null)
                                                         break;
-                                                    Uri uri = Uri.parse(uriString);
                                                     ParcelFileDescriptor file = appLogicActivity.getContentResolver().openFileDescriptor(uri, "r");
                                                     Payload profilePic = Payload.fromFile(file);
                                                     sendPayload(endpointId, profilePic, payload.getId() + ":PROF_PIC:" + id + ":");
@@ -448,6 +448,7 @@ public class ConnectionManager {
                     @Override
                     public void onSuccess(Void unusedResult) {
                         // We're advertising!
+                        Log.i(TAG,"We are advertising...");
                     }
                 })
                 .addOnFailureListener(
@@ -455,6 +456,10 @@ public class ConnectionManager {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 // We were unable to start advertising.
+                                Log.i(TAG,"Something went wrong!");
+                                e.printStackTrace();
+                                stopAdvertising();
+                                startAdvertising();
                             }
                         });
         ;
@@ -525,6 +530,7 @@ public class ConnectionManager {
                     @Override
                     public void onSuccess(Void unusedResult) {
                         // We're discovering!
+                        Log.i(TAG,"We are discovering...");
                     }
                 })
                 .addOnFailureListener(
@@ -532,6 +538,10 @@ public class ConnectionManager {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 // We were unable to start discovering.
+                                Log.i(TAG,"Something went wrong!");
+                                stopDiscovering();
+                                startDiscovering();
+                                e.printStackTrace();
                             }
                         });
     }
@@ -605,6 +615,8 @@ public class ConnectionManager {
                             public void onSuccess(Void unusedResult) {
                                 // We successfully requested a connection. Now both sides
                                 // must accept before the connection is established.
+                                // We were unable to start advertising.
+                                Log.i(TAG,"We have requested a connection!");
                             }
                         }).addOnFailureListener(
                 new OnFailureListener() {
@@ -612,6 +624,13 @@ public class ConnectionManager {
                     public void onFailure(@NonNull Exception e) {
                         // Nearby Connections failed to request the connection.
                         //TODO: Add some logic?!
+                        // We were unable to start advertising.
+                        Log.i(TAG,"Something went wrong! requestConnection()");
+                        e.printStackTrace();
+                        if(discoveredEndpoints.containsKey(endpoint.getId())) {
+                            Log.i(TAG,"Retrying to connect to: "+endpoint.getName());
+                            requestConnection(endpoint);
+                        }
                     }
                 });
     }

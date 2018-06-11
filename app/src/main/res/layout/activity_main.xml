@@ -19,6 +19,11 @@
             android:id="@+id/buttonPresenter"
             android:layout_width="190dp"
             android:layout_height="190dp"
+            android:layout_marginEnd="97dp"
+            android:layout_marginLeft="97dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginRight="97dp"
+            android:layout_marginStart="97dp"
             android:background="@drawable/button_presentor"
             android:contentDescription="@string/presenter"
             android:elevation="10dp"
@@ -28,10 +33,13 @@
 
         <TextView
             android:id="@+id/textViewTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="73dp"
+            android:fontFamily="serif"
             android:gravity="center"
-            android:text="@string/introInfo" />
+            android:text="@string/introInfo"
+            android:textAlignment="center"
+            android:textSize="18sp" />
 
         <ImageButton
             android:id="@+id/buttonSpectator"

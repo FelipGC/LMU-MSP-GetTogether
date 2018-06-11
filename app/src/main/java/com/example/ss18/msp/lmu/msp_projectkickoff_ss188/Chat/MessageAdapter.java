@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -77,9 +78,9 @@ public class MessageAdapter extends BaseAdapter {
             holder.avatar = (ImageView) convertView.findViewById(R.id.avatar);
             holder.name = (TextView) convertView.findViewById(R.id.name);
             holder.name.setText(message.getUserName());
-            Bitmap bitmap = LocalDataBase.getBitmapFromUser(message.getId());
-            holder.avatar.setImageBitmap(bitmap);
-            Log.i(TAG,"Loading image into avatar: " + bitmap);
+            Uri uri = LocalDataBase.getProfilePictureUri(message.getId());
+            holder.avatar.setImageURI(uri);
+            Log.i(TAG,"Loading image into avatar: " + uri);
             //GradientDrawable drawable = (GradientDrawable) holder.avatar.getBackground();
             //drawable.setColor(Color.GREEN);
         }
