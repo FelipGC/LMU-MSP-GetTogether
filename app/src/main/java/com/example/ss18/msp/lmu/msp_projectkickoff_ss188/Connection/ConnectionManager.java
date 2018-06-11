@@ -253,8 +253,8 @@ public class ConnectionManager {
                             switch (payloadId) {
                                 case "CHAT":
                                     Log.i(TAG, "Received CHAT MESSAGES" + fileContent);
-                                    onChatMessageSent(endpointId, fileContent);
                                     messageFromChat = true;
+                                    onChatMessageSent(endpointId, fileContent);
                                     break;
                                 default:
                                     Log.i(TAG, "Received FILE-NAME: " + fileContent);
@@ -282,15 +282,18 @@ public class ConnectionManager {
                         //Checks to see if the message is a chat message or a document
                         if (!messageFromChat) {
                             //Display a notification.
+                            Log.i("Eli69696", "Here in document");
                             displayNotification("Document received",
                                     String.format("%s has sent you a document...", establishedConnections.get(endpointId)),
                                     NotificationCompat.PRIORITY_DEFAULT);
                         } else {
+                            Log.i("Eli69696", "Here in message");
                             displayNotificationChat("Chat message received",
                                     String.format("%s has sent you a message...", establishedConnections.get(endpointId).getName()),
                                     NotificationCompat.PRIORITY_DEFAULT);
-                            //messageFromChat = false;
+                            messageFromChat = false;
                         }
+
 
                         Payload payload = incomingPayloads.remove(update.getPayloadId());
                         Log.i(TAG, "onPayloadTransferUpdate()\n" + payload +
