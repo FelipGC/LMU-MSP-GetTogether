@@ -2,10 +2,12 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -16,7 +18,7 @@ import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
-
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.RandomNameGenerator;
 
 
 public class SettingsActivity extends BaseActivity {
@@ -84,6 +86,8 @@ public class SettingsActivity extends BaseActivity {
         if (setUsername()) {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
+        }else{
+            generateRandomName();
         }
     }
 
@@ -213,9 +217,58 @@ public class SettingsActivity extends BaseActivity {
             }
             return true;
         }
-        Toast.makeText(SettingsActivity.this,
-                R.string.username_empty,
-                Toast.LENGTH_LONG).show();
         return false;
+    }
+    private void displayRandomName(){
+
+        final String username = RandomNameGenerator.generate(getApplicationContext());
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Wie wäre es mit...?");
+        builder.setMessage(username);
+        builder.setNegativeButton("Generieren", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                displayRandomName();
+            }
+        });
+        builder.setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                enteredUsername.setText(username);
+                onSignUpButtonClicked();
+            }
+        });
+        builder.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(SettingsActivity.this,
+                        R.string.username_empty,
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+        builder.create().show();
+    }
+    /**
+     * Displays anoption to generate a random name
+     */
+    private void generateRandomName(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.no_name_entered);
+        builder.setMessage(R.string.generate_random_name);
+        builder.setNegativeButton("Generieren", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                displayRandomName();
+            }
+        });
+        builder.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(SettingsActivity.this,
+                        R.string.username_empty,
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+        builder.create().show();
     }
 }

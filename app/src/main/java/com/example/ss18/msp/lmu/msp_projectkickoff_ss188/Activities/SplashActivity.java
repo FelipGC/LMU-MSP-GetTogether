@@ -26,7 +26,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 public class SplashActivity extends AppCompatActivity {
     private static final String TAG = "SPLASH_ACTIVITY";
 
-    static final String PREFS_NAME = "preferences_title_id_12345";
+    static final String PREFS_NAME = "preferences_name_id_42";
     static final String PREF_USER = "preferences_username";
     static final String PREF_IMAGE = "preferences_image";
 

@@ -62,4 +62,6 @@
     <string name="inbox">Inbox</string>
     <string name="title_activity_inbox">InboxActivity</string>
     <string name="yes">Yes</string>
+    <string name="no_name_entered">Ooooops keinen Namen?</string>
+    <string name="generate_random_name">Du hast keinen Benutzernamen eingegeben. Möchtest du vielleicht einen zufälligen erstellen?</string>
 </resources>
