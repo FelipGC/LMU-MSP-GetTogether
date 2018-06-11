@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -41,6 +42,8 @@ public class SplashActivity extends AppCompatActivity {
                     Manifest.permission.ACCESS_WIFI_STATE,
                     Manifest.permission.CHANGE_WIFI_STATE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.VIBRATE
             };
 
     /**
@@ -48,13 +51,13 @@ public class SplashActivity extends AppCompatActivity {
      * This is only needed for newer devices
      */
     @RequiresApi(api = Build.VERSION_CODES.M)
-    @Override
-    protected void onStart() {
-        super.onStart();
+    protected void setRequiredPermissions() {
+        Log.i(TAG, "AsetRequiredPermissions()");
         //Check if we have all permissions, if not, then add!
         for (String permission : REQUIRED_PERMISSIONS) {
             if (ContextCompat.checkSelfPermission(this, permission)
                     != PackageManager.PERMISSION_GRANTED) {
+                Log.i(TAG, "Requesting permission: " + permission);
                 requestPermissions(REQUIRED_PERMISSIONS, 1);
                 return;
             }
@@ -64,6 +67,9 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            setRequiredPermissions();
+        }
         super.onCreate(savedInstanceState);
 
         loadPreferences();

@@ -16,6 +16,7 @@ import android.widget.ListView;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.FileUtility;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.InboxAdapter;
 
 import java.io.File;
@@ -38,7 +39,7 @@ public class InboxFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ConnectionEndpoint endpoint = (ConnectionEndpoint) view.getTag();
                 Log.i(TAG, "Clicked on presenter: " + endpoint.getName());
-                performFileSearch(pathToEndpoint(endpoint));
+                performFileSearch(FileUtility.pathToEndpoint(endpoint));
             }
         });
         return view;
@@ -49,23 +50,11 @@ public class InboxFragment extends Fragment {
      */
     public void storePayLoad(ConnectionEndpoint endpoint, String fileName, File file) {
 
-        Log.i(TAG, "Received and renamed payload file to: " + file.getName());
+        Log.i(TAG, "storePayLoad()");
         inboxAdapter.add(endpoint);
-        //Create folder to save the date if it does not exist already.
-        File f = new File(Environment.getExternalStorageDirectory() + "/" + "GetTogether", endpoint.getName());
-        if (!f.exists()) {
-            f.mkdirs();
-        }
-        //Rename file
-        file.renameTo(new File(pathToEndpoint(endpoint), fileName));
+        FileUtility.storePayLoad(endpoint,fileName,file);
     }
 
-    /**
-     * Returns the path to the location where the files from a particular endpoint should be stored
-     */
-    private String pathToEndpoint(ConnectionEndpoint endpoint){
-        return Environment.getExternalStorageDirectory() + "/" + "GetTogether" + "/" + endpoint.getName();
-    }
     /**
      * Fires an intent to spin up the "file chooser" UI and select a file.
      */
