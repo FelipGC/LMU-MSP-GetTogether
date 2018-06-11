@@ -45,7 +45,7 @@ public class SelectPresenterFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.available_presenters_fragment, container, false);
+        View view = inflater.inflate(R.layout.fragment_available_presenters, container, false);
         cM = AppLogicActivity.getConnectionManager();
 
         viewDevicesFound.addAll(Arrays.asList(
@@ -97,7 +97,7 @@ public class SelectPresenterFragment extends Fragment {
         Log.i(TAG,"REMOVE ENDPOINT FROM ADAPTERS");
         ((PresenterAdapter) availablePresenters.getAdapter()).remove(connectionEndpoint);
         ((PresenterAdapter) establishedPresenters.getAdapter()).remove(connectionEndpoint);
-        if(cM.getPendingConnections().size() == 0)
+        if(cM == null || cM.getPendingConnections().size() == 0)
             pendingButton.setVisibility(View.GONE);
         else pendingButton.setText(String.format("Pending Connection(s): %d", cM.getPendingConnections().size()));
     }
@@ -109,7 +109,7 @@ public class SelectPresenterFragment extends Fragment {
     public synchronized void updateDeviceList(ConnectionEndpoint endpoint) {
         Log.i(TAG, "updateDeviceList( "+endpoint+" )");
         //We found no device
-        if (cM.getDiscoveredEndpoints().size() == 0) {
+        if (cM == null || cM.getDiscoveredEndpoints().size() == 0) {
             for (View view : viewDevicesFound)
                 view.setVisibility(View.GONE);
             for (View viewNoDevice : viewNoDevices)
@@ -136,7 +136,7 @@ public class SelectPresenterFragment extends Fragment {
             targetListView = establishedPresenters;
         else if (!cM.getPendingConnections().containsKey(endpoint.getId()))
             targetListView = availablePresenters;
-        //Add or remove element form listView
+        //Add or replace element form listView
         HashSet<ListView> listViews = new HashSet<>(Arrays.asList(establishedPresenters, availablePresenters,null));
         for (ListView listView : listViews) {
             PresenterAdapter presenterAdapter = null;

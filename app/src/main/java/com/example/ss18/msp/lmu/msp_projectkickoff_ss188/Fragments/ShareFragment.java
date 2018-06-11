@@ -1,6 +1,7 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -8,10 +9,12 @@ import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
@@ -34,15 +37,16 @@ public class ShareFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.share_fragment,container,false);
+        View view = inflater.inflate(R.layout.fragment_share, container, false);
         return view;
     }
+
     /**
      * Fires an intent to spin up the "file chooser" UI and select an image.
      * (Minimum API is 19)
      */
     public void performFileSearch() {
-        Log.i(TAG,"Performing file search");
+        Log.i(TAG, "Performing file search");
 
         // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file
         // browser.
@@ -57,6 +61,7 @@ public class ShareFragment extends Fragment {
 
         startActivityForResult(intent, READ_REQUEST_CODE);
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
@@ -73,25 +78,52 @@ public class ShareFragment extends Fragment {
             // Pull that URI using resultData.getUserName().
             Uri uri = resultData.getData();
             Log.i(TAG, "Uri: " + uri.toString());
-            //dataToPayload
-            try {
-                sendDataToEndpoint(uri);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
+            displayConfirmationDialog(uri);
         }
         //Calling super is mandatory!
         super.onActivityResult(requestCode, resultCode, resultData);
     }
+
+    /**
+     * Asks the user whether he really wishes to send this file/data
+     *
+     * @param uri The URI of the file/data we want to send
+     */
+    private void displayConfirmationDialog(final Uri uri) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        //Extract the filename from the URI
+        String filename = uri.getLastPathSegment().toString();
+        int divider = filename.lastIndexOf("/");
+        filename = "\""+filename.substring(divider+1)+"\"";
+        builder.setTitle(String.format("Send %s?",filename));
+        builder.setMessage("Are you sure you want to send this file to all your viewers?");
+        builder.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //dataToPayload
+                try {
+                    sendDataToEndpoint(uri);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        builder.setNegativeButton(getString(R.string.cancel), null);
+        builder.create().show();
+    }
+
     /**
      * Sends data from a uri to (all) endpoints
+     *
      * @param uri
      */
     private void sendDataToEndpoint(Uri uri) throws FileNotFoundException {
         Payload payload = dataToPayload(uri);
         // Mapping the ID of the file payload to the filename
         String payloadStoringName = payload.getId() + ":" + uri.getLastPathSegment();
-        AppLogicActivity.getConnectionManager().sendPayload(payload,payloadStoringName);
+        AppLogicActivity.getConnectionManager().sendPayload(payload, payloadStoringName);
+        //Display Toast
+        Toast.makeText(getContext(),"File sent!",Toast.LENGTH_SHORT).show();
     }
 
     /**

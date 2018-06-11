@@ -1,10 +1,15 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
 import android.Manifest;
+import android.annotation.TargetApi;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
@@ -21,10 +26,13 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 public class SplashActivity extends AppCompatActivity {
     private static final String TAG = "SPLASH_ACTIVITY";
 
-    private static final String PREFS_NAME = "preferences_title";
-    private static final String PREF_USER = "preferences_username";
+    static final String PREFS_NAME = "preferences_title_id_12345";
+    static final String PREF_USER = "preferences_username";
+    static final String PREF_IMAGE = "preferences_image";
 
     private boolean userNameAlreadyEntered = false;
+    private boolean userImageAlreadyChosen = false;
+    private final String CHANNEL_ID = "CHANNEL_ID_42";
 
     /**
      * ACCESS_COARSE_LOCATION is considered dangerous, so we need to explicitly
@@ -37,24 +45,50 @@ public class SplashActivity extends AppCompatActivity {
                     Manifest.permission.BLUETOOTH_ADMIN,
                     Manifest.permission.ACCESS_WIFI_STATE,
                     Manifest.permission.CHANGE_WIFI_STATE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.VIBRATE
             };
+
     /**
      * Called when our Activity has been made visible to the user.
      * This is only needed for newer devices
      */
     @RequiresApi(api = Build.VERSION_CODES.M)
-    @Override
-    protected void onStart() {
-        super.onStart();
+    protected void setRequiredPermissions() {
+        Log.i(TAG, "AsetRequiredPermissions()");
         //Check if we have all permissions, if not, then add!
         for (String permission : REQUIRED_PERMISSIONS) {
             if (ContextCompat.checkSelfPermission(this, permission)
                     != PackageManager.PERMISSION_GRANTED) {
+                Log.i(TAG, "Requesting permission: " + permission);
                 requestPermissions(REQUIRED_PERMISSIONS, 1);
                 return;
             }
         }
     }
+
+    /**
+     * Called when the Activity starts to create a notification channel
+     * This is only needed for newer devices
+     */
+    @TargetApi(26)
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -64,16 +98,28 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            setRequiredPermissions();
+        }
         super.onCreate(savedInstanceState);
 
         loadPreferences();
+        loadImagePreferences();
+
+        createNotificationChannel();
+        Log.i(TAG, "userNameAlreadyEntered: " + userNameAlreadyEntered);
         if (!userNameAlreadyEntered) {
-            Intent intent = new Intent(this,RegisterActivity.class);
+            Intent intent = new Intent(this, SettingsActivity.class);
+            intent.putExtra("newUser", true);
             startActivity(intent);
         } else {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
+            Toast.makeText(getApplicationContext(),
+                    String.format("Welcome back %s!", LocalDataBase.getUserName()),
+                    Toast.LENGTH_LONG).show();
         }
+        finish();
     }
 
     /**
@@ -83,10 +129,23 @@ public class SplashActivity extends AppCompatActivity {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME,
                 Context.MODE_PRIVATE);
         // Set username if already existing
-        if(userNameAlreadyEntered = settings.contains(PREF_USER))
-        {
-            LocalDataBase.setUserName(settings.getString(PREF_USER,LocalDataBase.getUserName()));
-            Log.i(TAG,"Load username: " + LocalDataBase.getUserName());
+        if (userNameAlreadyEntered = settings.contains(PREF_USER)) {
+            LocalDataBase.setUserName(settings.getString(PREF_USER, LocalDataBase.getUserName()));
+            Log.i(TAG, "Load username: " + LocalDataBase.getUserName());
+        }
+    }
+
+    /**
+     * Loads the username form the preferences
+     */
+    private void loadImagePreferences() {
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME,
+                Context.MODE_PRIVATE);
+        // Set username if already existing
+        if (userImageAlreadyChosen = settings.contains(PREF_IMAGE)) {
+            String imageUri = settings.getString(PREF_IMAGE, String.valueOf(LocalDataBase.getProfilePictureUri()));
+            LocalDataBase.setProfilePictureUri(Uri.parse(imageUri));
+            Log.i(TAG, "Load user image: " + imageUri);
         }
     }
 

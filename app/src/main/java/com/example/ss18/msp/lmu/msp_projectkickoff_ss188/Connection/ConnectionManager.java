@@ -1,9 +1,14 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
@@ -14,6 +19,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.FileUtility;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
@@ -31,9 +37,14 @@ import com.google.android.gms.nearby.connection.Strategy;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.Scanner;
 
 /**
  * Stores everything we need related to the NearbyConnection process.
@@ -49,9 +60,10 @@ public class ConnectionManager {
     /**
      * The id of the NearbyConnection service. (package name of the main activity)
      */
-    private String serviceID = "fjkgldsjf38SAIOsksjd348";
+    private String serviceID = getClass().getCanonicalName();
 
     private final String CHANNEL_ID = "CHANNEL_ID_42";
+    private boolean messageFromChat = false;
 
     public static ConnectionManager getInstance() {
         return CONNECTION_MANAGER;
@@ -72,7 +84,7 @@ public class ConnectionManager {
             new ConnectionLifecycleCallback() {
                 @Override
                 //We have received a connection request. Now both sides must either accept or reject the connection.
-                public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
+                public void onConnectionInitiated(final String endpointId, final ConnectionInfo connectionInfo) {
                     Log.i(TAG, String.format("onConnectionInitiated(endpointId=%s, endpointName=%s)",
                             endpointId, connectionInfo.getEndpointName()));
                     pendingConnections.remove(endpointId);
@@ -90,15 +102,27 @@ public class ConnectionManager {
                             //If we are the presenter, we need to verify if he really
                             //wants to allow the connection to the discoverer (= viewer)
 
-                            //Create endpoint and add it to the list
-                            ConnectionEndpoint connectionEndpoint =
-                                    new ConnectionEndpoint(endpointId, connectionInfo.getEndpointName());
-                            discoveredEndpoints.put(endpointId, connectionEndpoint);
-                            displayNotification("Viewer found!", connectionInfo.getEndpointName()
-                                    + " is asking for joining your session", NotificationCompat.PRIORITY_DEFAULT);
-                            Toast.makeText(getAppLogicActivity(), String.format(String.format("Viewer %s found!",
-                                    connectionEndpoint.getName())), Toast.LENGTH_SHORT).show();
-                            updateParticipantsCount();
+                            new AsyncTask<Void, Void, ConnectionEndpoint>() {
+
+                                @Override
+                                protected ConnectionEndpoint doInBackground(Void... voids) {
+                                    //Create endpoint and add it to the list
+                                    ConnectionEndpoint connectionEndpoint =
+                                            new ConnectionEndpoint(endpointId, connectionInfo.getEndpointName());
+                                    return connectionEndpoint;
+                                }
+
+                                @Override
+                                protected void onPostExecute(ConnectionEndpoint connectionEndpoint) {
+                                    discoveredEndpoints.put(endpointId, connectionEndpoint);
+                                    displayNotification("Viewer found!", connectionInfo.getEndpointName()
+                                            + " is asking for joining your session", NotificationCompat.PRIORITY_DEFAULT);
+                                    Toast.makeText(getAppLogicActivity(), String.format(String.format("Viewer %s found!",
+                                            connectionEndpoint.getName())), Toast.LENGTH_SHORT).show();
+                                    updateParticipantsCount();
+                                    super.onPostExecute(connectionEndpoint);
+                                }
+                            }.execute();
                             break;
                     }
                 }
@@ -110,10 +134,30 @@ public class ConnectionManager {
                     switch (result.getStatus().getStatusCode()) {
                         case ConnectionsStatusCodes.STATUS_OK:
                             Log.i(TAG, "WE ARE CONNECTED");
+                            //Display system message inside the chat window
+                            appLogicActivity.getChatFragment().displaySystemNotification(
+                                    String.format("Connection to %s established.", endpoint.getName()));
                             // We're connected! Can now start sending and receiving data.
-                            establishedConnections.put(endpointId, discoveredEndpoints.get(endpointId));
+                            establishedConnections.put(endpointId, endpoint);
                             if (pendingConnections.containsKey(endpointId))
                                 pendingConnections.remove(endpointId);
+
+                            final boolean SPECTATOR = appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR;
+                                try {
+                                    Uri uri = LocalDataBase.getProfilePictureUri();
+                                    if(uri == null)
+                                        break;
+                                    ParcelFileDescriptor file = appLogicActivity.getContentResolver().openFileDescriptor(uri, "r");
+                                    Payload payload = Payload.fromFile(file);
+                                    sendPayload(endpointId, payload, payload.getId() + (SPECTATOR ? ":PROF_PIC_V:" : ":PROF_PIC:"));
+
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
+
                             break;
                         case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
                             Log.i(TAG, "CONNECTION REJECTED");
@@ -144,15 +188,17 @@ public class ConnectionManager {
     /*
      * Sends the received message from the endpoint to the device
      */
-    public void onChatMessageSent(String message) {
+    public void onChatMessageSent(String id, String message) {
         ChatFragment chat = getAppLogicActivity().getChatFragment();
-        chat.getDataFromEndPoint(message);
+        chat.getDataFromEndPoint(id, message);
     }
 
     /**
      * Executes consequences after a device has disconnected
      */
     private void onDisconnectConsequences(ConnectionEndpoint endpoint) {
+        if(endpoint == null)
+            return;
         Log.i(TAG, "Disconnected from endpoint " + endpoint.getOriginalName());
         //Clear in this class
         if (pendingConnections.containsKey(endpoint.getId()))
@@ -164,6 +210,8 @@ public class ConnectionManager {
         //Clear in other classes
         if (appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR)
             appLogicActivity.getSelectPresenterFragment().removeEndpointFromAdapters(endpoint);
+        appLogicActivity.getChatFragment().displaySystemNotification(
+                String.format("%s has disconnected...", endpoint.getName()));
         //Update the GUI finally
         updateGUI(endpoint);
 
@@ -175,8 +223,8 @@ public class ConnectionManager {
     private final PayloadCallback payloadCallback =
             new PayloadCallback() {
                 //SimpleArrayMap is a more efficient data structure when lots of changes occur (in comparision to hash map)
-                private final SimpleArrayMap<String, Payload> incomingPayloads = new SimpleArrayMap<>();
-                private final SimpleArrayMap<String, String> filePayloadFilenames = new SimpleArrayMap<>();
+                private final SimpleArrayMap<Long, Payload> incomingPayloads = new SimpleArrayMap<>();
+                private final SimpleArrayMap<Long, String> filePayloadFilenames = new SimpleArrayMap<>();
 
 
                 //Note: onPayloadReceived() is called when the first byte of a Payload is received;
@@ -199,25 +247,28 @@ public class ConnectionManager {
                         try {
                             int substringDividerIndex = payloadFilenameMessage.indexOf(':');
                             String payloadId = payloadFilenameMessage.substring(0, substringDividerIndex);
-                            String filename = payloadFilenameMessage.substring(substringDividerIndex + 1);
-                            //We must check wheter we are receiving a file name (in order to rename a file)
+                            String fileContent = payloadFilenameMessage.substring(substringDividerIndex + 1);
+                            //We must check whether we are receiving a file name (in order to rename a file)
                             //or a chat message
                             switch (payloadId) {
                                 case "CHAT":
-                                    Log.i(TAG, "Received CHAT MESSAGES");
-                                    onChatMessageSent(filename);
+                                    Log.i(TAG, "Received CHAT MESSAGES" + fileContent);
+                                    messageFromChat = true;
+                                    onChatMessageSent(endpointId, fileContent);
                                     break;
                                 default:
-                                    Log.i(TAG, "Received FILE NAME");
-                                    filePayloadFilenames.put(payloadId, filename);
+                                    Log.i(TAG, "Received FILE-NAME: " + fileContent);
+                                    filePayloadFilenames.put(Long.valueOf(payloadId), fileContent);
                                     break;
                             }
                         } catch (Exception e) {
-                            return;
+                            e.printStackTrace();
                         }
                     } else if (payload.getType() == Payload.Type.FILE) {
+                        Log.i(TAG, "Received FILE: ID=" + payload.getId());
                         // Add this to our tracking map, so that we can retrieve the payload later.
-                        incomingPayloads.put(endpointId, payload);
+                        incomingPayloads.put(payload.getId(), payload);
+                        //TODO: Sending files may take some time. Display progressbar or something
                     }
                 }
 
@@ -225,26 +276,92 @@ public class ConnectionManager {
                 public void onPayloadTransferUpdate(String endpointId, PayloadTransferUpdate update) {
                     if (update.getStatus() == PayloadTransferUpdate.Status.SUCCESS) {
                         //Data fully received.
-                        Log.i(TAG, "Payload data fully received!");
+
+                     Log.i(TAG, "Payload data fully received! ID=" + endpointId);
                         //Display a notification.
-                        displayNotification("Document received",
-                                String.format("%s has sent you a document...", establishedConnections.get(endpointId)),
-                                NotificationCompat.PRIORITY_DEFAULT);
-                        Payload payload = incomingPayloads.get(update.getPayloadId());
-                        Log.i(TAG, "Eli5555" + payload + incomingPayloads + filePayloadFilenames);
+                        //Checks to see if the message is a chat message or a document
+                        if (!messageFromChat) {
+                            //Display a notification.
+                            Log.i("Eli69696", "Here in document");
+                            displayNotification("Document received",
+                                    String.format("%s has sent you a document...", establishedConnections.get(endpointId)),
+                                    NotificationCompat.PRIORITY_DEFAULT);
+                        } else {
+                            Log.i("Eli69696", "Here in message");
+                            displayNotificationChat("Chat message received",
+                                    String.format("%s has sent you a message...", establishedConnections.get(endpointId).getName()),
+                                    NotificationCompat.PRIORITY_DEFAULT);
+                            messageFromChat = false;
+                        }
+
+
+                        Payload payload = incomingPayloads.remove(update.getPayloadId());
+                        Log.i(TAG, "onPayloadTransferUpdate()\n" + payload +
+                                "\n" + incomingPayloads.toString() +
+                                "\n" + filePayloadFilenames.toString());
 
                         if (payload != null) {
                             //Load data
                             if (payload.getType() == Payload.Type.FILE) {
                                 // Retrieve the filename and corresponding payload.
                                 File payloadFile = payload.asFile().asJavaFile();
-                                String fileName = filePayloadFilenames.remove(endpointId);
-                                Log.i(TAG, "Payload name: " + payloadFile.getName());
-                                ConnectionEndpoint connectionEndpoint = discoveredEndpoints.get(endpointId);
-                                //Update inbox-fragment.
-                                appLogicActivity.getInboxFragment().storePayLoad(connectionEndpoint,fileName, payloadFile);
+                                String fileName = filePayloadFilenames.remove(update.getPayloadId());
+
+                                if (fileName.contains("PROF_PIC")) {
+                                    int substringDividerIndex = fileName.indexOf(':');
+                                    Log.i(TAG,"Name to trim: " + fileName);
+                                    String payLoadTag = fileName.substring(0, substringDividerIndex);
+                                    String bitMapSender = fileName.substring(substringDividerIndex + 1);
+                                    //Store image
+                                    Log.i(TAG, "Received and renamed payload file to: " + fileName);
+                                    //TODO: Move and rename file to something good (NOT WORKING?)
+                                    FileUtility.storePayLoadUserProfile(fileName,payloadFile);
+                                    //
+                                    Log.i(TAG, "CONTENT " + Uri.fromFile(payloadFile));
+
+                                    //Add to local DataBase
+                                    if (bitMapSender.length() == 0)
+                                        bitMapSender = endpointId;
+                                    //Store bitmap
+                                    LocalDataBase.idToUri.put(bitMapSender,Uri.fromFile(payloadFile));
+                                    switch (payLoadTag) {
+                                        case "PROF_PIC_V":
+                                            Log.i(TAG, "PROF_PIC_V");
+
+                                            try {
+
+                                                //Send bitmap to all other endpoints
+                                                for (String id : establishedConnections.keySet()) {
+                                                    sendPayload(id, payload, payload.getId() + ":PROF_PIC:" + bitMapSender + ":");
+                                                }
+                                                //Send all other endpoint`s bitmap to the endpoint
+                                                for (String id : establishedConnections.keySet()) {
+                                                    Uri uri = LocalDataBase.getProfilePictureUri(id);
+                                                    if(uri == null)
+                                                        break;
+                                                    ParcelFileDescriptor file = appLogicActivity.getContentResolver().openFileDescriptor(uri, "r");
+                                                    Payload profilePic = Payload.fromFile(file);
+                                                    sendPayload(endpointId, profilePic, payload.getId() + ":PROF_PIC:" + id + ":");
+                                                }
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                            break;
+                                        case "PROF_PIC":
+                                            Log.i(TAG, "PROF_PIC");
+                                            //Send own bitmap to endpoint
+                                            LocalDataBase.idToUri.put(bitMapSender, Uri.fromFile(payloadFile));
+                                            break;
+                                    }
+                                } else {
+                                    Log.i(TAG, "Payload file name: " + payloadFile.getName());
+                                    ConnectionEndpoint connectionEndpoint = discoveredEndpoints.get(endpointId);
+                                    //Update inbox-fragment.
+                                    appLogicActivity.getInboxFragment().storePayLoad(connectionEndpoint, fileName, payloadFile);
+                                }
                             }
-                        }
+                        } else Log.i(TAG, "Payload NULL!");
+
                     } else if (update.getStatus() == PayloadTransferUpdate.Status.FAILURE) {
                         Log.i(TAG, "Payload status: PayloadTransferUpdate.Status.FAILURE");
                     }
@@ -266,9 +383,34 @@ public class ConnectionManager {
                 .setSmallIcon(R.drawable.file_icon)
                 .setContentTitle(title)
                 .setContentText(message)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(message))
                 .setPriority(priority);
-        //TODO: ADD VIBRATION AND SOUND!
-        //...
+        mBuilder.build();
+        NotificationManager mNotificationManager = (NotificationManager) getAppLogicActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+        // notificationID allows you to update the notification later on.
+        mNotificationManager.notify(42, mBuilder.build());
+    }
+
+    /**
+     * Displays a notification message for the chat.
+     * See @see <a>https://developer.android.com/training/notify-user/build-notification>this</a>
+     * for more information
+     *
+     * @param title   The title of the not
+     * @param message The message we want to display
+     */
+    public void displayNotificationChat(final String title, final String message, final int priority) {
+        Log.i(TAG, "NOTIFICATION: " + message);
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getAppLogicActivity(), CHANNEL_ID)
+                .setSmallIcon(R.drawable.chat_icon)
+                .setContentTitle(title)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setContentText(message)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(message))
+                .setPriority(priority);
         mBuilder.build();
         NotificationManager mNotificationManager = (NotificationManager) getAppLogicActivity().getSystemService(Context.NOTIFICATION_SERVICE);
         // notificationID allows you to update the notification later on.
@@ -309,6 +451,7 @@ public class ConnectionManager {
                     @Override
                     public void onSuccess(Void unusedResult) {
                         // We're advertising!
+                        Log.i(TAG,"We are advertising...");
                     }
                 })
                 .addOnFailureListener(
@@ -316,6 +459,10 @@ public class ConnectionManager {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 // We were unable to start advertising.
+                                Log.i(TAG,"Something went wrong!");
+                                e.printStackTrace();
+                                stopAdvertising();
+                                startAdvertising();
                             }
                         });
         ;
@@ -327,7 +474,7 @@ public class ConnectionManager {
     private void reset() {
         Log.i(TAG, "Resetting connection.");
         //Disconnect from any potential connections and stop advertising/discovering
-        terminateConnection();
+        disconnectFromAllEndpoints();
         //Clear list every time we try to re-discover
         discoveredEndpoints.clear();
         pendingConnections.clear();
@@ -345,14 +492,26 @@ public class ConnectionManager {
         final EndpointDiscoveryCallback endpointDiscoveryCallback =
                 new EndpointDiscoveryCallback() {
                     @Override
-                    public void onEndpointFound(String endpointId, DiscoveredEndpointInfo info) {
-                        Log.i(TAG, String.format("onEndpointFound(endpointId = %s,endpointName = %s)", endpointId, info.getEndpointName()));
-                        //Create and define a new ConnectionEndpoint
-                        ConnectionEndpoint connectionEndpoint = new ConnectionEndpoint(endpointId, info.getEndpointName());
-                        discoveredEndpoints.put(connectionEndpoint.getId(), connectionEndpoint);
-                        displayNotification("Presenter found!", info.getEndpointName()
-                                + " can be added to the presentation", NotificationCompat.PRIORITY_LOW);
-                        updatePresenters(connectionEndpoint);
+                    public void onEndpointFound(final String endpointId, final DiscoveredEndpointInfo info) {
+                        Log.i(TAG, String.format("discovererOnEndpointFound(endpointId = %s,endpointName = %s)", endpointId, info.getEndpointName()));
+                        new AsyncTask<Void, Void, ConnectionEndpoint>() {
+
+                            @Override
+                            protected ConnectionEndpoint doInBackground(Void... voids) {
+                                return new ConnectionEndpoint(endpointId, info.getEndpointName());
+                            }
+
+                            @Override
+                            protected void onPostExecute(ConnectionEndpoint connectionEndpoint) {
+                                //Create and define a new ConnectionEndpoint
+                                discoveredEndpoints.put(connectionEndpoint.getId(), connectionEndpoint);
+                                displayNotification("Presenter found!", info.getEndpointName()
+                                        + " can be added to the presentation", NotificationCompat.PRIORITY_LOW);
+                                updatePresenters(connectionEndpoint);
+                                super.onPostExecute(connectionEndpoint);
+                            }
+                        }.execute();
+
                     }
 
                     @Override
@@ -374,6 +533,7 @@ public class ConnectionManager {
                     @Override
                     public void onSuccess(Void unusedResult) {
                         // We're discovering!
+                        Log.i(TAG,"We are discovering...");
                     }
                 })
                 .addOnFailureListener(
@@ -381,6 +541,10 @@ public class ConnectionManager {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 // We were unable to start discovering.
+                                Log.i(TAG,"Something went wrong!");
+                                stopDiscovering();
+                                startDiscovering();
+                                e.printStackTrace();
                             }
                         });
     }
@@ -389,12 +553,14 @@ public class ConnectionManager {
      * Stops looking for new devices/endpoints to connect to
      */
     public void stopDiscovering() {
+        connectionsClient.stopDiscovery();
     }
 
     /**
      * Stops advertising to new discoverers
      */
     public void stopAdvertising() {
+        connectionsClient.stopAdvertising();
     }
 
     public ConnectionsClient getConnectionsClient() {
@@ -429,7 +595,9 @@ public class ConnectionManager {
         } else establishedConnections.remove(endPoint.getId());
     }
 
+
     /**
+
      * Only for discoverers (Viewers)
      * If the advertisers wishes to establish a connection to a presenter (advertiser), then a connection is needed.
      * According to the documentation, both sides must explicitly accept the connection. Therefor we
@@ -440,9 +608,8 @@ public class ConnectionManager {
     public void requestConnection(final ConnectionEndpoint endpoint) {
         Log.i(TAG, String.format("Requesting connection for (endpointId=%s, endpointName=%s)",
                 endpoint.getId(), endpoint.getName()));
-        String nameAndBitmap = AppLogicActivity.getUserRole().getUserName() + ":" + LocalDataBase.getProfilePictureAsString();
         connectionsClient.requestConnection(
-                nameAndBitmap,
+                AppLogicActivity.getUserRole().getUserName(),
                 endpoint.getId(),
                 connectionLifecycleCallback)
                 .addOnSuccessListener(
@@ -451,6 +618,8 @@ public class ConnectionManager {
                             public void onSuccess(Void unusedResult) {
                                 // We successfully requested a connection. Now both sides
                                 // must accept before the connection is established.
+                                // We were unable to start advertising.
+                                Log.i(TAG,"We have requested a connection!");
                             }
                         }).addOnFailureListener(
                 new OnFailureListener() {
@@ -458,6 +627,13 @@ public class ConnectionManager {
                     public void onFailure(@NonNull Exception e) {
                         // Nearby Connections failed to request the connection.
                         //TODO: Add some logic?!
+                        // We were unable to start advertising.
+                        Log.i(TAG,"Something went wrong! requestConnection()");
+                        e.printStackTrace();
+                        if(discoveredEndpoints.containsKey(endpoint.getId())) {
+                            Log.i(TAG,"Retrying to connect to: "+endpoint.getName());
+                            requestConnection(endpoint);
+                        }
                     }
                 });
     }
@@ -522,20 +698,22 @@ public class ConnectionManager {
      * Sends a Payload object out to one specific endPoint
      */
     public void sendPayload(String endpointId, Payload payload, String payloadStoringName) throws UnsupportedEncodingException {
-        Log.i(TAG, "Sent: " + payload.getId() + "with type: " + payload.getType() + " to: " + endpointId);
         // Send the name of the payload/file as a bytes payload first!
         Nearby.getConnectionsClient(appLogicActivity).sendPayload(
                 endpointId, Payload.fromBytes(payloadStoringName.getBytes("UTF-8")));
-        //Send the payload data afterwards!
-        Nearby.getConnectionsClient(appLogicActivity).sendPayload(endpointId, payload);
-        //Add to receivedPayLoadData in our data
-        LocalDataBase.sentPayLoadData.put(payload.getId(), payload);
+        if(payload != null) {
+            Log.i(TAG, "Sent: " + payload.getId() + " with type: " + payload.getType() + " to: " + endpointId);
+            //Send the payload data afterwards!
+            Nearby.getConnectionsClient(appLogicActivity).sendPayload(endpointId, payload);
+            //Add to receivedPayLoadData in our data
+            LocalDataBase.sentPayLoadData.put(payload.getId(), payload);
+        }
     }
 
     /**
      * Disconnects from all endpoints and stops advertising/discovering
      */
-    public void terminateConnection(){
+    public void terminateConnection() {
         disconnectFromAllEndpoints();
         switch (appLogicActivity.getUserRole().getRoleType()) {
             case SPECTATOR:
@@ -546,6 +724,7 @@ public class ConnectionManager {
                 break;
         }
     }
+
     /**
      * Updates the presenters which are available
      */

@@ -3,6 +3,8 @@
     package="com.example.ss18.msp.lmu.msp_projectkickoff_ss188">
 
     <!-- Required for Nearby Connections -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -25,9 +27,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".Activities.MainActivity" />
-        <activity android:name=".Activities.AppLogicActivity" />
+        <activity android:name=".Activities.AppLogicActivity"
+                  android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".Activities.SettingsActivity" />
-        <activity android:name=".Activities.RegisterActivity" />
     </application>
 
 </manifest>
