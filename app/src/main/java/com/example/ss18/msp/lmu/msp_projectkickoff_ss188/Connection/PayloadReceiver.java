@@ -2,6 +2,7 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
@@ -9,7 +10,9 @@ import android.util.Log;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.FileUtility;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.FixedSizeList;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.NotificationUtility;
 import com.google.android.gms.nearby.connection.Payload;
 import com.google.android.gms.nearby.connection.PayloadCallback;
@@ -24,6 +27,7 @@ public final class PayloadReceiver extends PayloadCallback {
 
     private final String TAG = "PayloadReceiver";
     private ConnectionManager cM;
+    private static final FixedSizeList fixedSizeList = new FixedSizeList();
     //SimpleArrayMap is a more efficient data structure when lots of changes occur (in comparision to hash map)
     private final SimpleArrayMap<Long, Payload> incomingPayloads = new SimpleArrayMap<>();
     private final SimpleArrayMap<Long, String> filePayloadFilenames = new SimpleArrayMap<>();
@@ -37,7 +41,7 @@ public final class PayloadReceiver extends PayloadCallback {
     //it does not indicate that the entire Payload has been received.
     //The completion of the transfer is indicated when onPayloadTransferUpdate() is called with a status of PayloadTransferUpdate.Status.SUCCESS
     @Override
-    public void onPayloadReceived(String endpointId, Payload payload) {
+    public void onPayloadReceived(@NonNull String endpointId, @NonNull Payload payload) {
         //We will be receiving data
         Log.i(TAG, String.format("onPayloadReceived(endpointId=%s, payload=%s)", endpointId, payload));
         if (payload.getType() == Payload.Type.BYTES) {
@@ -60,13 +64,22 @@ public final class PayloadReceiver extends PayloadCallback {
                     case "C_ENDPOINT":
                         Log.i(TAG, "Received C_ENDPOINT" + fileContent);
                         substringDividerIndex = fileContent.indexOf(':');
-                        String endPointID = fileContent.substring(0, substringDividerIndex);
-                        String endPointName = fileContent.substring(substringDividerIndex + 1);
-                        cM.getDiscoveredEndpoints().put(endpointId, new ConnectionEndpoint(endpointId, endPointName));
+                        String newEndpointID = fileContent.substring(0, substringDividerIndex);
+                        String newEndpointName = fileContent.substring(substringDividerIndex + 1);
+                        cM.getDiscoveredEndpoints().put(newEndpointID, new ConnectionEndpoint(endpointId, newEndpointName));
                         break;
                     case "CHAT":
+                        //If we already received it quit
+                        if(fixedSizeList.contains(payload.getId()))
+                            return;
+                        
+                        fixedSizeList.add(payload.getId());
+                        //We have a new chat message
                         Log.i(TAG, "Received CHAT MESSAGES" + fileContent);
                         onChatMessageReceived(endpointId, fileContent);
+                        //Broadcast chat message to all if presenter
+                        if(AppLogicActivity.getUserRole().getRoleType() == User.UserRole.PRESENTER)
+                            cM.payloadSender.sendPayloadBytesBut(endpointId,payload);
                         break;
                     default:
                         Log.i(TAG, "Received FILE-NAME: " + fileContent);
@@ -127,9 +140,7 @@ public final class PayloadReceiver extends PayloadCallback {
                         switch (payLoadTag) {
                             case "PROF_PIC_V":
                                 Log.i(TAG, "PROF_PIC_V");
-
                                 try {
-
                                     //Send bitmap to all other endpoints
                                     for (String id :  cM.getEstablishedConnections().keySet()) {
                                         cM.payloadSender.sendPayloadFile(id, payload, payload.getId() + ":PROF_PIC:" + bitMapSender + ":");
@@ -157,7 +168,7 @@ public final class PayloadReceiver extends PayloadCallback {
                         Log.i(TAG, "Payload file name: " + payloadFile.getName());
                         ConnectionEndpoint connectionEndpoint = cM.getDiscoveredEndpoints().get(endpointId);
                         //Update inbox-fragment.
-                        cM.getAppLogicActivity().getInboxFragment().storePayLoad(connectionEndpoint, fileName, payloadFile);
+                        getAppLogicActivity().getInboxFragment().storePayLoad(connectionEndpoint, fileName, payloadFile);
                     }
                 }
             } else Log.i(TAG, "Payload NULL!");
@@ -169,13 +180,14 @@ public final class PayloadReceiver extends PayloadCallback {
     /*
      * Sends the received message from the endpoint to the device
      */
-    public void onChatMessageReceived(String id, String message) {
+
+    private void onChatMessageReceived(String id, String message) {
+        ChatFragment chat = getAppLogicActivity().getChatFragment();
+        chat.getDataFromEndPoint(id, message);
         //Display notification
         NotificationUtility.displayNotificationChat("Chat message received",
                 String.format("%s has sent you a message...",cM.getEstablishedConnections().get(id).getName()),
                 NotificationCompat.PRIORITY_DEFAULT);
-        ChatFragment chat = getAppLogicActivity().getChatFragment();
-        chat.getDataFromEndPoint(id, message);
     }
 
 }

@@ -4,15 +4,12 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.FileUtility;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.NotificationUtility;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
