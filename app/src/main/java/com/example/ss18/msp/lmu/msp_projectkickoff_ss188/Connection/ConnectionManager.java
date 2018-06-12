@@ -61,8 +61,8 @@ public class ConnectionManager {
     private static AppLogicActivity appLogicActivity;
 
     private ConnectionManager() {
-
         payloadSender = new PayloadSender();
+        payloadCallback = new PayloadReceiver();
     } //( Due to Singleton)
 
     /**
@@ -231,7 +231,7 @@ public class ConnectionManager {
     /**
      * Callback for payloads (data) sent from another device to us.
      */
-    private final PayloadCallback payloadCallback = new PayloadReceiver();
+    private final PayloadCallback payloadCallback;
 
     /**
      * Handler to Nearby Connections.
@@ -428,6 +428,7 @@ public class ConnectionManager {
      * Defines the connectionClient for the NearbyConnection
      **/
     public void setUpConnectionsClient(AppLogicActivity appLogicActivity) {
+        Log.i(TAG,"Setting up connection client");
         this.appLogicActivity = appLogicActivity;
         this.connectionsClient = Nearby.getConnectionsClient(appLogicActivity);
     }

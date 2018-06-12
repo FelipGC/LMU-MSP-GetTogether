@@ -72,7 +72,7 @@ public final class PayloadReceiver extends PayloadCallback {
                         //If we already received it quit
                         if(fixedSizeList.contains(payload.getId()))
                             return;
-                        
+
                         fixedSizeList.add(payload.getId());
                         //We have a new chat message
                         Log.i(TAG, "Received CHAT MESSAGES" + fileContent);
@@ -185,7 +185,7 @@ public final class PayloadReceiver extends PayloadCallback {
         chat.getDataFromEndPoint(id, message);
         //Display notification
         NotificationUtility.displayNotificationChat("Chat message received",
-                String.format("%s has sent you a message...",cM.getEstablishedConnections().get(id).getName()),
+                String.format("%s has sent you a message...",cM.getDiscoveredEndpoints().get(id).getName()),
                 NotificationCompat.PRIORITY_DEFAULT);
     }
 
