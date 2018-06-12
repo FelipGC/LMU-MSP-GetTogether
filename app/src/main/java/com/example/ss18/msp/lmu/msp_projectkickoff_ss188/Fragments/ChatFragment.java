@@ -45,7 +45,6 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         messageAdapter = new MessageAdapter(getActivity());
         buttonSend = (ImageButton) view.findViewById(R.id.button_send);
         buttonSend.setOnClickListener(this);
-        payloadSender = new PayloadSender();
         messagesView.setAdapter(messageAdapter);
 
         return view;
