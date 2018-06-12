@@ -4,12 +4,8 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
@@ -20,20 +16,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.AppPreferences;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
 public class SplashActivity extends AppCompatActivity {
     private static final String TAG = "SPLASH_ACTIVITY";
 
-    static final String PREFS_NAME = "preferences_name_id_42";
-    static final String PREF_USER = "preferences_username";
-    static final String PREF_IMAGE = "preferences_image";
-
-    private boolean userNameAlreadyEntered = false;
-    private boolean userImageAlreadyChosen = false;
-    private final String CHANNEL_ID = "CHANNEL_ID_42";
-
+    // region Check permissions on App-Start
     /**
      * ACCESS_COARSE_LOCATION is considered dangerous, so we need to explicitly
      * grant the permission every time we start the app
@@ -69,87 +58,6 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     /**
-     * Called when the Activity starts to create a notification channel
-     * This is only needed for newer devices
-     */
-    @TargetApi(26)
-    private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = getString(R.string.channel_name);
-            String description = getString(R.string.channel_description);
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        setTheme(R.style.AppTheme);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            setRequiredPermissions();
-        }
-        super.onCreate(savedInstanceState);
-
-        loadPreferences();
-        loadImagePreferences();
-
-        createNotificationChannel();
-        Log.i(TAG, "userNameAlreadyEntered: " + userNameAlreadyEntered);
-        if (!userNameAlreadyEntered) {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            intent.putExtra("newUser", true);
-            startActivity(intent);
-        } else {
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-            Toast.makeText(getApplicationContext(),
-                    String.format("Welcome back %s!", LocalDataBase.getUserName()),
-                    Toast.LENGTH_LONG).show();
-        }
-        finish();
-    }
-
-    /**
-     * Loads the username form the preferences
-     */
-    private void loadPreferences() {
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME,
-                Context.MODE_PRIVATE);
-        // Set username if already existing
-        if (userNameAlreadyEntered = settings.contains(PREF_USER)) {
-            LocalDataBase.setUserName(settings.getString(PREF_USER, LocalDataBase.getUserName()));
-            Log.i(TAG, "Load username: " + LocalDataBase.getUserName());
-        }
-    }
-
-    /**
-     * Loads the username form the preferences
-     */
-    private void loadImagePreferences() {
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME,
-                Context.MODE_PRIVATE);
-        // Set username if already existing
-        if (userImageAlreadyChosen = settings.contains(PREF_IMAGE)) {
-            String imageUri = settings.getString(PREF_IMAGE, String.valueOf(LocalDataBase.getProfilePictureUri()));
-            LocalDataBase.setProfilePictureUri(Uri.parse(imageUri));
-            Log.i(TAG, "Load user image: " + imageUri);
-        }
-    }
-
-    /**
      * Called when the user has accepted (or denied) our permission request.
      */
     @CallSuper
@@ -169,4 +77,61 @@ public class SplashActivity extends AppCompatActivity {
             recreate();
         }
     }
+    //endregion
+
+    //region Setting up Notifications
+    private final String CHANNEL_ID = "CHANNEL_ID_42";
+    /**
+     * Called when the Activity starts to create a notification channel
+     * This is only needed for newer devices
+     */
+    @TargetApi(26)
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+    //endregion
+
+    private AppPreferences preferences;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.AppTheme);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            setRequiredPermissions();
+        }
+        super.onCreate(savedInstanceState);
+        preferences = AppPreferences.getInstance(this);
+
+        createNotificationChannel();
+
+        Log.i(TAG, "userNameAlreadyEntered: " + preferences.getUsername());
+        if (preferences.getUsername() == null) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            intent.putExtra("newUser", true);
+            startActivity(intent);
+        } else {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            Toast.makeText(getApplicationContext(),
+                    String.format("Welcome back %s!", preferences.getUsername()),
+                    Toast.LENGTH_LONG).show();
+        }
+        finish();
+    }
+
+
+
+
 }

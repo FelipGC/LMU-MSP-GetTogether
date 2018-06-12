@@ -42,6 +42,7 @@ public final class LocalDataBase {
         userName = userNameNew;
     }
 
+
     public static void setProfilePictureUri(Uri profilePicture) {
         Log.i(TAG,"SETTING OWN USER PROFILE: " + profilePicture);
         LocalDataBase.profilePicture = profilePicture;
