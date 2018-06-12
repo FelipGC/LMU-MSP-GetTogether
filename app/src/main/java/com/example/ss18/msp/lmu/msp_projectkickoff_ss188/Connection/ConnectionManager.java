@@ -49,7 +49,7 @@ public class ConnectionManager {
      */
     private final String serviceID = "SERVICE_ID_NEARBY_CONNECTIONS";
 
-    final PayloadSender payloadSender;
+    PayloadSender payloadSender;
 
     public static ConnectionManager getInstance() {
         return CONNECTION_MANAGER;
@@ -61,8 +61,7 @@ public class ConnectionManager {
     private static AppLogicActivity appLogicActivity;
 
     private ConnectionManager() {
-        payloadSender = new PayloadSender();
-        payloadCallback = new PayloadReceiver();
+        Log.i(TAG,"new ConnectionManager");
     } //( Due to Singleton)
 
     /**
@@ -231,7 +230,7 @@ public class ConnectionManager {
     /**
      * Callback for payloads (data) sent from another device to us.
      */
-    private final PayloadCallback payloadCallback;
+    private PayloadCallback payloadCallback;
 
     /**
      * Handler to Nearby Connections.
@@ -332,6 +331,9 @@ public class ConnectionManager {
         discoveredEndpoints.clear();
         pendingConnections.clear();
         establishedConnections.clear();
+        //Define Sender & Receiver
+        payloadSender = new PayloadSender();
+        payloadCallback = new PayloadReceiver();
     }
 
     /**

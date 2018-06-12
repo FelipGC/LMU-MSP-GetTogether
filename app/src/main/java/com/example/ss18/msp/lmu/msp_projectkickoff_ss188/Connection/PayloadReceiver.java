@@ -32,9 +32,10 @@ public final class PayloadReceiver extends PayloadCallback {
     private final SimpleArrayMap<Long, Payload> incomingPayloads = new SimpleArrayMap<>();
     private final SimpleArrayMap<Long, String> filePayloadFilenames = new SimpleArrayMap<>();
 
-    public PayloadReceiver(){
+    PayloadReceiver(){
         Log.i(TAG,"new PayloadReceiver()");
         cM = ConnectionManager.getInstance();
+        Log.i(TAG,"CM: " + cM);
     }
 
     //Note: onPayloadReceived() is called when the first byte of a Payload is received;

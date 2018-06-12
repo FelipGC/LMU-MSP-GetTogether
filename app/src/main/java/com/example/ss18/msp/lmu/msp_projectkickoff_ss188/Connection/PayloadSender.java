@@ -15,6 +15,7 @@ public class PayloadSender {
     public PayloadSender() {
         Log.i(TAG,"new PayloadSender()");
         cM = ConnectionManager.getInstance();
+        Log.i(TAG,"cM: " + cM);
     }
 
     public void sendChatMessage(String chatMessage) throws UnsupportedEncodingException {
