@@ -131,6 +131,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
      */
     public void clearContent() {
         Log.i("TAG", "Clear the chat content.");
-        messageAdapter.clearContent();
+        if(messageAdapter != null)
+            messageAdapter.clearContent();
     }
 }
