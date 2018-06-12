@@ -69,6 +69,7 @@ public class SettingsActivity extends BaseActivity {
             signUpButton.setVisibility(View.GONE);
             getSupportActionBar().setTitle(R.string.settings_user);
             enteredUsername.setText(preferences.getUsername());
+            userImage.setImageURI(preferences.getUserImage());
         }
     }
 
@@ -117,7 +118,7 @@ public class SettingsActivity extends BaseActivity {
 
             //TODO: Resize the image (300,300) and save it somewhere and overwrite uri = new file!!!!!!!
 
-            preferences.setUserImage(uri.getPath());
+            preferences.setUserImage(uri.toString());
             setImage();
         }
         //Calling super is mandatory!
@@ -141,7 +142,7 @@ public class SettingsActivity extends BaseActivity {
             userImage.setImageResource(R.drawable.user_image);
         }
         userImage.setImageURI(uri);
-        preferences.setUserImage(uri.getPath());
+        preferences.setUserImage(uri.toString());
     }
 
 
