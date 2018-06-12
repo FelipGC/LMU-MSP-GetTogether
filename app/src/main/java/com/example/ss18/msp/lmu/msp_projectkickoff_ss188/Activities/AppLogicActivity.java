@@ -167,6 +167,7 @@ public class AppLogicActivity extends BaseActivity {
         Log.i(TAG, "onDestroy() -> terminating nearby connection");
         connectionManager.terminateConnection();
         if (chatFragment != null) {
+            Log.i("Eli6969696", "chat is" + chatFragment);
             chatFragment.clearContent();
         }
         super.onDestroy();
