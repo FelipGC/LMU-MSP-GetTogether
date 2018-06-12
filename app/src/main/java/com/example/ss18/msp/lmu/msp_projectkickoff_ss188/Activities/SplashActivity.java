@@ -16,7 +16,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.AppPreferences;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
@@ -126,7 +125,7 @@ public class SplashActivity extends AppCompatActivity {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             Toast.makeText(getApplicationContext(),
-                    String.format("Welcome back %s!", LocalDataBase.getUserName()),
+                    String.format("Welcome back %s!", preferences.getUsername()),
                     Toast.LENGTH_LONG).show();
         }
         finish();
