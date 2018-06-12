@@ -76,6 +76,7 @@ public class SettingsActivity extends BaseActivity {
     public void onBackPressed() {
         if (!LocalDataBase.getUserName().equals(enteredUsername.getText().toString())) {
             if (!setUsername()) {
+                generateRandomName();
                 return;
             }
         }
