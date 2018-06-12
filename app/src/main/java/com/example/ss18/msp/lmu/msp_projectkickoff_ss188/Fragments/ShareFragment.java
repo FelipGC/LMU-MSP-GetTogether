@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.google.android.gms.nearby.connection.Payload;
 
@@ -29,6 +30,7 @@ import java.io.FileNotFoundException;
  */
 public class ShareFragment extends Fragment {
     private static final String TAG = "ShareFragment";
+    private PayloadSender payloadSender;
     /**
      * Code id for reading
      */
@@ -38,6 +40,7 @@ public class ShareFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_share, container, false);
+        payloadSender = new PayloadSender();
         return view;
     }
 
@@ -121,7 +124,7 @@ public class ShareFragment extends Fragment {
         Payload payload = dataToPayload(uri);
         // Mapping the ID of the file payload to the filename
         String payloadStoringName = payload.getId() + ":" + uri.getLastPathSegment();
-        AppLogicActivity.getConnectionManager().sendPayload(payload, payloadStoringName);
+        payloadSender.sendPayloadFile(payload, payloadStoringName);
         //Display Toast
         Toast.makeText(getContext(),"File sent!",Toast.LENGTH_SHORT).show();
     }
