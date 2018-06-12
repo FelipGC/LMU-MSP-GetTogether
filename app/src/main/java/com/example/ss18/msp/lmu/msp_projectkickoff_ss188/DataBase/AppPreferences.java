@@ -36,11 +36,15 @@ public class AppPreferences {
     }
 
     public boolean setUsername(String username){
-        return saveStringPreference(PREF_USER, username);
+        boolean success = saveStringPreference(PREF_USER, username);
+        if(success) LocalDataBase.setUserName(username); //TODO dirty!
+        return success;
     }
 
     public boolean setUserImage(String uri){
-        return saveStringPreference(PREF_IMAGE, uri);
+        boolean success = saveStringPreference(PREF_IMAGE, uri);
+        if(success) LocalDataBase.setProfilePictureUri(Uri.parse(uri)); //TODO dirty!
+        return success;
     }
 
     private boolean saveStringPreference(String id, String value){
