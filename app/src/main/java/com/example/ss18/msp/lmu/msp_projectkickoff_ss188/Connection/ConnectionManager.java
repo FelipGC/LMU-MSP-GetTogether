@@ -504,4 +504,8 @@ public class ConnectionManager {
     public static AppLogicActivity getAppLogicActivity() {
         return appLogicActivity;
     }
+
+    public PayloadSender getPayloadSender() {
+        return payloadSender;
+    }
 }

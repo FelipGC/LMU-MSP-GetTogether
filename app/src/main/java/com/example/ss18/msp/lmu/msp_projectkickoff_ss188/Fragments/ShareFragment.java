@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.google.android.gms.nearby.connection.Payload;
@@ -40,7 +41,7 @@ public class ShareFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_share, container, false);
-        payloadSender = new PayloadSender();
+        payloadSender = ConnectionManager.getInstance().getPayloadSender();
         return view;
     }
 

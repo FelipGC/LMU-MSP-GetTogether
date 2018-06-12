@@ -18,6 +18,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActi
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.SettingsActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.Message;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.MessageAdapter;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
@@ -46,7 +47,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         buttonSend = (ImageButton) view.findViewById(R.id.button_send);
         buttonSend.setOnClickListener(this);
         messagesView.setAdapter(messageAdapter);
-
+        payloadSender = ConnectionManager.getInstance().getPayloadSender();
         return view;
     }
 
