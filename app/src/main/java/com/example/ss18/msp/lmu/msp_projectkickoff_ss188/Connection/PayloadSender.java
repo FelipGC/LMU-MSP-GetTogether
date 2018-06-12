@@ -12,9 +12,9 @@ public class PayloadSender {
     private final ConnectionManager cM;
     private final String TAG = "PayloadSender";
 
-    public PayloadSender() {
+    public PayloadSender(ConnectionManager connectionManager) {
         Log.i(TAG,"new PayloadSender()");
-        cM = ConnectionManager.getInstance();
+        cM = connectionManager;
     }
 
     public void sendChatMessage(String chatMessage) throws UnsupportedEncodingException {

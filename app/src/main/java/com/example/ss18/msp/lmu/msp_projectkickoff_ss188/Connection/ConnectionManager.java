@@ -61,8 +61,8 @@ public class ConnectionManager {
     private static AppLogicActivity appLogicActivity;
 
     private ConnectionManager() {
-        payloadSender = new PayloadSender();
-        payloadCallback = new PayloadReceiver();
+        payloadSender = new PayloadSender(this);
+        payloadCallback = new PayloadReceiver(this);
     } //( Due to Singleton)
 
     /**
