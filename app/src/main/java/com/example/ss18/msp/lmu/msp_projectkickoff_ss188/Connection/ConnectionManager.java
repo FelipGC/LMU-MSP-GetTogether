@@ -51,6 +51,8 @@ public class ConnectionManager {
      * The id of the NearbyConnection service. (package name of the main activity)
      */
     private final String serviceID = "SERVICE_ID_NEARBY_CONNECTIONS";
+    
+    private final PayloadSender payloadSender;
 
     public static ConnectionManager getInstance() {
         return CONNECTION_MANAGER;
@@ -62,6 +64,8 @@ public class ConnectionManager {
     private static AppLogicActivity appLogicActivity;
 
     private ConnectionManager() {
+
+        payloadSender = new PayloadSender();
     } //( Due to Singleton)
 
     /**
@@ -153,7 +157,7 @@ public class ConnectionManager {
                                     break;
                                 ParcelFileDescriptor file = appLogicActivity.getContentResolver().openFileDescriptor(uri, "r");
                                 Payload payload = Payload.fromFile(file);
-                                sendPayload(endpointId, payload, payload.getId() + (SPECTATOR ? ":PROF_PIC_V:" : ":PROF_PIC:"));
+                                payloadSender.sendPayloadFile(endpointId, payload, payload.getId() + (SPECTATOR ? ":PROF_PIC_V:" : ":PROF_PIC:"));
                                 //Send all the other viewers to the viewer
                                 if(!SPECTATOR){
                                     for (ConnectionEndpoint otherEndpoint : establishedConnections.values()) {
@@ -164,6 +168,8 @@ public class ConnectionManager {
                             } catch (UnsupportedEncodingException e) {
                                 e.printStackTrace();
                             } catch (IOException e) {
+                                e.printStackTrace();
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
 
@@ -198,7 +204,7 @@ public class ConnectionManager {
     private void sendConnectionEndpointTo(String id, ConnectionEndpoint otherEndpoint) {
         String stringToSend = String.format("C_ENDPOINT:%s:%s",otherEndpoint.getId(),otherEndpoint.getName());
         Payload payload = Payload.fromBytes(stringToSend.getBytes());
-        sendPayload(payload,id);
+        payloadSender.sendPayloadFile(payload,id);
     }
 
     /*
@@ -346,7 +352,7 @@ public class ConnectionManager {
 
                                                 //Send bitmap to all other endpoints
                                                 for (String id : establishedConnections.keySet()) {
-                                                    sendPayload(id, payload, payload.getId() + ":PROF_PIC:" + bitMapSender + ":");
+                                                    payloadSender.sendPayloadFile(id, payload, payload.getId() + ":PROF_PIC:" + bitMapSender + ":");
                                                 }
                                                 //Send all other endpoint`s bitmap to the endpoint
                                                 for (String id : establishedConnections.keySet()) {
@@ -355,7 +361,7 @@ public class ConnectionManager {
                                                         break;
                                                     ParcelFileDescriptor file = appLogicActivity.getContentResolver().openFileDescriptor(uri, "r");
                                                     Payload profilePic = Payload.fromFile(file);
-                                                    sendPayload(endpointId, profilePic, payload.getId() + ":PROF_PIC:" + id + ":");
+                                                    payloadSender.sendPayloadFile(endpointId, profilePic, payload.getId() + ":PROF_PIC:" + id + ":");
                                                 }
                                             } catch (Exception e) {
                                                 e.printStackTrace();
@@ -597,19 +603,7 @@ public class ConnectionManager {
         appLogicActivity.updateParticipantsGUI(establishedConnections.size(), discoveredEndpoints.size());
     }
 
-    /**
-     * Sends a Payload object out to all endPointss
-     */
-    public void sendPayload(Payload payload, String payloadStoringName) {
-        for (String endpointId : establishedConnections.keySet()) {
-            try {
-                Log.i(TAG, "sendPayload to: " + endpointId);
-                sendPayload(endpointId, payload, payloadStoringName);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+
 
     /**
      * Updates the GUI depending on the role (viewer or presenter)
@@ -622,22 +616,6 @@ public class ConnectionManager {
             case PRESENTER:
                 updateParticipantsCount();
                 break;
-        }
-    }
-
-    /**
-     * Sends a Payload object out to one specific endPoint
-     */
-    public void sendPayload(String endpointId, Payload payload, String payloadStoringName) throws UnsupportedEncodingException {
-        // Send the name of the payload/file as a bytes payload first!
-        Nearby.getConnectionsClient(appLogicActivity).sendPayload(
-                endpointId, Payload.fromBytes(payloadStoringName.getBytes("UTF-8")));
-        if (payload != null) {
-            Log.i(TAG, "Sent: " + payload.getId() + " with type: " + payload.getType() + " to: " + endpointId);
-            //Send the payload data afterwards!
-            Nearby.getConnectionsClient(appLogicActivity).sendPayload(endpointId, payload);
-            //Add to receivedPayLoadData in our data
-            LocalDataBase.sentPayLoadData.put(payload.getId(), payload);
         }
     }
 

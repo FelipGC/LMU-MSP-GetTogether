@@ -18,10 +18,12 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActi
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.SettingsActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.Message;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.MessageAdapter;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.google.android.gms.nearby.connection.Payload;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
 public class ChatFragment extends Fragment implements View.OnClickListener {
@@ -31,6 +33,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
     private MessageAdapter messageAdapter;
     private ListView messagesView;
     private ImageButton buttonSend;
+    private PayloadSender payloadSender;
 
     @Nullable
     @Override
@@ -42,7 +45,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         messageAdapter = new MessageAdapter(getActivity());
         buttonSend = (ImageButton) view.findViewById(R.id.button_send);
         buttonSend.setOnClickListener(this);
-
+        payloadSender = new PayloadSender();
         messagesView.setAdapter(messageAdapter);
 
         return view;
@@ -75,25 +78,11 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
      * @param message is a string
      */
     private void sendDataToEndpoints(String message) {
-        //String name = LocalDataBase.getUserName();
-        Payload payload = null; //DO NOT CHANGE!
-        // Adding the CHAT tag to identify chat messages on receive.
-        String payloadStoringName = "CHAT" + ":" + LocalDataBase.getUserName() + ":" + message;
-        Log.i(TAG, "SendDataToEndpoint: " + payloadStoringName);
-        //Send message
-
-        AppLogicActivity.getConnectionManager().sendPayload(payload,payloadStoringName);
-    }
-
-    /**
-     * Transforms string into a payload so we can send messages between
-     * different devices
-     */
-    private Payload dataToPayload(String message) {
-        // Create Bytes from String
-        Payload payload = Payload.fromBytes(message.getBytes(Charset.forName("UTF-8")));
-        Log.i(TAG, "Data to payload:  " + payload.getType());
-        return payload;
+        try {
+            payloadSender.sendChatMessage(message);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 
     /*
