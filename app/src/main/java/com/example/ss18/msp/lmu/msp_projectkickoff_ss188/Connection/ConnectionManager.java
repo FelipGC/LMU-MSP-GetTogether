@@ -52,8 +52,6 @@ public class ConnectionManager {
      */
     private final String serviceID = "SERVICE_ID_NEARBY_CONNECTIONS";
 
-    private boolean messageFromChat = false;
-
     public static ConnectionManager getInstance() {
         return CONNECTION_MANAGER;
     }
@@ -206,9 +204,13 @@ public class ConnectionManager {
     /*
      * Sends the received message from the endpoint to the device
      */
-    public void onChatMessageSent(String id, String message) {
+    public void onChatMessageReceived(String id, String message) {
         ChatFragment chat = getAppLogicActivity().getChatFragment();
         chat.getDataFromEndPoint(id, message);
+        //Display notification
+        NotificationUtility.displayNotificationChat("Chat message received",
+                String.format("%s has sent you a message...", establishedConnections.get(id).getName()),
+                NotificationCompat.PRIORITY_DEFAULT);
     }
 
     /**
@@ -278,8 +280,7 @@ public class ConnectionManager {
                                     break;
                                 case "CHAT":
                                     Log.i(TAG, "Received CHAT MESSAGES" + fileContent);
-                                    messageFromChat = true;
-                                    onChatMessageSent(endpointId, fileContent);
+                                    onChatMessageReceived(endpointId, fileContent);
                                     break;
                                 default:
                                     Log.i(TAG, "Received FILE-NAME: " + fileContent);
@@ -304,25 +305,16 @@ public class ConnectionManager {
                         Log.i(TAG, "Payload data fully received! ID=" + endpointId);
                         //Display a notification.
                         //Checks to see if the message is a chat message or a document
-                        if (!messageFromChat) {
-                            //Display a notification.
-                            NotificationUtility.displayNotification("Document received",
-                                    String.format("%s has sent you a document...", establishedConnections.get(endpointId)),
-                                    NotificationCompat.PRIORITY_DEFAULT);
-                        } else {
-                            NotificationUtility.displayNotificationChat("Chat message received",
-                                    String.format("%s has sent you a message...", establishedConnections.get(endpointId).getName()),
-                                    NotificationCompat.PRIORITY_DEFAULT);
-                            messageFromChat = false;
-                        }
-
-
                         Payload payload = incomingPayloads.remove(update.getPayloadId());
                         Log.i(TAG, "onPayloadTransferUpdate()\n" + payload +
                                 "\n" + incomingPayloads.toString() +
                                 "\n" + filePayloadFilenames.toString());
 
                         if (payload != null) {
+                            //Display a notification.
+                            NotificationUtility.displayNotification("Document received",
+                                    String.format("%s has sent you a document...", establishedConnections.get(endpointId).getName()),
+                                    NotificationCompat.PRIORITY_DEFAULT);
                             //Load data
                             if (payload.getType() == Payload.Type.FILE) {
                                 // Retrieve the filename and corresponding payload.
