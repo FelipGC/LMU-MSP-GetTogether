@@ -1,0 +1,51 @@
+package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.net.Uri;
+import android.preference.PreferenceManager;
+
+public class AppPreferences {
+
+    private static AppPreferences instance = null;
+    private SharedPreferences preferences;
+
+    private AppPreferences(){
+    }
+    public static AppPreferences getInstance(Context context){
+        if(instance==null){
+            instance = new AppPreferences();
+            instance.preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        }
+        return instance;
+    }
+
+    static final String PREF_USER = "preferences_username";
+    static final String PREF_IMAGE = "preferences_image";
+
+    public String getUsername(){
+        return preferences.getString(PREF_USER, null);
+    }
+
+    public Uri getUserImage(){
+        String image = preferences.getString(PREF_IMAGE, null);
+        if(image == null) return null;
+        else{
+            return Uri.parse(image);
+        }
+    }
+
+    public boolean setUsername(String username){
+        return saveStringPreference(PREF_USER, username);
+    }
+
+    public boolean setUserImage(String uri){
+        return saveStringPreference(PREF_IMAGE, uri);
+    }
+
+    private boolean saveStringPreference(String id, String value){
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(id,value);
+        return editor.commit();
+    }
+}

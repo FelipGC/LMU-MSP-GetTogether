@@ -1,10 +1,8 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -17,11 +15,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.AppPreferences;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.RandomNameGenerator;
 
 
 public class SettingsActivity extends BaseActivity {
+
+    private AppPreferences preferences;
 
     private EditText enteredUsername;
     private ImageView userImage;
@@ -48,8 +49,7 @@ public class SettingsActivity extends BaseActivity {
         userImage = (ImageView) findViewById(R.id.user_image);
         enteredUsername = (EditText) findViewById(R.id.enter_username);
 
-        loadUserNamePreferences();
-        loadImagePreferences(this);
+        preferences = AppPreferences.getInstance(this);
 
         //Get the intent from MainActivity that someone selected the "Settings" option
         //on the activity menu
@@ -68,14 +68,14 @@ public class SettingsActivity extends BaseActivity {
         } else {
             signUpButton.setVisibility(View.GONE);
             getSupportActionBar().setTitle(R.string.settings_user);
-            enteredUsername.setText(LocalDataBase.getUserName());
+            enteredUsername.setText(preferences.getUsername());
         }
     }
 
     @Override
     public void onBackPressed() {
-        if (!LocalDataBase.getUserName().equals(enteredUsername.getText().toString())) {
-            if (!setUsername()) {
+        if (!firstStart && !preferences.getUsername().equals(enteredUsername.getText().toString())) {
+            if (!saveUsername()) {
                 generateRandomName();
                 return;
             }
@@ -84,7 +84,7 @@ public class SettingsActivity extends BaseActivity {
     }
 
     private void onSignUpButtonClicked() {
-        if (setUsername()) {
+        if (saveUsername()) {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
         }else{
@@ -117,8 +117,7 @@ public class SettingsActivity extends BaseActivity {
 
             //TODO: Resize the image (300,300) and save it somewhere and overwrite uri = new file!!!!!!!
 
-            LocalDataBase.setProfilePictureUri(uri);
-            saveImagePreferences();
+            preferences.setUserImage(uri.getPath());
             setImage();
         }
         //Calling super is mandatory!
@@ -133,90 +132,34 @@ public class SettingsActivity extends BaseActivity {
         performFileSearch();
     }
 
-    /**
-     * Saves the username to the preferences
-     */
-    private void saveUserNamePreferences() {
-        SharedPreferences settings = getSharedPreferences(SplashActivity.PREFS_NAME,
-                Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = settings.edit();
-
-        // Edit and commit
-        Log.i(TAG, "Save username: " + LocalDataBase.getUserName());
-        editor.putString(SplashActivity.PREF_USER, LocalDataBase.getUserName());
-        editor.commit();
-    }
-
-    /**
-     * Saves the user image to the preferences
-     */
-    private void saveImagePreferences() {
-        SharedPreferences settings = getSharedPreferences(SplashActivity.PREFS_NAME,
-                Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = settings.edit();
-        // Edit and commit
-        String pictureURI = String.valueOf(LocalDataBase.getProfilePictureUri());
-        Log.i(TAG, "Save user image: " + pictureURI);
-        editor.putString(SplashActivity.PREF_IMAGE, pictureURI);
-        editor.commit();
-    }
-
-    /**
-     * Loads the username form the preferences
-     */
-    private void loadUserNamePreferences() {
-        SharedPreferences settings = getSharedPreferences(SplashActivity.PREFS_NAME,
-                Context.MODE_PRIVATE);
-        // Set username if already existing
-        if (!firstStart) {
-            LocalDataBase.setUserName(settings.getString(SplashActivity.PREF_USER, LocalDataBase.getUserName()));
-            Log.i(TAG, "Load user name: " + LocalDataBase.getUserName());
-        }
-    }
-
-    /**
-     * Loads the username form the preferences
-     */
-    private void loadImagePreferences(final SettingsActivity activity) {
-        SharedPreferences settings = activity.getSharedPreferences(SplashActivity.PREFS_NAME,
-                Context.MODE_PRIVATE);
-        // Set username if already existing
-        if (settings.contains(SplashActivity.PREF_IMAGE)) {
-            String stringImage = settings.getString(SplashActivity.PREF_IMAGE, String.valueOf(LocalDataBase.getProfilePictureUri()));
-            LocalDataBase.setProfilePictureUri(Uri.parse(stringImage));
-        }
-        setImage();
-    }
-
     private void setImage() {
-        Uri uri = LocalDataBase.getProfilePictureUri();
-        Log.i(TAG, "Load user image: " + LocalDataBase.getProfilePictureUri());
+        Uri uri = preferences.getUserImage();
+        Log.i(TAG, "Load user image: " + uri.toString());
         //TODO: Add default profile picture in case it is null
         if (uri == null) {
             Log.i(TAG, "!!!!!!!!!WE MUST AD A DEFAUTL PROFILE PICTURE IN CASE IT IS NULL!!!!!!!!!");
             userImage.setImageResource(R.drawable.user_image);
         }
         userImage.setImageURI(uri);
-        LocalDataBase.setProfilePictureUri(uri);
+        preferences.setUserImage(uri.getPath());
     }
 
 
     /**
      * Saves the username, that the user picked
      */
-    private boolean setUsername() {
+    private boolean saveUsername() {
         if (!enteredUsername.getText().toString().isEmpty()) {
-            LocalDataBase.setUserName(enteredUsername.getText().toString());
-            saveUserNamePreferences();
-            if (!firstStart) {
+            return preferences.setUsername(enteredUsername.getText().toString());
+           /* if (!firstStart) {
                 Toast.makeText(SettingsActivity.this, R.string.changedInfo,
                         Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(SettingsActivity.this,
                         getString(R.string.welcomeUser, LocalDataBase.getUserName()),
                         Toast.LENGTH_LONG).show();
-            }
-            return true;
+            }*/
+           // return true;
         }
         return false;
     }
