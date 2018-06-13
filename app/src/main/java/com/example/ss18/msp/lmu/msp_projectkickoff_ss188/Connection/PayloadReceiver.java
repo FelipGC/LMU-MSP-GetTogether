@@ -84,6 +84,7 @@ public final class PayloadReceiver extends PayloadCallback {
                     default:
                         Log.i(TAG, "Received FILE-NAME: " + fileContent);
                         filePayloadFilenames.put(Long.valueOf(payloadId), fileContent);
+                        Log.i("Eli696969", "other is1: " + filePayloadFilenames);
                         break;
                 }
             } catch (Exception e) {
@@ -117,55 +118,58 @@ public final class PayloadReceiver extends PayloadCallback {
                     // Retrieve the filename and corresponding payload.
                     File payloadFile = payload.asFile().asJavaFile();
                     String fileName = filePayloadFilenames.remove(update.getPayloadId());
+                    Log.i("Eli696969", "filename is: " + fileName + "other is: " + filePayloadFilenames);
 
-                    if (fileName.contains("PROF_PIC")) {
-                        int substringDividerIndex = fileName.indexOf(':');
-                        Log.i(TAG, "Name to trim: " + fileName);
-                        String payLoadTag = fileName.substring(0, substringDividerIndex);
-                        String bitMapSender = fileName.substring(substringDividerIndex + 1);
-                        //Store image
-                        //TODO: Move and rename file to something good (NOT WORKING?)
-                        Uri uriToPic = FileUtility.storePayLoadUserProfile(fileName, payloadFile);
-                        Log.i(TAG, "CONTENT URI " + uriToPic);
-                        Log.i(TAG, "ORIGINAL URI " + Uri.fromFile(payloadFile));
-                        Log.i(TAG,"BITMAP SENDER: " + bitMapSender);
-                        //Add to local DataBase
-                        if (bitMapSender.length() == 0)
-                            bitMapSender = endpointId;
-                        //Store bitmap
-                        LocalDataBase.addUriToID(uriToPic,bitMapSender);
-                        switch (payLoadTag) {
-                            //Presenter received a profile picture
-                            case "PROF_PIC_V":
-                                Log.i(TAG, "<<PROF_PIC_V>>");
-                                try {
-                                    //Send bitmap to all other endpoints
-                                    for (String id :  cM.getEstablishedConnections().keySet()) {
-                                        cM.payloadSender.sendPayloadFile(id, payload, payload.getId() + ":PROF_PIC:" + bitMapSender + ":");
+                    if (fileName != null) {
+                        if (fileName.contains("PROF_PIC")) {
+                            int substringDividerIndex = fileName.indexOf(':');
+                            Log.i(TAG, "Name to trim: " + fileName);
+                            String payLoadTag = fileName.substring(0, substringDividerIndex);
+                            String bitMapSender = fileName.substring(substringDividerIndex + 1);
+                            //Store image
+                            //TODO: Move and rename file to something good (NOT WORKING?)
+                            Uri uriToPic = FileUtility.storePayLoadUserProfile(fileName, payloadFile);
+                            Log.i(TAG, "CONTENT URI " + uriToPic);
+                            Log.i(TAG, "ORIGINAL URI " + Uri.fromFile(payloadFile));
+                            Log.i(TAG,"BITMAP SENDER: " + bitMapSender);
+                            //Add to local DataBase
+                            if (bitMapSender.length() == 0)
+                                bitMapSender = endpointId;
+                            //Store bitmap
+                            LocalDataBase.addUriToID(uriToPic,bitMapSender);
+                            switch (payLoadTag) {
+                                //Presenter received a profile picture
+                                case "PROF_PIC_V":
+                                    Log.i(TAG, "<<PROF_PIC_V>>");
+                                    try {
+                                        //Send bitmap to all other endpoints
+                                        for (String id :  cM.getEstablishedConnections().keySet()) {
+                                            cM.payloadSender.sendPayloadFile(id, payload, payload.getId() + ":PROF_PIC:" + bitMapSender + ":");
+                                        }
+                                        //Send all other endpoint`s bitmap to the endpoint
+                                        for (String id :  cM.getEstablishedConnections().keySet()) {
+                                            Uri uri = LocalDataBase.getProfilePictureUri(id);
+                                            if (uri == null)
+                                                break;
+                                            ParcelFileDescriptor file = getAppLogicActivity().getContentResolver().openFileDescriptor(uri, "r");
+                                            Payload profilePic = Payload.fromFile(file);
+                                            cM.payloadSender.sendPayloadFile(endpointId, profilePic, payload.getId() + ":PROF_PIC:" + id + ":");
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
                                     }
-                                    //Send all other endpoint`s bitmap to the endpoint
-                                    for (String id :  cM.getEstablishedConnections().keySet()) {
-                                        Uri uri = LocalDataBase.getProfilePictureUri(id);
-                                        if (uri == null)
-                                            break;
-                                        ParcelFileDescriptor file = getAppLogicActivity().getContentResolver().openFileDescriptor(uri, "r");
-                                        Payload profilePic = Payload.fromFile(file);
-                                        cM.payloadSender.sendPayloadFile(endpointId, profilePic, payload.getId() + ":PROF_PIC:" + id + ":");
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                                break;
-                            //Viewer received a profile picture
-                            case "PROF_PIC":
-                                Log.i(TAG, "<<PROF_PIC>>");
-                                break;
+                                    break;
+                                //Viewer received a profile picture
+                                case "PROF_PIC":
+                                    Log.i(TAG, "<<PROF_PIC>>");
+                                    break;
+                            }
+                        } else {
+                            Log.i(TAG, "Payload file name: " + payloadFile.getName());
+                            ConnectionEndpoint connectionEndpoint = cM.getDiscoveredEndpoints().get(endpointId);
+                            //Update inbox-fragment.
+                            getAppLogicActivity().getInboxFragment().storePayLoad(connectionEndpoint, fileName, payloadFile);
                         }
-                    } else {
-                        Log.i(TAG, "Payload file name: " + payloadFile.getName());
-                        ConnectionEndpoint connectionEndpoint = cM.getDiscoveredEndpoints().get(endpointId);
-                        //Update inbox-fragment.
-                        getAppLogicActivity().getInboxFragment().storePayLoad(connectionEndpoint, fileName, payloadFile);
                     }
                 }
             } else Log.i(TAG, "Payload NULL!");
