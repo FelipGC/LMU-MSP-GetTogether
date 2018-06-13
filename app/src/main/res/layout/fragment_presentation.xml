@@ -15,7 +15,7 @@
         android:focusable="true"
         android:src="@android:drawable/ic_media_play"
         android:tint="?attr/colorPrimary"
-        android:visibility="visible"/>
+        android:visibility="visible" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/presentation_stopPresentationButton"
@@ -26,7 +26,7 @@
         android:focusable="true"
         android:src="@android:drawable/ic_lock_power_off"
         android:tint="?attr/colorPrimary"
-        android:visibility="invisible"/>
+        android:visibility="invisible" />
 
     <ImageView
         android:id="@+id/presentation_pdfView"
