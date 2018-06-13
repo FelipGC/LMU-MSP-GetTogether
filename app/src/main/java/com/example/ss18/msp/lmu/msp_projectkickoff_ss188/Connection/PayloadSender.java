@@ -69,6 +69,7 @@ public class PayloadSender {
      * Sends a Payload object out to one specific endPoint
      */
     public void sendPayloadFile(String endpointId, Payload payload, String payloadStoringName) throws Exception {
+        Log.i(TAG,"PL: " + payload + " Name: " + payloadStoringName);
         // Send the name of the payload/file as a bytes payload first!
         cM.getConnectionsClient().sendPayload(
                 endpointId, Payload.fromBytes(payloadStoringName.getBytes("UTF-8")));

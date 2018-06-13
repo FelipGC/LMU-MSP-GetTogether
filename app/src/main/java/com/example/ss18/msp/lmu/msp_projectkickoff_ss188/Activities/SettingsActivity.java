@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.AppPreferences;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.RandomNameGenerator;
 
@@ -151,16 +152,17 @@ public class SettingsActivity extends BaseActivity {
      */
     private boolean saveUsername() {
         if (!enteredUsername.getText().toString().isEmpty()) {
-            return preferences.setUsername(enteredUsername.getText().toString());
-           /* if (!firstStart) {
+            boolean r = preferences.setUsername(enteredUsername.getText().toString());
+           if (!firstStart) {
                 Toast.makeText(SettingsActivity.this, R.string.changedInfo,
                         Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(SettingsActivity.this,
                         getString(R.string.welcomeUser, LocalDataBase.getUserName()),
                         Toast.LENGTH_LONG).show();
-            }*/
+            }
            // return true;
+            return r;
         }
         return false;
     }

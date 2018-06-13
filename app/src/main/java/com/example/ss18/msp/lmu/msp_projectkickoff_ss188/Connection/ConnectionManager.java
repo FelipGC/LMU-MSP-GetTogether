@@ -1,5 +1,7 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
@@ -28,8 +30,12 @@ import com.google.android.gms.nearby.connection.Strategy;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 
@@ -151,6 +157,7 @@ public class ConnectionManager {
                                 Uri uri = LocalDataBase.getProfilePictureUri();
                                 if (uri == null)
                                     break;
+                                //TODO: IMAGE IS TOO BIG?
                                 ParcelFileDescriptor file = appLogicActivity.getContentResolver().openFileDescriptor(uri, "r");
                                 Payload payload = Payload.fromFile(file);
                                 payloadSender.sendPayloadFile(endpointId, payload, payload.getId() + (SPECTATOR ? ":PROF_PIC_V:" : ":PROF_PIC:"));
@@ -279,8 +286,6 @@ public class ConnectionManager {
                                         // We were unable to start advertising.
                                         Log.i(TAG, "Something went wrong!");
                                         e.printStackTrace();
-                                        stopAdvertising();
-                                        startAdvertising();
                                     }
                                 });
             }
@@ -311,8 +316,6 @@ public class ConnectionManager {
                                     public void onFailure(@NonNull Exception e) {
                                         // We were unable to start discovering.
                                         Log.i(TAG, "Something went wrong!");
-                                        stopDiscovering();
-                                        startDiscovering();
                                         e.printStackTrace();
                                     }
                                 });

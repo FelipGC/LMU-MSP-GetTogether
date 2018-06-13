@@ -17,6 +17,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.AppPreferences;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
 public class SplashActivity extends AppCompatActivity {
@@ -115,15 +116,18 @@ public class SplashActivity extends AppCompatActivity {
         preferences = AppPreferences.getInstance(this);
 
         createNotificationChannel();
-
-        Log.i(TAG, "userNameAlreadyEntered: " + preferences.getUsername());
-        if (preferences.getUsername() == null) {
+        String username = preferences.getUsername();
+        Log.i(TAG, "userNameAlreadyEntered: " + username);
+        if (username == null) {
             Intent intent = new Intent(this, SettingsActivity.class);
             intent.putExtra("newUser", true);
             startActivity(intent);
         } else {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
+            LocalDataBase.setUserName(username); //TODO Laureen! Das hier nicht vergessen sonst bugt alles rum ;)
+            LocalDataBase.setProfilePictureUri(preferences.getUserImage()); //TODO Laureen! Das hier nicht vergessen sonst bugt alles rum ;)
+
             Toast.makeText(getApplicationContext(),
                     String.format("Welcome back %s!", preferences.getUsername()),
                     Toast.LENGTH_LONG).show();

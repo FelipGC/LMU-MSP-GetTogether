@@ -168,4 +168,8 @@ public class SelectPresenterFragment extends Fragment {
             else pendingButton.setText(String.format("Pending Connection(s): %d", cM.getPendingConnections().size()));
         }
     }
+
+    public void updateJoinedPresentersAvatar() {
+        ((PresenterAdapter) establishedPresenters.getAdapter()).notifyDataSetChanged();
+    }
 }

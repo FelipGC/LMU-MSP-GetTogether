@@ -76,7 +76,6 @@ public final class PayloadReceiver extends PayloadCallback {
 
                         fixedSizeList.add(payload.getId());
                         //We have a new chat message
-                        Log.i(TAG, "Received CHAT MESSAGES" + fileContent);
                         onChatMessageReceived(endpointId, fileContent);
                         //Broadcast chat message to all if presenter
                         if(AppLogicActivity.getUserRole().getRoleType() == User.UserRole.PRESENTER)
@@ -106,9 +105,7 @@ public final class PayloadReceiver extends PayloadCallback {
             //Display a notification.
             //Checks to see if the message is a chat message or a document
             Payload payload = incomingPayloads.remove(update.getPayloadId());
-            Log.i(TAG, "onPayloadTransferUpdate()\n" + payload +
-                    "\n" + incomingPayloads.toString() +
-                    "\n" + filePayloadFilenames.toString());
+            Log.i(TAG, "onPayloadTransferUpdate()");
 
             if (payload != null) {
                 //Display a notification.
@@ -127,18 +124,20 @@ public final class PayloadReceiver extends PayloadCallback {
                         String payLoadTag = fileName.substring(0, substringDividerIndex);
                         String bitMapSender = fileName.substring(substringDividerIndex + 1);
                         //Store image
-                        Log.i(TAG, "Trying to store: " + fileName);
                         //TODO: Move and rename file to something good (NOT WORKING?)
                         Uri uriToPic = FileUtility.storePayLoadUserProfile(fileName, payloadFile);
-                        Log.i(TAG, "CONTENT " + uriToPic);
+                        Log.i(TAG, "CONTENT URI " + uriToPic);
+                        Log.i(TAG, "ORIGINAL URI " + Uri.fromFile(payloadFile));
+                        Log.i(TAG,"BITMAP SENDER: " + bitMapSender);
                         //Add to local DataBase
                         if (bitMapSender.length() == 0)
                             bitMapSender = endpointId;
                         //Store bitmap
-                        LocalDataBase.idToUri.put(bitMapSender, uriToPic);
+                        LocalDataBase.addUriToID(uriToPic,bitMapSender);
                         switch (payLoadTag) {
+                            //Presenter received a profile picture
                             case "PROF_PIC_V":
-                                Log.i(TAG, "PROF_PIC_V");
+                                Log.i(TAG, "<<PROF_PIC_V>>");
                                 try {
                                     //Send bitmap to all other endpoints
                                     for (String id :  cM.getEstablishedConnections().keySet()) {
@@ -157,10 +156,9 @@ public final class PayloadReceiver extends PayloadCallback {
                                     e.printStackTrace();
                                 }
                                 break;
+                            //Viewer received a profile picture
                             case "PROF_PIC":
-                                Log.i(TAG, "PROF_PIC");
-                                //Send own bitmap to endpoint
-                                LocalDataBase.idToUri.put(bitMapSender, Uri.fromFile(payloadFile));
+                                Log.i(TAG, "<<PROF_PIC>>");
                                 break;
                         }
                     } else {
@@ -181,6 +179,7 @@ public final class PayloadReceiver extends PayloadCallback {
      */
 
     private void onChatMessageReceived(String id, String message) {
+        Log.i(TAG, "RECEIVED CHAT MESSAGES" + message);
         //Display notification
         NotificationUtility.displayNotificationChat("Chat message received",
                 String.format("%s has sent you a message...",cM.getDiscoveredEndpoints().get(id).getName()),
@@ -188,5 +187,4 @@ public final class PayloadReceiver extends PayloadCallback {
         ChatFragment chat = getAppLogicActivity().getChatFragment();
         chat.getDataFromEndPoint(id, message);
     }
-
 }

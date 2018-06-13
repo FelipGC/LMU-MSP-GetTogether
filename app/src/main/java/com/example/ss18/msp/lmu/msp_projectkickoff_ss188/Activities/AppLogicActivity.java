@@ -41,12 +41,14 @@ public class AppLogicActivity extends BaseActivity {
     private InboxFragment inboxFragment;
     private ChatFragment chatFragment;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.onCreate(R.layout.activity_app_logic);
 
-        getSupportActionBar().setTitle("Gruppenname"); //TODO
+        getSupportActionBar().setTitle("Rollenauswahl"); //TODO
 
         //Get object from intent
         setUserRole((User) getIntent().getSerializableExtra("UserRole"));
@@ -64,15 +66,17 @@ public class AppLogicActivity extends BaseActivity {
                 //Add tabs for spectator
                 tabPageAdapter.addFragment(selectPresenterFragment = new SelectPresenterFragment(), "Presenters");
                 tabPageAdapter.addFragment(inboxFragment = new InboxFragment(), "Inbox");
-                tabPageAdapter.addFragment(new LiveViewFragment(), "Live View");
+                tabPageAdapter.addFragment(new LiveViewFragment(), "Live");
                 tabPageAdapter.addFragment(chatFragment = new ChatFragment(), "Chat");
                 break;
             case PRESENTER:
                 startAdvertising();
                 //Add tabs for presenter
-                tabPageAdapter.addFragment(selectParticipantsFragment = new SelectParticipantsFragment(), "Participants");
+                tabPageAdapter.addFragment(selectParticipantsFragment = new SelectParticipantsFragment(), "Viewers");
                 tabPageAdapter.addFragment(shareFragment = new ShareFragment(), "Share");
+                tabPageAdapter.addFragment(new LiveViewFragment(), "Live");
                 tabPageAdapter.addFragment(chatFragment = new ChatFragment(), "Chat");
+
                 break;
             default:
                 Log.e(TAG, "Role type missing!");
@@ -187,5 +191,9 @@ public class AppLogicActivity extends BaseActivity {
 
     public SelectPresenterFragment getSelectPresenterFragment() {
         return selectPresenterFragment;
+    }
+
+    public SelectParticipantsFragment getSelectParticipantsFragment() {
+        return selectParticipantsFragment;
     }
 }

@@ -86,7 +86,7 @@ public class ViewerAdapter extends BaseAdapter {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Log.i(TAG, "getView()");
+        Log.i(TAG, "getView() for " + position);
         LayoutInflater messageInflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         final ConnectionEndpoint connectionEndpoint = endpointList.get(position);
         convertView = messageInflater.inflate(R.layout.list_item_presenter, null);
@@ -96,6 +96,7 @@ public class ViewerAdapter extends BaseAdapter {
         ImageView picture = (ImageView) convertView.findViewById(R.id.avatar);
         name.setText(connectionEndpoint.getName());
         picture.setImageURI(connectionEndpoint.getProfilePicture());
+        convertView.setTag(picture);
         return convertView;
     }
 }

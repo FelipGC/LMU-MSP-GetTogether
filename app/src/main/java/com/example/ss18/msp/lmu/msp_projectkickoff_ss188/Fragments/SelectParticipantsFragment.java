@@ -32,24 +32,29 @@ public class SelectParticipantsFragment extends Fragment {
         ListView listView = mainView.findViewById(R.id.viewerList);
         viewerAdapter = new ViewerAdapter(getContext());
         listView.setAdapter(viewerAdapter);
+        updateParticipantsGUI(null,connectionManager.getEstablishedConnections().size(),
+                connectionManager.getDiscoveredEndpoints().size());
         return mainView;
     }
     /**
      * Updates the amount of participants on the GUI
      */
     public void updateParticipantsGUI(ConnectionEndpoint e,int newSize, int maxSize){
-        Log.i(TAG,"UpdateParticipantsGUI ID: " + e.getId());
         TextView textView = mainView.findViewById(R.id.numberOfParticipants);
         if(maxSize == 0)
-            textView.setText(R.string.no_devices_found);
+            textView.setText(R.string.leer);
         else
             textView.setText(newSize + "|"+maxSize);
         //Update listView
+        if(e == null)
+            return;
+        Log.i(TAG,"UpdateParticipantsGUI ID: " + e.getId());
         if(connectionManager.getEstablishedConnections().containsKey(e.getId())) {
             viewerAdapter.add(e);
         }else{
             viewerAdapter.remove(e);
         }
+        viewerAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -139,5 +144,9 @@ public class SelectParticipantsFragment extends Fragment {
                 }
             }
         });
+    }
+
+    public void updateParticipantsAvatar() {
+        viewerAdapter.notifyDataSetChanged();
     }
 }
