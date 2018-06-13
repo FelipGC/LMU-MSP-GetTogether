@@ -16,10 +16,12 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.InboxFragment
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.TabPageAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.SelectParticipantsFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.LiveViewFragment;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Presentation.PresentationFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.AppContext;
 
-public class AppLogicActivity extends BaseActivity {
+public class AppLogicActivity extends BaseActivity implements AppContext {
     /**
      * Tag for Logging/Debugging
      */
@@ -40,8 +42,7 @@ public class AppLogicActivity extends BaseActivity {
     private SelectParticipantsFragment selectParticipantsFragment;
     private InboxFragment inboxFragment;
     private ChatFragment chatFragment;
-
-
+    private TabPageAdapter tabPageAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +59,7 @@ public class AppLogicActivity extends BaseActivity {
         connectionManager.setUpConnectionsClient(this);
 
         //Set up tabs
-        TabPageAdapter tabPageAdapter = new TabPageAdapter(getSupportFragmentManager());
+        tabPageAdapter = new TabPageAdapter(getSupportFragmentManager());
         switch (getUserRole().getRoleType()) {
 
             case SPECTATOR:
@@ -72,11 +73,10 @@ public class AppLogicActivity extends BaseActivity {
             case PRESENTER:
                 startAdvertising();
                 //Add tabs for presenter
-                tabPageAdapter.addFragment(selectParticipantsFragment = new SelectParticipantsFragment(), "Viewers");
+                tabPageAdapter.addFragment(selectParticipantsFragment = new SelectParticipantsFragment(), "Participants");
+                tabPageAdapter.addFragment(new PresentationFragment(), getString(R.string.presentation_tabName));
                 tabPageAdapter.addFragment(shareFragment = new ShareFragment(), "Share");
-                tabPageAdapter.addFragment(new LiveViewFragment(), "Live");
                 tabPageAdapter.addFragment(chatFragment = new ChatFragment(), "Chat");
-
                 break;
             default:
                 Log.e(TAG, "Role type missing!");
@@ -195,5 +195,10 @@ public class AppLogicActivity extends BaseActivity {
 
     public SelectParticipantsFragment getSelectParticipantsFragment() {
         return selectParticipantsFragment;
+    }
+
+    @Override
+    public void displayShortMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }

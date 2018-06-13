@@ -23,10 +23,12 @@ public class TabPageAdapter extends FragmentPagerAdapter {
     public TabPageAdapter(FragmentManager fm) {
         super(fm);
     }
+
     public void addFragment(Fragment f,String tabName){
         fragmentList.add(f);
         fragmentTitleList.add(tabName);
     }
+
     @Override
     public Fragment getItem(int position) {
         return fragmentList.get(position);
@@ -41,5 +43,4 @@ public class TabPageAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         return fragmentTitleList.get(position);
     }
-
 }

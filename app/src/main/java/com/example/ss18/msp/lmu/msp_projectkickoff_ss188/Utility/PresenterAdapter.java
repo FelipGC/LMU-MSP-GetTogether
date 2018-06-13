@@ -55,7 +55,7 @@ public class PresenterAdapter extends BaseAdapter {
     /**
      * Removes an ConnectionEndpoint from the list if it exists
      *
-     * @param endpoint The endpoint to remove
+     * @param endpoint The endpoint to replace
      */
     public void remove(ConnectionEndpoint endpoint) {
         Log.i(TAG, "Remove from PresenterAdapter: " + endpoint.getName() + " with id: " + endpoint.getId());

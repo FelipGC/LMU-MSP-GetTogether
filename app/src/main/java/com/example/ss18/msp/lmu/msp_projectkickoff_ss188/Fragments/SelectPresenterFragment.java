@@ -136,7 +136,7 @@ public class SelectPresenterFragment extends Fragment {
             targetListView = establishedPresenters;
         else if (!cM.getPendingConnections().containsKey(endpoint.getId()))
             targetListView = availablePresenters;
-        //Add or remove element form listView
+        //Add or replace element form listView
         HashSet<ListView> listViews = new HashSet<>(Arrays.asList(establishedPresenters, availablePresenters,null));
         for (ListView listView : listViews) {
             PresenterAdapter presenterAdapter = null;

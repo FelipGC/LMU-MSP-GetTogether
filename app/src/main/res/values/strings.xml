@@ -61,6 +61,11 @@
     <string name="chat_input_field">Write a message</string>
     <string name="inbox">Inbox</string>
     <string name="title_activity_inbox">InboxActivity</string>
+    <string name="presentation_openDocumentErrorMessage">Bitte wählen sie eine gültige Präsentation aus.</string>
+    <string name="presentation_openPresentationRequestCode">1</string>
+    <string name="presentation_argument_documentUri">presentation_argument_documentUri</string>
+    <string name="presentation_argument_pageNr">presentation_argument_pageNr</string>
+    <string name="presentation_tabName">Live Presentation</string>
     <string name="yes">Yes</string>
     <string name="no_name_entered">Ooooops keinen Namen?</string>
     <string name="generate_random_name">Du hast keinen Benutzernamen eingegeben. Möchtest du vielleicht einen zufälligen erstellen?</string>
