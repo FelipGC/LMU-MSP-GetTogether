@@ -47,6 +47,12 @@ public class SettingsActivity extends BaseActivity {
         TextView settingsText = (TextView) findViewById(R.id.settings_text);
         userImage = (ImageView) findViewById(R.id.user_image);
         enteredUsername = (EditText) findViewById(R.id.enter_username);
+        signUpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onSignUpButtonClicked();
+            }
+        });
 
         preferences = AppPreferences.getInstance(this);
 
@@ -58,14 +64,9 @@ public class SettingsActivity extends BaseActivity {
             getSupportActionBar().setTitle(R.string.register_new);
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             getSupportActionBar().setDisplayShowHomeEnabled(false);
-            signUpButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onSignUpButtonClicked();
-                }
-            });
         } else {
-            signUpButton.setVisibility(View.GONE);
+            settingsText.setVisibility(View.GONE);
+            signUpButton.setText("Speichern");
             getSupportActionBar().setTitle(R.string.settings_user);
             enteredUsername.setText(preferences.getUsername());
             userImage.setImageURI(preferences.getUserImage());
