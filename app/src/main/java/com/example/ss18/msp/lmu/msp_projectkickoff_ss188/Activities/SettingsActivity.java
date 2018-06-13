@@ -65,7 +65,8 @@ public class SettingsActivity extends BaseActivity {
                 }
             });
         } else {
-            signUpButton.setVisibility(View.GONE);
+            settingsText.setVisibility(View.GONE);
+            signUpButton.setText("Speichern");
             getSupportActionBar().setTitle(R.string.settings_user);
             enteredUsername.setText(preferences.getUsername());
             userImage.setImageURI(preferences.getUserImage());
