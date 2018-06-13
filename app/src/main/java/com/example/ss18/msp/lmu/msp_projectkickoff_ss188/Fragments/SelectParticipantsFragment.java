@@ -107,15 +107,19 @@ public class SelectParticipantsFragment extends Fragment {
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                Log.i(TAG,"onDismiss()");
+                Log.i(TAG,"Presenter window onDismiss()");
                 for (int device = 0; device < selectedDevices.length; device++) {
+                    ConnectionEndpoint endpoint = discoveredDevices[device];
                     boolean isChecked = selectedDevices[device];
-                    if (isChecked) {
-                        // If the user checked the item, add it to the selected items
-                        connectionManager.getPendingConnections().put(discoveredDevices[device].getId(), discoveredDevices[device]);
-                        connectionManager.acceptConnectionIfPending(discoveredDevices[device]);
-                    } else
-                        connectionManager.disconnectFromEndpoint(discoveredDevices[device].getId());
+                    boolean newEndpoint = !connectionManager.getEstablishedConnections().containsKey(endpoint.getId())
+                            && !connectionManager.getPendingConnections().containsKey(endpoint.getId());
+                    if (isChecked && newEndpoint) {
+                            Log.i(TAG,"Accepting connection for " + endpoint.getName());
+                        // If the user checked the item, add it to the selected items, if not already connected
+                            connectionManager.getPendingConnections().put(endpoint.getId(), endpoint);
+                            connectionManager.acceptConnectionIfPending(endpoint);
+                    } else if(!isChecked && !newEndpoint)
+                        connectionManager.disconnectFromEndpoint(endpoint.getId());
                 }
             }
         });
