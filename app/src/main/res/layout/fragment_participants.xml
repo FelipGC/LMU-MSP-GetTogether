@@ -34,7 +34,7 @@
             android:fontFamily="serif"
             android:gravity="center|top"
             android:onClick="manageParticipants"
-            android:text="None :("
+            android:text="Leer :("
             android:textAlignment="center"
             android:textAllCaps="false"
             android:textSize="100sp"

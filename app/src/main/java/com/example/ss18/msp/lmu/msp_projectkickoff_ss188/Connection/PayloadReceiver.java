@@ -127,17 +127,15 @@ public final class PayloadReceiver extends PayloadCallback {
                         String payLoadTag = fileName.substring(0, substringDividerIndex);
                         String bitMapSender = fileName.substring(substringDividerIndex + 1);
                         //Store image
-                        Log.i(TAG, "Received and renamed payload file to: " + fileName);
+                        Log.i(TAG, "Trying to store: " + fileName);
                         //TODO: Move and rename file to something good (NOT WORKING?)
-                        FileUtility.storePayLoadUserProfile(fileName, payloadFile);
-                        //
-                        Log.i(TAG, "CONTENT " + Uri.fromFile(payloadFile));
-
+                        Uri uriToPic = FileUtility.storePayLoadUserProfile(fileName, payloadFile);
+                        Log.i(TAG, "CONTENT " + uriToPic);
                         //Add to local DataBase
                         if (bitMapSender.length() == 0)
                             bitMapSender = endpointId;
                         //Store bitmap
-                        LocalDataBase.idToUri.put(bitMapSender, Uri.fromFile(payloadFile));
+                        LocalDataBase.idToUri.put(bitMapSender, uriToPic);
                         switch (payLoadTag) {
                             case "PROF_PIC_V":
                                 Log.i(TAG, "PROF_PIC_V");
