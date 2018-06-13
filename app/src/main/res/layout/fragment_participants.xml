@@ -7,6 +7,18 @@
     tools:context=".Activities.AppLogicActivity"
     android:background="@android:color/transparent">
 
+    <android.support.design.widget.BottomNavigationView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="10dp"
+        app:itemBackground="@color/colorPrimary"
+        app:itemIconTint="@color/colorAccent"
+        app:itemTextColor="@color/backgroundColor"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:menu="@menu/menu_presenter_bottom_navigation">
+
+    </android.support.design.widget.BottomNavigationView>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="513dp"
@@ -29,7 +41,7 @@
         <TextView
             android:id="@+id/numberOfParticipants"
             android:layout_width="match_parent"
-            android:layout_height="222dp"
+            android:layout_height="153dp"
             android:elevation="30dp"
             android:fontFamily="serif"
             android:gravity="center|top"
@@ -41,23 +53,10 @@
             android:textStyle="bold"
             tools:layout_editor_absoluteY="66dp" />
 
-        <Button
-            android:id="@+id/pokeButton"
+        <ListView
+            android:id="@+id/viewerList"
             android:layout_width="match_parent"
-            android:layout_height="68dp"
-            android:background="@color/colorPrimaryDark"
-            android:elevation="15dp"
-            android:text="@string/poke"
-            android:textColor="@color/colorPrimaryLight"/>
-
-        <Button
-            android:id="@+id/callButton"
-            android:layout_width="match_parent"
-            android:layout_height="86dp"
-            android:background="@color/colorAccent"
-            android:elevation="15dp"
-            android:text="@string/call"
-            android:textColor="@color/colorPrimaryLight" />
+            android:layout_height="256dp" />
 
     </LinearLayout>
 

@@ -10,30 +10,46 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.ViewerAdapter;
 
 public class SelectParticipantsFragment extends Fragment {
     private static final String TAG = "SelectParticipants";
     private static View mainView;
     private static ConnectionManager connectionManager;
+    private ViewerAdapter viewerAdapter;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mainView = inflater.inflate(R.layout.fragment_participants,container,false);
         connectionManager = AppLogicActivity.getConnectionManager();
+        ListView listView = mainView.findViewById(R.id.viewerList);
+        viewerAdapter = new ViewerAdapter(getContext());
+        listView.setAdapter(viewerAdapter);
         return mainView;
     }
     /**
      * Updates the amount of participants on the GUI
      */
-    public void updateParticipantsGUI(int newSize, int maxSize){
+    public void updateParticipantsGUI(ConnectionEndpoint e,int newSize, int maxSize){
+        Log.i(TAG,"UpdateParticipantsGUI ID: " + e.getId());
         TextView textView = mainView.findViewById(R.id.numberOfParticipants);
-        textView.setText(newSize + "/"+maxSize);
+        if(maxSize == 0)
+            textView.setText(R.string.no_devices_found);
+        else
+            textView.setText(newSize + "|"+maxSize);
+        //Update listView
+        if(connectionManager.getEstablishedConnections().containsKey(e.getId())) {
+            viewerAdapter.add(e);
+        }else{
+            viewerAdapter.remove(e);
+        }
     }
 
     /**

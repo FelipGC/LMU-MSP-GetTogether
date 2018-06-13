@@ -89,8 +89,8 @@ public class AppLogicActivity extends BaseActivity {
     /**
      * Updates the amount of participants on the GUI
      */
-    public void updateParticipantsGUI(int newSize, int maxSize) {
-        selectParticipantsFragment.updateParticipantsGUI(newSize, maxSize);
+    public void updateParticipantsGUI(ConnectionEndpoint e, int newSize, int maxSize) {
+        selectParticipantsFragment.updateParticipantsGUI(e, newSize, maxSize);
     }
 
     /**

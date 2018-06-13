@@ -126,7 +126,7 @@ public class ConnectionManager {
                                     + " is asking for joining your session", NotificationCompat.PRIORITY_DEFAULT);
                             Toast.makeText(getAppLogicActivity(), String.format(String.format("Viewer %s found!",
                                     connectionEndpoint.getName())), Toast.LENGTH_SHORT).show();
-                            updateParticipantsCount();
+                            updateParticipantsCount(connectionEndpoint);
                             break;
                     }
                 }
@@ -447,8 +447,8 @@ public class ConnectionManager {
         }
     }
 
-    private void updateParticipantsCount() {
-        appLogicActivity.updateParticipantsGUI(establishedConnections.size(), discoveredEndpoints.size());
+    private void updateParticipantsCount(ConnectionEndpoint e) {
+        appLogicActivity.updateParticipantsGUI(e, establishedConnections.size(), discoveredEndpoints.size());
     }
 
 
@@ -462,7 +462,7 @@ public class ConnectionManager {
                 updatePresenters(endpoint);
                 break;
             case PRESENTER:
-                updateParticipantsCount();
+                updateParticipantsCount(endpoint);
                 break;
         }
     }

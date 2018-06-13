@@ -36,6 +36,15 @@ public class PresenterAdapter extends BaseAdapter {
         this.enableSwitch = enableSwitch;
     }
 
+    public boolean contains(String id) {
+        for (ConnectionEndpoint e : endpointList) {
+            if (e.getId().equals(id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void add(ConnectionEndpoint endpoint) {
         //Add the new endpoint
         this.endpointList.add(endpoint);
