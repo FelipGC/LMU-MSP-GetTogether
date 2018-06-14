@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <application
         android:allowBackup="true"
@@ -27,9 +28,15 @@
             </intent-filter>
         </activity>
         <activity android:name=".Activities.MainActivity" />
-        <activity android:name=".Activities.AppLogicActivity"
-                  android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name=".Activities.AppLogicActivity"
+            android:windowSoftInputMode="adjustResize" />
         <activity android:name=".Activities.SettingsActivity" />
+
+        <service
+            android:name=".DistanceControl.LocationService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>
