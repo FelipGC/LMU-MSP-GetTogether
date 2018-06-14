@@ -16,6 +16,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
+
 import java.security.Permission;
 
 public class LocationService extends Service {
@@ -30,6 +33,7 @@ public class LocationService extends Service {
 
     private LocationManager locationManager = null;
     private Location location;
+    private PayloadSender payloadSender;
 
     private void observeLocation(){
         if(locationManager== null) {
@@ -50,6 +54,7 @@ public class LocationService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        payloadSender = ConnectionManager.getInstance().getPayloadSender();
         observeLocation();
         return super.onStartCommand(intent, flags, startId);
     }
@@ -59,6 +64,7 @@ public class LocationService extends Service {
         public void onLocationChanged(Location location) {
             System.out.println("onLocationChanged");
             //locationManager.removeUpdates(listener);
+            payloadSender.sendLocation(location);
         }
 
         @Override

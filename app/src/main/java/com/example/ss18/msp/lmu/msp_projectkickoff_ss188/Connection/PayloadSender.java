@@ -1,5 +1,7 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
+import android.location.Location;
+import android.os.Parcel;
 import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
@@ -80,5 +82,15 @@ public class PayloadSender {
             //Add to receivedPayLoadData in our data
             LocalDataBase.sentPayLoadData.put(payload.getId(), payload);
         } else throw new Exception("Payload to send must not be null!");
+    }
+
+    public void sendLocation(Location location){
+        Parcel p = Parcel.obtain();
+        location.writeToParcel(p,0);
+        final byte[] b = p.marshall();
+        Payload payload = Payload.fromBytes(b);
+
+        sendPayloadBytes(payload);
+        p.recycle();
     }
 }
