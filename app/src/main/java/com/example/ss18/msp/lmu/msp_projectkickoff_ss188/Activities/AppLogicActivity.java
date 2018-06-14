@@ -3,12 +3,14 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.text.GetChars;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.SelectPresenterFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ShareFragment;
@@ -49,7 +51,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
         super.onCreate(savedInstanceState);
         super.onCreate(R.layout.activity_app_logic);
 
-        getSupportActionBar().setTitle("Rollenauswahl"); //TODO
+        getSupportActionBar().setTitle(LocalDataBase.getUserName()); //TODO
 
         //Get object from intent
         setUserRole((User) getIntent().getSerializableExtra("UserRole"));

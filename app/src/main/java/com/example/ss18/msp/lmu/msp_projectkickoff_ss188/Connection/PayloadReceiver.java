@@ -11,7 +11,6 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActi
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.FileUtility;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.FixedSizeList;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.NotificationUtility;
 import com.google.android.gms.nearby.connection.Payload;
@@ -105,7 +104,7 @@ public final class PayloadReceiver extends PayloadCallback {
             //Display a notification.
             //Checks to see if the message is a chat message or a document
             Payload payload = incomingPayloads.remove(update.getPayloadId());
-            Log.i(TAG, "onPayloadTransferUpdate()");
+            Log.i(TAG, "onPayloadTransferUpdate() Incoming payload: " + payload);
 
             if (payload != null) {
                 //Load data
@@ -145,9 +144,10 @@ public final class PayloadReceiver extends PayloadCallback {
                 String bitMapSender = fileName.substring(substringDividerIndex + 1);
                 //Store image
                 //TODO: Move and rename file to something good (NOT WORKING?)
-                Uri uriToPic = FileUtility.storePayLoadUserProfile(fileName, payloadFile);
+                //Uri uriToPic = FileUtility.storePayLoadUserProfile(fileName, payloadFile);
+                Uri uriToPic =  Uri.fromFile(payloadFile);
                 Log.i(TAG, "CONTENT URI " + uriToPic);
-                Log.i(TAG, "ORIGINAL URI " + Uri.fromFile(payloadFile));
+                //Log.i(TAG, "ORIGINAL URI " + Uri.fromFile(payloadFile));
                 Log.i(TAG, "BITMAP SENDER: " + bitMapSender);
                 //Add to local DataBase
                 if (bitMapSender.length() == 0)
@@ -182,15 +182,18 @@ public final class PayloadReceiver extends PayloadCallback {
                         break;
                 }
             } else {
-                //Display a notification.
-                NotificationUtility.displayNotification("Document received",
-                        String.format("%s has sent you a document...", cM.getEstablishedConnections().get(endpointId).getName()),
-                        NotificationCompat.PRIORITY_DEFAULT);
-                Log.i(TAG, "Payload file name: " + payloadFile.getName());
-                ConnectionEndpoint connectionEndpoint = cM.getDiscoveredEndpoints().get(endpointId);
-                //Update inbox-fragment.
-                getAppLogicActivity().getInboxFragment().storePayLoad(connectionEndpoint, fileName, payloadFile);
+                receiveFileFully(payloadFile, endpointId);
             }
         }
+    }
+    private void receiveFileFully(File payloadFile, String endpointId){
+        //Display a notification.
+        NotificationUtility.displayNotification("Document received",
+                String.format("%s has sent you a document...", cM.getEstablishedConnections().get(endpointId).getName()),
+                NotificationCompat.PRIORITY_DEFAULT);
+        Log.i(TAG, "Payload file name: " + payloadFile.getName());
+        ConnectionEndpoint connectionEndpoint = cM.getDiscoveredEndpoints().get(endpointId);
+        //Update inbox-fragment.
+        getAppLogicActivity().getInboxFragment().updateInboxFragment();
     }
 }

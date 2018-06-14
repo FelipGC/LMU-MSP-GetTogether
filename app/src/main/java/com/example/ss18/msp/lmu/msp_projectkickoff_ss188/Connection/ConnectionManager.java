@@ -445,9 +445,7 @@ public class ConnectionManager {
     }
 
     public void disconnectFromAllEndpoints() {
-        for (String id : discoveredEndpoints.keySet()) {
-            disconnectFromEndpoint(id);
-        }
+        connectionsClient.stopAllEndpoints();
     }
 
     private void updateParticipantsCount(ConnectionEndpoint e) {
