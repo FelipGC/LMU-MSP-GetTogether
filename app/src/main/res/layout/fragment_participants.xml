@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:elevation="10dp"
         app:itemBackground="@color/colorPrimary"
-        app:itemIconTint="@color/colorAccent"
+        app:itemIconTint="@color/backgroundColor"
         app:itemTextColor="@color/backgroundColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/menu_presenter_bottom_navigation">

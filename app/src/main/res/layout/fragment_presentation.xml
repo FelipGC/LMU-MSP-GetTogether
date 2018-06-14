@@ -14,7 +14,7 @@
         android:clickable="true"
         android:focusable="true"
         android:src="@android:drawable/ic_media_play"
-        android:tint="?attr/colorPrimary"
+        android:tint="@color/colorPrimary"
         android:visibility="visible" />
 
     <android.support.design.widget.FloatingActionButton
@@ -25,7 +25,7 @@
         android:clickable="true"
         android:focusable="true"
         android:src="@android:drawable/ic_lock_power_off"
-        android:tint="?attr/colorPrimary"
+        android:tint="@color/colorPrimary"
         android:visibility="invisible" />
 
     <ImageView

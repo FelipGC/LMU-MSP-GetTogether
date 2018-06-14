@@ -71,4 +71,7 @@
     <string name="generate_random_name">Du hast keinen Benutzernamen eingegeben. Möchtest du vielleicht einen zufälligen erstellen?</string>
     <string name="logout">Logout</string>
     <string name="leer">Leer :(</string>
+    <string name="gps">GPS</string>
+    <string name="sprechen">SPRECHEN</string>
+    <string name="stupsen">STUPSEN</string>
 </resources>

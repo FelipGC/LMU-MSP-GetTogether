@@ -4,18 +4,21 @@
     <item
         android:id="@+id/gps"
         android:enabled="true"
-        android:title="GPS"
+        android:title="@string/gps"
+        android:icon="@drawable/gps_icon"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/sprechen"
         android:enabled="true"
-        android:title="SPRECHEN"
+        android:title="@string/sprechen"
+        android:icon="@drawable/voice_icon"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/vibrieren"
         android:enabled="true"
-        android:title="STUPSEN"
+        android:title="@string/stupsen"
+        android:icon="@drawable/vibrate_icon"
         app:showAsAction="ifRoom" />
 </menu>
 
