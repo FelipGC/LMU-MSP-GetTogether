@@ -61,7 +61,7 @@ public class ShareFragment extends Fragment {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
 
         // Filter what we want to search for (*/* == everything)
-        intent.setType("*/*");
+        intent.setType("image/*");
 
         startActivityForResult(intent, READ_REQUEST_CODE);
     }
@@ -124,7 +124,7 @@ public class ShareFragment extends Fragment {
     private void sendDataToEndpoint(Uri uri) throws FileNotFoundException {
         Payload payload = dataToPayload(uri);
         // Mapping the ID of the file payload to the filename
-        String payloadStoringName = payload.getId() + ":" + uri.getLastPathSegment();
+        String payloadStoringName = payload.getId() + ":IMAGE_PIC:" + uri.getLastPathSegment();
         payloadSender.sendPayloadFile(payload, payloadStoringName);
         //Display Toast
         Toast.makeText(getContext(),"File sent!",Toast.LENGTH_SHORT).show();

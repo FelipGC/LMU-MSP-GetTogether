@@ -11,6 +11,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActi
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.FileUtility;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.FixedSizeList;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.NotificationUtility;
 import com.google.android.gms.nearby.connection.Payload;
@@ -109,7 +110,7 @@ public final class PayloadReceiver extends PayloadCallback {
             if (payload != null) {
                 //Load data
                 if (payload.getType() == Payload.Type.FILE) {
-                    receivedFileParser(payload,update,endpointId);
+                    receivedFileParser(payload, update, endpointId);
                 } else Log.i(TAG, "Payload NULL!");
 
             } else if (update.getStatus() == PayloadTransferUpdate.Status.FAILURE) {
@@ -131,69 +132,98 @@ public final class PayloadReceiver extends PayloadCallback {
         chat.getDataFromEndPoint(id, message);
     }
 
-    /**Implements the actions to execute after fully receiving a document.*/
+    /**
+     * Implements the actions to execute after fully receiving a document.
+     */
     private void receivedFileParser(Payload payload, PayloadTransferUpdate update, String endpointId) {
         // Retrieve the filename and corresponding payload.
         File payloadFile = payload.asFile().asJavaFile();
         String fileName = filePayloadFilenames.remove(update.getPayloadId());
         if (fileName != null) {
+            //Did we receive a Profile Picture?
             if (fileName.contains("PROF_PIC")) {
-                int substringDividerIndex = fileName.indexOf(':');
-                Log.i(TAG, "Name to trim: " + fileName);
-                String payLoadTag = fileName.substring(0, substringDividerIndex);
-                String bitMapSender = fileName.substring(substringDividerIndex + 1);
-                //Store image
-                //TODO: Move and rename file to something good (NOT WORKING?)
-                //Uri uriToPic = FileUtility.storePayLoadUserProfile(fileName, payloadFile);
-                Uri uriToPic =  Uri.fromFile(payloadFile);
-                Log.i(TAG, "CONTENT URI " + uriToPic);
-                //Log.i(TAG, "ORIGINAL URI " + Uri.fromFile(payloadFile));
-                Log.i(TAG, "BITMAP SENDER: " + bitMapSender);
-                //Add to local DataBase
-                if (bitMapSender.length() == 0)
-                    bitMapSender = endpointId;
-                //Store bitmap
-                LocalDataBase.addUriToID(uriToPic, bitMapSender);
-                switch (payLoadTag) {
-                    //Presenter received a profile picture
-                    case "PROF_PIC_V":
-                        Log.i(TAG, "<<PROF_PIC_V>>");
-                        try {
-                            //Send bitmap to all other endpoints
-                            for (String id : cM.getEstablishedConnections().keySet()) {
-                                cM.payloadSender.sendPayloadFile(id, payload, payload.getId() + ":PROF_PIC:" + bitMapSender + ":");
-                            }
-                            //Send all other endpoint`s bitmap to the endpoint
-                            for (String id : cM.getEstablishedConnections().keySet()) {
-                                Uri uri = LocalDataBase.getProfilePictureUri(id);
-                                if (uri == null)
-                                    break;
-                                ParcelFileDescriptor file = getAppLogicActivity().getContentResolver().openFileDescriptor(uri, "r");
-                                Payload profilePic = Payload.fromFile(file);
-                                cM.payloadSender.sendPayloadFile(endpointId, profilePic, payload.getId() + ":PROF_PIC:" + id + ":");
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    //Viewer received a profile picture
-                    case "PROF_PIC":
-                        Log.i(TAG, "<<PROF_PIC>>");
-                        break;
-                }
-            } else {
-                receiveFileFully(payloadFile, endpointId);
+                profilePictureReceived(fileName, payloadFile, endpointId, payload);
             }
+            //Did we receive an Image?
+            else if (fileName.contains("IMAGE_PIC:")) {
+                receivedImageFully(payloadFile, endpointId);
+            }
+            //We received a document which is not an image nor an profile picture
+            else {
+                receivedFileFully(payloadFile, endpointId);
+            }
+        } else {
+            Log.i(TAG, "Filename is null...");
+        }
+
+    }
+
+    private void profilePictureReceived(String fileName, File payloadFile, String endpointId, Payload payload) {
+
+        int substringDividerIndex = fileName.indexOf(':');
+        Log.i(TAG, "Name to trim: " + fileName);
+        String payLoadTag = fileName.substring(0, substringDividerIndex);
+        String bitMapSender = fileName.substring(substringDividerIndex + 1);
+        //Store image
+        //TODO: Move and rename file to something good (NOT WORKING?)
+        //Uri uriToPic = FileUtility.storePayLoadUserProfile(fileName, payloadFile);
+        Uri uriToPic = Uri.fromFile(payloadFile);
+        Log.i(TAG, "CONTENT URI " + uriToPic);
+        //Log.i(TAG, "ORIGINAL URI " + Uri.fromFile(payloadFile));
+        Log.i(TAG, "BITMAP SENDER: " + bitMapSender);
+        //Add to local DataBase
+        if (bitMapSender.length() == 0)
+            bitMapSender = endpointId;
+        //Store bitmap
+        LocalDataBase.addUriToID(uriToPic, bitMapSender);
+        switch (payLoadTag) {
+            //Presenter received a profile picture
+            case "PROF_PIC_V":
+                Log.i(TAG, "<<PROF_PIC_V>>");
+                try {
+                    //Send bitmap to all other endpoints
+                    for (String id : cM.getEstablishedConnections().keySet()) {
+                        cM.payloadSender.sendPayloadFile(id, payload, payload.getId() + ":PROF_PIC:" + bitMapSender + ":");
+                    }
+                    //Send all other endpoint`s bitmap to the endpoint
+                    for (String id : cM.getEstablishedConnections().keySet()) {
+                        Uri uri = LocalDataBase.getProfilePictureUri(id);
+                        if (uri == null)
+                            break;
+                        ParcelFileDescriptor file = getAppLogicActivity().getContentResolver().openFileDescriptor(uri, "r");
+                        Payload profilePic = Payload.fromFile(file);
+                        cM.payloadSender.sendPayloadFile(endpointId, profilePic, payload.getId() + ":PROF_PIC:" + id + ":");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            //Viewer received a profile picture
+            case "PROF_PIC":
+                Log.i(TAG, "<<PROF_PIC>>");
+                break;
         }
     }
-    private void receiveFileFully(File payloadFile, String endpointId){
+
+    private void receivedImageFully(File payloadFile, String endpointId) {
+        //TODO: RenameFile
         //Display a notification.
-        NotificationUtility.displayNotification("Document received",
-                String.format("%s has sent you a document...", cM.getEstablishedConnections().get(endpointId).getName()),
+        NotificationUtility.displayNotification("Image received",
+                String.format("%s has sent you an image.", cM.getEstablishedConnections().get(endpointId).getName()),
                 NotificationCompat.PRIORITY_DEFAULT);
         Log.i(TAG, "Payload file name: " + payloadFile.getName());
-        ConnectionEndpoint connectionEndpoint = cM.getDiscoveredEndpoints().get(endpointId);
+        //ConnectionEndpoint connectionEndpoint = cM.getDiscoveredEndpoints().get(endpointId);
         //Update inbox-fragment.
-        getAppLogicActivity().getInboxFragment().updateInboxFragment();
+        getAppLogicActivity().getInboxFragment().updateInboxFragment(Uri.fromFile(payloadFile));
     }
+
+    private void receivedFileFully(File payloadFile, String endpointId) {
+        //TODO: RenameFile
+        //Display a notification.
+        NotificationUtility.displayNotification("Document received",
+                String.format("%s has sent you a document.", cM.getEstablishedConnections().get(endpointId).getName()),
+                NotificationCompat.PRIORITY_DEFAULT);
+        Log.i(TAG, "Payload file name: " + payloadFile.getName());
+    }
+
 }

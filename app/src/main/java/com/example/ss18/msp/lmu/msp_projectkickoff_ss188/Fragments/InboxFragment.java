@@ -1,7 +1,7 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.ImageSliderActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
 
@@ -34,7 +35,7 @@ public class InboxFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "Clicked on file picker.");
-                performFileSearch();
+                startSlidePresentation();
             }
         });
         return view;
@@ -43,32 +44,21 @@ public class InboxFragment extends Fragment {
     /**
      *Renames and saves the payload to a specific location
      */
-    public void updateInboxFragment() {
+    public void updateInboxFragment(Uri uri) {
         Log.i(TAG, "updateInboxFragment()");
-        title.setText("<Files: " + ++fileCounter + ">");
+        title.setText("<Images: " + ++fileCounter + ">");
+        //Add uri to image to the list
+        ImageSliderActivity.images.add(uri);
     }
 
     /**
-     * Fires an intent to spin up the "file chooser" UI and select a file.
+     * Displays all received pictures as a presentation in an extra activity
      */
-    private void performFileSearch() {
-        Log.i(TAG,"performFileSearch()");
-        // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file
-        // browser.
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        // Filter to only show results that can be "opened"
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        // Filter types (*/* == everything)
-        intent.setType("*/*");
-        startActivityForResult(intent, READ_REQUEST_CODE);
+    private void startSlidePresentation() {
+        Log.i(TAG,"startSlidePresentation()");
+        Intent intent = new Intent(getContext(), ImageSliderActivity.class);
+        startActivity(intent);
+
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            if (resultData != null) {
-                Log.i(TAG, "onActivityResult(): " + resultData);
-            }
-        }
-    }
 }
