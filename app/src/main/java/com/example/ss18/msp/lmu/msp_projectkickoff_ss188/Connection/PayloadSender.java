@@ -5,6 +5,7 @@ import android.os.Parcel;
 import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.LocationUtility;
 import com.google.android.gms.nearby.connection.Payload;
 
 import java.io.UnsupportedEncodingException;
@@ -85,12 +86,9 @@ public class PayloadSender {
     }
 
     public void sendLocation(Location location){
-        Parcel p = Parcel.obtain();
-        location.writeToParcel(p,0);
-        final byte[] b = p.marshall();
+        byte[] b = LocationUtility.getLocationAsBytes(location);
         Payload payload = Payload.fromBytes(b);
 
         sendPayloadBytes(payload);
-        p.recycle();
     }
 }
