@@ -19,7 +19,7 @@
         android:enabled="true"
         android:title="@string/stupsen"
         android:icon="@drawable/vibrate_icon"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="ifRoom"/>
 </menu>
 
     <!--android:icon="@drawable/ic_favorite_white_24dp"-->

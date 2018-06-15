@@ -4,7 +4,6 @@
 
     <!-- Required for Nearby Connections -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -32,7 +31,7 @@
             android:name=".Activities.AppLogicActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".Activities.SettingsActivity" />
-
+        <activity android:name=".Activities.ImageSliderActivity"></activity>
         <service
             android:name=".DistanceControl.LocationService"
             android:enabled="true"

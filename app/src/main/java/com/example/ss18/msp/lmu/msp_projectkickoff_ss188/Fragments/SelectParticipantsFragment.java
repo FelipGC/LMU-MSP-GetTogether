@@ -1,13 +1,16 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.internal.BottomNavigationItemView;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -17,13 +20,14 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActi
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.ViewerAdapter;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters.ViewerAdapter;
 
 public class SelectParticipantsFragment extends Fragment {
     private static final String TAG = "SelectParticipants";
     private static View mainView;
     private static ConnectionManager connectionManager;
     private ViewerAdapter viewerAdapter;
+    @SuppressLint("ClickableViewAccessibility")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -34,6 +38,18 @@ public class SelectParticipantsFragment extends Fragment {
         listView.setAdapter(viewerAdapter);
         updateParticipantsGUI(null,connectionManager.getEstablishedConnections().size(),
                 connectionManager.getDiscoveredEndpoints().size());
+        BottomNavigationItemView pokeItem = mainView.findViewById(R.id.vibrieren);
+        pokeItem.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_DOWN) {
+                    startPoking();
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    endPoking();
+                }
+                return true;
+            }
+        });
         return mainView;
     }
     /**
@@ -146,7 +162,26 @@ public class SelectParticipantsFragment extends Fragment {
         });
     }
 
+    /**
+     * Sends vibration message to viewers
+     */
+    private void startPoking(){
+        connectionManager.getPayloadSender().sendPokeMessage();
+    }
+
+    /**
+     * Sends STOP vibration message to viewers
+     */
+    private void endPoking(){
+        connectionManager.getPayloadSender().sendStopPokingMessage();
+    }
     public void updateParticipantsAvatar() {
         viewerAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onDestroy() {
+        endPoking();
+        super.onDestroy();
     }
 }

@@ -85,10 +85,40 @@ public class PayloadSender {
         } else throw new Exception("Payload to send must not be null!");
     }
 
-    public void sendLocation(Location location){
+    public void sendLocation(Location location) {
         byte[] b = LocationUtility.getLocationAsBytes(location);
         Payload payload = Payload.fromBytes(b);
 
         sendPayloadBytes(payload);
+    }
+    /**
+     * Sends a poke message to the viewers (makes their device vibrate)
+     */
+    public void sendPokeMessage()  {
+        // Adding the POKE_S tag to identify start vibration messages on receive.
+        String messageToSend = "POKE:"+"S";
+        Log.i(TAG, "sendPokeMessage()");
+        // Send the name of the payload/file as a bytes payload first!
+        try {
+            Payload payload = Payload.fromBytes(messageToSend.getBytes("UTF-8"));
+            sendPayloadBytes(payload);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Sends a STOP poke message to the viewers (makes their device STOP vibrating)
+     */
+    public void sendStopPokingMessage() {
+        String messageToSend = "POKE:"+"E";
+        Log.i(TAG, "sendStopPokingMessage()");
+        // Send the name of the payload/file as a bytes payload first!
+        try {
+            Payload payload = Payload.fromBytes(messageToSend.getBytes("UTF-8"));
+            sendPayloadBytes(payload);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 }
