@@ -5,6 +5,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.text.GetChars;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -198,7 +199,6 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     public SelectParticipantsFragment getSelectParticipantsFragment() {
         return selectParticipantsFragment;
     }
-
     @Override
     public void displayShortMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();

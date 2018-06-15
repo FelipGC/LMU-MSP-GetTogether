@@ -3,6 +3,9 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.os.Build;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -62,4 +65,37 @@ public class NotificationUtility {
         // notificationID allows you to update the notification later on.
         mNotificationManager.notify(42, mBuilder.build());
     }
+
+    /**
+     * Start a vibration until endVibration() is called
+     */
+    public static void startVibration(){
+        Log.i(TAG,"startVibration()");
+        Vibrator v = (Vibrator) getAppLogicActivity().getSystemService(Context.VIBRATOR_SERVICE);
+        // Vibrate for 500 milliseconds
+        final int time = 99999;
+        if (v != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                v.vibrate(VibrationEffect.createOneShot(time, VibrationEffect.DEFAULT_AMPLITUDE));
+            } else {
+                v.vibrate(time);
+            }
+        }else{
+            Log.i(TAG,"VIBRATOR IS NULL!");
+        }
+    }
+
+    /**
+     * Ends any vibration on the phone
+     */
+    public static void endVibration(){
+        Log.i(TAG,"endVibration()");
+        Vibrator v = (Vibrator) getAppLogicActivity().getSystemService(Context.VIBRATOR_SERVICE);
+        if (v != null) {
+            v.cancel();
+        }else{
+            Log.i(TAG,"VIBRATOR IS NULL!");
+        }
+    }
+
 }

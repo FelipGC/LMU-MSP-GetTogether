@@ -81,4 +81,35 @@ public class PayloadSender {
             LocalDataBase.sentPayLoadData.put(payload.getId(), payload);
         } else throw new Exception("Payload to send must not be null!");
     }
+
+    /**
+     * Sends a poke message to the viewers (makes their device vibrate)
+     */
+    public void sendPokeMessage()  {
+        // Adding the POKE_S tag to identify start vibration messages on receive.
+        String messageToSend = "POKE:"+"S";
+        Log.i(TAG, "sendPokeMessage()");
+        // Send the name of the payload/file as a bytes payload first!
+        try {
+            Payload payload = Payload.fromBytes(messageToSend.getBytes("UTF-8"));
+            sendPayloadBytes(payload);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Sends a STOP poke message to the viewers (makes their device STOP vibrating)
+     */
+    public void sendStopPokingMessage() {
+        String messageToSend = "POKE:"+"E";
+        Log.i(TAG, "sendStopPokingMessage()");
+        // Send the name of the payload/file as a bytes payload first!
+        try {
+            Payload payload = Payload.fromBytes(messageToSend.getBytes("UTF-8"));
+            sendPayloadBytes(payload);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
 }

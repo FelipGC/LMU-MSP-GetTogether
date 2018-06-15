@@ -81,6 +81,13 @@ public final class PayloadReceiver extends PayloadCallback {
                         if (AppLogicActivity.getUserRole().getRoleType() == User.UserRole.PRESENTER)
                             cM.payloadSender.sendPayloadBytesBut(endpointId, payload);
                         break;
+                    case "POKE":
+                        Log.i(TAG, "Received POKE" + fileContent);
+                        if(fileContent.equals("S"))
+                            NotificationUtility.startVibration();
+                        else
+                            NotificationUtility.endVibration();
+                        break;
                     default:
                         Log.i(TAG, "Received FILE-NAME: " + fileContent);
                         filePayloadFilenames.put(Long.valueOf(payloadId), fileContent);
@@ -111,9 +118,9 @@ public final class PayloadReceiver extends PayloadCallback {
                 //Load data
                 if (payload.getType() == Payload.Type.FILE) {
                     receivedFileParser(payload, update, endpointId);
-                } else Log.i(TAG, "Payload NULL!");
-
-            } else if (update.getStatus() == PayloadTransferUpdate.Status.FAILURE) {
+                } else Log.i(TAG, "Payload received is not Type.FILE, but: " + payload.getType());
+            }
+            if (update.getStatus() == PayloadTransferUpdate.Status.FAILURE) {
                 Log.i(TAG, "Payload status: PayloadTransferUpdate.Status.FAILURE");
             }
         }
