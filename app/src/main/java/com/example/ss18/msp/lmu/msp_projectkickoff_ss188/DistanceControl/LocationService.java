@@ -22,6 +22,8 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSende
 import java.security.Permission;
 
 public class LocationService extends Service {
+
+    private final String TAG = "LocationService";
     public LocationService() {
     }
 
@@ -46,8 +48,8 @@ public class LocationService extends Service {
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                        10000, 0, listener);
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,10000,0,listener);
+                        10000, 0, frequentListener);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,10000,0,frequentListener);
             }
         }
     }
@@ -59,27 +61,32 @@ public class LocationService extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
-    private LocationListener listener = new LocationListener() {
+    private LocationListener frequentListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
-            System.out.println("onLocationChanged");
+            Log.i(TAG, "LocationListener::onLocationChanged - new location data available");
             //locationManager.removeUpdates(listener);
-            payloadSender.sendLocation(location);
+           // payloadSender.sendLocation(location);
+            byte[] b = LocationUtility.getLocationAsBytes(location);
+            String s = "blablabla";
+            byte[] b2 = s.getBytes();
+
+            //Location loc = LocationUtility.getLocationFromBytes(b2);
         }
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
-            System.out.println("onStatusChanged");
+            Log.i(TAG, "LocationListener::onStatusChanged");
         }
 
         @Override
         public void onProviderEnabled(String provider) {
-            System.out.println("onProviderEnabled");
+            Log.i(TAG, "LocationListener::onProviderEnabled - Sending of location possible.");
         }
 
         @Override
         public void onProviderDisabled(String provider) {
-            System.out.println("onProviderDisabled");
+            Log.i(TAG,"LocationListener::onProviderDisabled - Sending of location not possible.");
         }
     };
 }

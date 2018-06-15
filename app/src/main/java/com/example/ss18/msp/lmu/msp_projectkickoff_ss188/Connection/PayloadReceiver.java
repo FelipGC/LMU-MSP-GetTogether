@@ -1,6 +1,8 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
+import android.location.Location;
 import android.net.Uri;
+import android.nfc.FormatException;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
@@ -9,6 +11,7 @@ import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.LocationUtility;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.FileUtility;
@@ -47,11 +50,19 @@ public final class PayloadReceiver extends PayloadCallback {
         Log.i(TAG, String.format("onPayloadReceived(endpointId=%s, payload=%s)", endpointId, payload));
         if (payload.getType() == Payload.Type.BYTES) {
             String payloadFilenameMessage = null;
+            try{
+                Location location = LocationUtility.getLocationFromBytes(payload.asBytes());
+                onLocationReceived(location);
+                return;
+            }catch (FormatException fe){
+                //nothing to do. go on.
+            }
             try {
                 payloadFilenameMessage = new String(payload.asBytes(), "UTF-8");
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
+
             //Extracts the payloadId and filename from the message and stores it in the
             //filePayloadFilenames map. The format is payloadId:filename.
             Log.i(TAG, "Received string: " + payloadFilenameMessage);
@@ -130,6 +141,12 @@ public final class PayloadReceiver extends PayloadCallback {
                 NotificationCompat.PRIORITY_DEFAULT);
         ChatFragment chat = getAppLogicActivity().getChatFragment();
         chat.getDataFromEndPoint(id, message);
+    }
+
+    private void onLocationReceived(Location receivedLocation){
+        NotificationUtility.displayNotification("Location received",
+                String.format("long = %s, lat = %s",receivedLocation.getLongitude(),receivedLocation.getLatitude()),
+                NotificationCompat.PRIORITY_DEFAULT);
     }
 
     /**Implements the actions to execute after fully receiving a document.*/

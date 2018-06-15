@@ -3,6 +3,9 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+/**
+ * Utility-Class for converting Parcelable-Objects to bytes-Array and back
+ */
 public class ParcelableUtil {
     public static byte[] marshall(Parcelable parceable) {
         Parcel parcel = Parcel.obtain();
