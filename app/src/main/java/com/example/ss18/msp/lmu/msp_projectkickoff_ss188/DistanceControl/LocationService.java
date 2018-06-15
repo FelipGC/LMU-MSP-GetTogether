@@ -65,13 +65,7 @@ public class LocationService extends Service {
         @Override
         public void onLocationChanged(Location location) {
             Log.i(TAG, "LocationListener::onLocationChanged - new location data available");
-            //locationManager.removeUpdates(listener);
-           // payloadSender.sendLocation(location);
-            byte[] b = LocationUtility.getLocationAsBytes(location);
-            String s = "blablabla";
-            byte[] b2 = s.getBytes();
-
-            //Location loc = LocationUtility.getLocationFromBytes(b2);
+            payloadSender.sendLocation(location);
         }
 
         @Override

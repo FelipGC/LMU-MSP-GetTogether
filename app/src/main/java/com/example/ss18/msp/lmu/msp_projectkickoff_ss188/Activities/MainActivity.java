@@ -47,8 +47,6 @@ public class  MainActivity extends BaseActivity {
         Animation logoMoveAnimation = AnimationUtils.loadAnimation(this, R.anim.pop_up_animation);
         presenter.startAnimation(logoMoveAnimation);
         spectator.startAnimation(logoMoveAnimation);
-
-        startService(new Intent(this, LocationService.class));
     }
 
     @Override
