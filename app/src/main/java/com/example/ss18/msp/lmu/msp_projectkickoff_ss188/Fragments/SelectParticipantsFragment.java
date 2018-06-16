@@ -15,18 +15,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters.ViewerAdapter;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission;
 
 public class SelectParticipantsFragment extends Fragment {
     private static final String TAG = "SelectParticipants";
     private static View mainView;
     private static ConnectionManager connectionManager;
     private ViewerAdapter viewerAdapter;
+    private VoiceTransmission voiceTransmission;
+
     @SuppressLint("ClickableViewAccessibility")
     @Nullable
     @Override
@@ -38,6 +42,7 @@ public class SelectParticipantsFragment extends Fragment {
         listView.setAdapter(viewerAdapter);
         updateParticipantsGUI(null,connectionManager.getEstablishedConnections().size(),
                 connectionManager.getDiscoveredEndpoints().size());
+        //Define pokeItem
         BottomNavigationItemView pokeItem = mainView.findViewById(R.id.vibrieren);
         pokeItem.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -50,6 +55,21 @@ public class SelectParticipantsFragment extends Fragment {
                 return true;
             }
         });
+        //Define VoiceChatButton
+        BottomNavigationItemView voiceChatItem = mainView.findViewById(R.id.voiceChat);
+        voiceChatItem.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_DOWN) {
+                    startRecordingVoice();
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    stopRecordingVoice();
+                }
+                return true;
+            }
+        });
+        //TODO: Define GPS button... @Laureen?
+        voiceTransmission = new VoiceTransmission();
         return mainView;
     }
     /**
@@ -162,6 +182,25 @@ public class SelectParticipantsFragment extends Fragment {
         });
     }
 
+    /**
+     * Starts sending voice
+     */
+    private void startRecordingVoice(){
+        //TODO: Display something
+        voiceTransmission.startRecordingVoice();
+        Toast.makeText(getContext(), "Zeichnet auf...", Toast.LENGTH_SHORT).show();
+
+    }
+
+    /**
+     * Ends recording voice
+     */
+    private void stopRecordingVoice(){
+        //TODO: Display something
+        voiceTransmission.stopRecordingVoice();
+        Toast.makeText(getContext(), "Aufzeichnung beendet.", Toast.LENGTH_SHORT).show();
+
+    }
     /**
      * Sends vibration message to viewers
      */

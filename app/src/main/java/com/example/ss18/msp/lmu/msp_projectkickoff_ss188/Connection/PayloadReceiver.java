@@ -1,11 +1,14 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
@@ -19,6 +22,8 @@ import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
 import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
@@ -101,6 +106,10 @@ public final class PayloadReceiver extends PayloadCallback {
             // Add this to our tracking map, so that we can retrieve the payload later.
             incomingPayloads.put(payload.getId(), payload);
             //TODO: Sending files may take some time. Display progressbar or something
+        }else if (payload.getType() == Payload.Type.STREAM) {
+            Log.i(TAG, "Received STREAM: ID=" + payload.getId());
+            //We received a stream. i.e Voice stream
+            receivedVoiceStream(payload.asStream().asParcelFileDescriptor());
         }
     }
 
@@ -113,16 +122,14 @@ public final class PayloadReceiver extends PayloadCallback {
             //Checks to see if the message is a chat message or a document
             Payload payload = incomingPayloads.remove(update.getPayloadId());
             Log.i(TAG, "onPayloadTransferUpdate() Incoming payload: " + payload);
-
             if (payload != null) {
                 //Load data
                 if (payload.getType() == Payload.Type.FILE) {
                     receivedFileParser(payload, update, endpointId);
                 } else Log.i(TAG, "Payload received is not Type.FILE, but: " + payload.getType());
             }
-            if (update.getStatus() == PayloadTransferUpdate.Status.FAILURE) {
-                Log.i(TAG, "Payload status: PayloadTransferUpdate.Status.FAILURE");
-            }
+        }else  if (update.getStatus() == PayloadTransferUpdate.Status.FAILURE) {
+            Log.i(TAG, "Payload status: PayloadTransferUpdate.Status.FAILURE");
         }
     }
     /*
@@ -233,4 +240,21 @@ public final class PayloadReceiver extends PayloadCallback {
         Log.i(TAG, "Payload file name: " + payloadFile.getName());
     }
 
+    /**
+     * Gets called after receiving a voice stream
+     */
+    private void receivedVoiceStream(ParcelFileDescriptor pfd) {
+        //TODO: Implement GUI
+        Toast.makeText(getAppLogicActivity(), "Spiele Nachricht ab...", Toast.LENGTH_SHORT).show();
+        MediaPlayer mPlayer = new MediaPlayer();
+        try {
+            mPlayer.setDataSource(pfd.getFileDescriptor());
+            mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mPlayer.prepare();
+            mPlayer.start();
+        } catch (IOException e) {
+            Log.e(TAG, "prepare() failed: " + pfd);
+            e.printStackTrace();
+        }
+    }
 }

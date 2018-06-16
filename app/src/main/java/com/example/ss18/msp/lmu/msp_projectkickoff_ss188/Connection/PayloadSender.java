@@ -42,9 +42,18 @@ public class PayloadSender {
     /**
      * Sends a Payload object out to ALL endPoints
      */
-    public void sendPayloadBytes(Payload payload) {
+    private void sendPayloadBytes(Payload payload) {
         for (String endpointId : cM.getEstablishedConnections().keySet()) {
             Log.i(TAG, "sendPayloadBytes to: " + endpointId);
+            cM.getConnectionsClient().sendPayload(endpointId, payload);
+        }
+    }
+    /**
+     * Sends a Payload stream out to ALL endPoints
+     */
+    private void sendPayloadStream(Payload payload){
+        for (String endpointId : cM.getEstablishedConnections().keySet()) {
+            Log.i(TAG, "sendPayloadStream to: " + endpointId);
             cM.getConnectionsClient().sendPayload(endpointId, payload);
         }
     }
@@ -111,5 +120,9 @@ public class PayloadSender {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+    }
+
+    public void startSendingVoice(Payload payload){
+        sendPayloadStream(payload);
     }
 }
