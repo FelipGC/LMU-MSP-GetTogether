@@ -1,8 +1,6 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
@@ -12,7 +10,7 @@ import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.LocationService;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.FrequentLocationService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.NotificationUtility;
 import com.google.android.gms.nearby.Nearby;
@@ -27,17 +25,11 @@ import com.google.android.gms.nearby.connection.DiscoveryOptions;
 import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback;
 import com.google.android.gms.nearby.connection.Payload;
 import com.google.android.gms.nearby.connection.PayloadCallback;
-import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.nearby.connection.Strategy;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 
@@ -156,7 +148,7 @@ public class ConnectionManager {
 
                             final boolean SPECTATOR = appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR;
                             if(!SPECTATOR){
-                                appLogicActivity.startService(new Intent(appLogicActivity, LocationService.class));
+                                appLogicActivity.startService(new Intent(appLogicActivity, FrequentLocationService.class));
                             }
                             try {
                                 Uri uri = LocalDataBase.getProfilePictureUri();

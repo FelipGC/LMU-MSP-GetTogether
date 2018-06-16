@@ -1,5 +1,6 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
+import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
 import android.nfc.FormatException;
@@ -11,6 +12,7 @@ import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.CheckDistanceService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.LocationUtility;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
@@ -154,6 +156,9 @@ public final class PayloadReceiver extends PayloadCallback {
         NotificationUtility.displayNotification("Location received",
                 String.format("long = %s, lat = %s",receivedLocation.getLongitude(),receivedLocation.getLatitude()),
                 NotificationCompat.PRIORITY_DEFAULT);
+        Intent intent = new Intent(getAppLogicActivity(), CheckDistanceService.class);
+        intent.putExtra("location", receivedLocation);
+        getAppLogicActivity().startService(intent);
     }
 
     /**
