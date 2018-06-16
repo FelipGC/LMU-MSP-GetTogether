@@ -1,20 +1,17 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
-import android.media.AudioManager;
-import android.media.MediaPlayer;
+
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.FileUtility;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.FixedSizeList;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.NotificationUtility;
 import com.google.android.gms.nearby.connection.Payload;
@@ -22,7 +19,6 @@ import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
@@ -109,7 +105,7 @@ public final class PayloadReceiver extends PayloadCallback {
         }else if (payload.getType() == Payload.Type.STREAM) {
             Log.i(TAG, "Received STREAM: ID=" + payload.getId());
             //We received a stream. i.e Voice stream
-            receivedVoiceStream(payload.asStream().asParcelFileDescriptor());
+            receivedVoiceStream(payload.asStream().asInputStream());
         }
     }
 
@@ -243,18 +239,9 @@ public final class PayloadReceiver extends PayloadCallback {
     /**
      * Gets called after receiving a voice stream
      */
-    private void receivedVoiceStream(ParcelFileDescriptor pfd) {
-        //TODO: Implement GUI
-        Toast.makeText(getAppLogicActivity(), "Spiele Nachricht ab...", Toast.LENGTH_SHORT).show();
-        MediaPlayer mPlayer = new MediaPlayer();
-        try {
-            mPlayer.setDataSource(pfd.getFileDescriptor());
-            mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mPlayer.prepare();
-            mPlayer.start();
-        } catch (IOException e) {
-            Log.e(TAG, "prepare() failed: " + pfd);
-            e.printStackTrace();
-        }
+    private void receivedVoiceStream(InputStream inputStream) {
+        //TODO: Handle simultaneous receivedVoiceStream()
+        AppLogicActivity.getVoiceTransmission().playAudio(inputStream);
     }
+
 }

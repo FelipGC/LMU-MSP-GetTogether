@@ -68,8 +68,9 @@ public class SelectParticipantsFragment extends Fragment {
                 return true;
             }
         });
+        voiceTransmission = AppLogicActivity.getVoiceTransmission();
         //TODO: Define GPS button... @Laureen?
-        voiceTransmission = new VoiceTransmission();
+
         return mainView;
     }
     /**

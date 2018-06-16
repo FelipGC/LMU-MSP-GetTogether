@@ -23,6 +23,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Presentation.Presentati
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.AppContext;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission;
 
 public class AppLogicActivity extends BaseActivity implements AppContext {
     /**
@@ -46,7 +47,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     private InboxFragment inboxFragment;
     private ChatFragment chatFragment;
     private TabPageAdapter tabPageAdapter;
-
+    private final static VoiceTransmission voiceTransmission = new VoiceTransmission();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -199,6 +200,11 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     public SelectParticipantsFragment getSelectParticipantsFragment() {
         return selectParticipantsFragment;
     }
+
+    public static VoiceTransmission getVoiceTransmission() {
+        return voiceTransmission;
+    }
+
     @Override
     public void displayShortMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
