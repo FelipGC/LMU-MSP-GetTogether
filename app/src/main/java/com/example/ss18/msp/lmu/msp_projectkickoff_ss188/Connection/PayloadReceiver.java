@@ -102,6 +102,10 @@ public final class PayloadReceiver extends PayloadCallback {
                         else
                             NotificationUtility.endVibration();
                         break;
+                    case "DISTANCE":
+                        Log.i(TAG, "Received DISTANCE " + fileContent);
+                        onDistanceWarningReceived(endpointId,fileContent);
+                        break;
                     default:
                         Log.i(TAG, "Received FILE-NAME: " + fileContent);
                         filePayloadFilenames.put(Long.valueOf(payloadId), fileContent);
@@ -160,6 +164,13 @@ public final class PayloadReceiver extends PayloadCallback {
         Intent intent = new Intent(getAppLogicActivity(), CheckDistanceService.class);
         intent.putExtra("location", receivedLocation);
         getAppLogicActivity().startService(intent);
+    }
+
+    private void onDistanceWarningReceived(String senderId,String distance){
+        String senderName = cM.getDiscoveredEndpoints().get(senderId).getName();
+        NotificationUtility.displayNotification("Entfernungswarnung",
+                String.format("Teilnehmer %s ist %s entfernt.",senderName,distance),
+                NotificationCompat.PRIORITY_DEFAULT);
     }
 
     /**
