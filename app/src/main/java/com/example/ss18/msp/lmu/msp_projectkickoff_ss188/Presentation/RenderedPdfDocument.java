@@ -6,6 +6,8 @@ import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -61,20 +63,15 @@ public class RenderedPdfDocument implements IDocument {
         return pages.get(pageNr);
     }
 
-    public static IDocument load(Uri documentUri, ContentResolver contentResolver) {
-        try {
-            ParcelFileDescriptor pdfFd = contentResolver.openFileDescriptor(documentUri, "r");
-            if (pdfFd == null) {
-                return null;
-            }
-            PdfRenderer pdfRenderer = new PdfRenderer(pdfFd);
-            IDocument renderedPdfDocument = new RenderedPdfDocument(pdfRenderer, documentUri);
-            pdfRenderer.close();
-            pdfFd.close();
-            return renderedPdfDocument;
+    public static IDocument load(Uri documentUri, ContentResolver contentResolver) throws IOException {
+        ParcelFileDescriptor pdfFd = contentResolver.openFileDescriptor(documentUri, "r");
+        if (pdfFd == null) {
+            throw new FileNotFoundException(documentUri.toString());
         }
-        catch (Exception e) {
-            return null;
-        }
+        PdfRenderer pdfRenderer = new PdfRenderer(pdfFd);
+        IDocument renderedPdfDocument = new RenderedPdfDocument(pdfRenderer, documentUri);
+        pdfRenderer.close();
+        pdfFd.close();
+        return renderedPdfDocument;
     }
 }
