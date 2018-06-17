@@ -22,9 +22,11 @@ public final class ConnectionEndpoint {
     @NonNull
     private final String originalName; //Doesnt need to be unique
 
+    private boolean isPresenter;
+
     private final static String TAG = "ConnectionEndpoint";
 
-    public ConnectionEndpoint(@NonNull String id, @NonNull String userName) {
+    public ConnectionEndpoint(@NonNull String id, @NonNull String userName, boolean isPresenter) {
         Log.i(TAG,"ConnectionEndpoint created with ID="+id+"\n UserName:\n"+userName);
         this.id = id;
         //Since we can`t pass a bitmap (= profile picture) directly via the connection process
@@ -35,6 +37,7 @@ public final class ConnectionEndpoint {
 
         //LocalDataBase.addBitmapToUser(id,extractBitMap(nameAndBitmap));
         this.originalName = this.name = userName;
+        this.isPresenter = isPresenter;
         checkForDuplicatedNames();
     }
 
@@ -66,6 +69,8 @@ public final class ConnectionEndpoint {
     public String getOriginalName() {
         return originalName;
     }
+
+    public boolean isPresenter(){return isPresenter;}
 
     @Override
     public boolean equals(Object obj) {

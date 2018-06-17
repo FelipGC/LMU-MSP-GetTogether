@@ -74,7 +74,7 @@ public class ConnectionManager {
                 @Override
                 public void onEndpointFound(final String endpointId, final DiscoveredEndpointInfo info) {
                     Log.i(TAG, String.format("discovererOnEndpointFound(endpointId = %s,endpointName = %s)", endpointId, info.getEndpointName()));
-                    ConnectionEndpoint connectionEndpoint = new ConnectionEndpoint(endpointId, info.getEndpointName());
+                    ConnectionEndpoint connectionEndpoint = new ConnectionEndpoint(endpointId, info.getEndpointName(), true);
                     //Create and define a new ConnectionEndpoint
                     discoveredEndpoints.put(connectionEndpoint.getId(), connectionEndpoint);
                     NotificationUtility.displayNotification("Presenter found!", info.getEndpointName()
@@ -120,7 +120,7 @@ public class ConnectionManager {
                             //wants to allow the connection to the discoverer (= viewer)
                             //Create endpoint and add it to the list
                             ConnectionEndpoint connectionEndpoint =
-                                    new ConnectionEndpoint(endpointId, connectionInfo.getEndpointName());
+                                    new ConnectionEndpoint(endpointId, connectionInfo.getEndpointName(), false);
                             discoveredEndpoints.put(endpointId, connectionEndpoint);
                             NotificationUtility.displayNotification("Viewer found!", connectionInfo.getEndpointName()
                                     + " is asking for joining your session", NotificationCompat.PRIORITY_DEFAULT);

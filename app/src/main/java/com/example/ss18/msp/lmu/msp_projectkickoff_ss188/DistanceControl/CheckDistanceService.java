@@ -39,6 +39,7 @@ public class CheckDistanceService extends AbstractLocationService {
                     NotificationUtility.displayNotification("Distance Warning",
                             String.format("distance = %s",distance),
                             NotificationCompat.PRIORITY_DEFAULT);
+                    payloadSender.sendDistanceWarning(distance);
                 }
             }
 
