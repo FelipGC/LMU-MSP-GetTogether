@@ -32,6 +32,11 @@ public final class VoiceTransmission implements IVoice {
 
     @Override
     public void startRecordingVoice() {
+        if(isRecording) {
+            Log.i(TAG,"Already recording");
+            return;
+        }
+        isRecording = true;
         ParcelFileDescriptor[] payloadPipe;
         try {
             payloadPipe = ParcelFileDescriptor.createPipe();
@@ -71,6 +76,7 @@ public final class VoiceTransmission implements IVoice {
                         // to our output stream while recording.
                         try {
                             while (isRecording) {
+                                Log.i(TAG,"Recording...");
                                 int len = record.read(buffer.data, 0, buffer.size);
                                 if (len >= 0 && len <= buffer.size) {
                                     mOutputStream.write(buffer.data, 0, len);
@@ -82,6 +88,7 @@ public final class VoiceTransmission implements IVoice {
                         } catch (IOException e) {
                             Log.e(TAG, "Exception with recording stream", e);
                         } finally {
+                            Log.i(TAG,"Executing finally");
                             try {
                                 mOutputStream.close();
                             } catch (IOException e) {
@@ -113,6 +120,7 @@ public final class VoiceTransmission implements IVoice {
                 new Thread() {
                     @Override
                     public void run() {
+                        Log.i(TAG, "starting run() in mThread");
                         setThreadPriority(THREAD_PRIORITY_AUDIO);
 
                         MinimalAudioBuffer buffer = new MinimalAudioBuffer();
@@ -129,19 +137,19 @@ public final class VoiceTransmission implements IVoice {
                         int length;
                         try {
                             while ((length = inputStream.read(buffer.data)) > 0) {
+                                Log.i(TAG,length + "");
                                 audioTrack.write(buffer.data, 0, length);
                             }
                         } catch (IOException e) {
                             Log.e(TAG, "Error while trying to play stream",e);
                         } finally {
+                            Log.i(TAG,"Executing finally");
                             try {
                                 inputStream.close();
                             } catch (IOException e) {
                                 Log.e(TAG, "Failed to close input stream", e);
                             }
                             audioTrack.release();
-                            //Track finished playing
-                            Toast.makeText(ConnectionManager.getAppLogicActivity(), "Ende der Sprachnachricht.", Toast.LENGTH_SHORT).show();
                             stopThread();
                         }
                     }
@@ -156,5 +164,7 @@ public final class VoiceTransmission implements IVoice {
             Log.e(TAG, "Interrupted while joining AudioRecorder thread", e);
             Thread.currentThread().interrupt();
         }
+        //Track finished playing
+        Toast.makeText(ConnectionManager.getAppLogicActivity(), "Ende der Sprachnachricht.", Toast.LENGTH_SHORT).show();
     }
 }
