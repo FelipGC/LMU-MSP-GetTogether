@@ -29,6 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:ems="10"
+            android:fontFamily="sans-serif-smallcaps"
             android:hint="@string/chat_input_field"
             android:inputType="text"
             android:paddingHorizontal="10dp"
