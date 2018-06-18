@@ -19,7 +19,7 @@
         android:id="@+id/presentation_stopPresentationButton"
         android:clickable="true"
         android:focusable="true"
-        android:src="@android:drawable/ic_lock_power_off"
+        android:src="@drawable/ic_baseline_stop_24px"
         android:visibility="invisible" />
 
     <ImageView
