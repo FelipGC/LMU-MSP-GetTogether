@@ -36,14 +36,14 @@
     <string name="selectDevices">Select devices for file sharing:</string>
     <string name="deselectAll">Deselect all</string>
     <string name="selectAll">Select all</string>
-    <string name="noDevicesFound">Noone wants to join your presentation yet :(</string>
+    <string name="noDevicesFound">No one wants to join your presentation yet :(</string>
     <string name="okay">Okay</string>
     <string name="joined_presenters">Joined:</string>
     <string name="available_presenters">Available:</string>
     <string name="channel_name">CHANNEL</string>
     <string name="channel_description">CHANNEL_NOTIFICATIONS</string>
 
-    <string name="no_devices_found">No presentations to join...</string>
+    <string name="no_devices_found">No presentations to join…</string>
     <string name="help_feedback">"Get Together" is an app developed for enabling easy and comfortable file transfer via Bluetooth within a range of approximate 100m.
         \n\nIt does not need any internet connection and allows a fast file transfer between multiple nearby devices.
         \n\nThere are two main role types in this application: “Presenters” and “Viewers”.
@@ -63,8 +63,7 @@
     <string name="title_activity_inbox">InboxActivity</string>
     <string name="presentation_openDocumentErrorMessage">Bitte wählen sie eine gültige Präsentation aus.</string>
     <string name="presentation_openPresentationRequestCode">1</string>
-    <!--<string name="presentation_argument_documentUri">presentation_argument_documentUri</string>-->
-    <!--<string name="presentation_argument_pageNr">presentation_argument_pageNr</string>-->
+    <string name="presentation_imageContent">Die geladene Präsentation</string>
     <string name="presentation_tabName">Live Presentation</string>
     <string name="yes">Yes</string>
     <string name="no_name_entered">Ooooops keinen Namen?</string>

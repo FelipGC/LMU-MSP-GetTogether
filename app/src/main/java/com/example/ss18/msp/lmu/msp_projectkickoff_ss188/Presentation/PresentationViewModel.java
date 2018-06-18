@@ -14,12 +14,20 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.AsyncTaskResult
 public class PresentationViewModel extends ViewModel implements IDocumentViewer {
     private MutableLiveData<Bitmap> activePage;
     private MutableLiveData<Integer> message;
+    private MutableLiveData<Boolean> showNextButton;
+    private MutableLiveData<Boolean> showPreviousButton;
+    private MutableLiveData<Boolean> showStopButton;
+    private MutableLiveData<Boolean> showStartButton;
     private IDocument document;
 
     public PresentationViewModel() {
         super();
         activePage = new MutableLiveData<>();
         message = new MutableLiveData<>();
+        showNextButton = new MutableLiveData<>();
+        showPreviousButton = new MutableLiveData<>();
+        showStartButton = new MutableLiveData<>();
+        showStopButton = new MutableLiveData<>();
     }
 
     public LiveData<Bitmap> getActivePage() {
@@ -28,6 +36,22 @@ public class PresentationViewModel extends ViewModel implements IDocumentViewer 
 
     public LiveData<Integer> getMessage() {
         return message;
+    }
+
+    public LiveData<Boolean> getShowNextButton() {
+        return showNextButton;
+    }
+
+    public LiveData<Boolean> getShowPreviousButton() {
+        return showPreviousButton;
+    }
+
+    public LiveData<Boolean> getShowStopButton() {
+        return showStopButton;
+    }
+
+    public LiveData<Boolean> getShowStartButton() {
+        return showStartButton;
     }
 
     public void loadDocument(Uri documentUri, ContentResolver contentResolver) {
@@ -39,6 +63,8 @@ public class PresentationViewModel extends ViewModel implements IDocumentViewer 
     public void onDocumentLoaded(IDocument document) {
         this.document = document;
         goToPage(0);
+        showStartButton.setValue(false);
+        showStopButton.setValue(true);
     }
 
     @Override
@@ -46,16 +72,40 @@ public class PresentationViewModel extends ViewModel implements IDocumentViewer 
         message.setValue(R.string.presentation_openDocumentErrorMessage);
     }
 
-    public void goToPage(int pageNr) {
+    private void goToPage(int pageNr) {
         if (document == null) {
+            return;
+        }
+        if (pageNr >= document.getPageCount()) {
+            return;
+        }
+        if (pageNr < 0) {
             return;
         }
         Bitmap page = document.getPage(pageNr);
         activePage.setValue(page);
+        boolean showNextButton = pageNr != document.getPageCount() - 1;
+        this.showNextButton.setValue(showNextButton);
+        boolean showPrevButton = pageNr != 0;
+        this.showPreviousButton.setValue(showPrevButton);
     }
 
     public void stopPresentation() {
-        this.document = null;
+        document = null;
         activePage.setValue(null);
+        showNextButton.setValue(null);
+        showPreviousButton.setValue(null);
+        showStopButton.setValue(false);
+        showStartButton.setValue(true);
+    }
+
+    public void goToNextPage() {
+        int nextPageNr = document.getActualPageNr() + 1;
+        goToPage(nextPageNr);
+    }
+
+    public void gotToPreviousPage() {
+        int nextPageNr = document.getActualPageNr() - 1;
+        goToPage(nextPageNr);
     }
 }

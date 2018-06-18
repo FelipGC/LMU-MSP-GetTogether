@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -14,7 +13,7 @@
         android:clickable="true"
         android:focusable="true"
         android:src="@android:drawable/ic_media_play"
-        android:tint="?attr/colorPrimary"
+        android:tint="@color/colorPrimary"
         android:visibility="visible" />
 
     <android.support.design.widget.FloatingActionButton
@@ -25,12 +24,34 @@
         android:clickable="true"
         android:focusable="true"
         android:src="@android:drawable/ic_lock_power_off"
-        android:tint="?attr/colorPrimary"
+        android:tint="@color/colorPrimary"
         android:visibility="invisible" />
 
     <ImageView
+        android:contentDescription="@string/presentation_imageContent"
         android:id="@+id/presentation_pdfView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="invisible"/>
+        android:layout_height="match_parent" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/presentation_previousPageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|start"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@android:drawable/ic_media_previous"
+        android:tint="@color/colorPrimary"
+        android:visibility="invisible" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/presentation_nextPageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|end"
+        android:clickable="true"
+        android:focusable="true"
+        android:tint="@color/colorPrimary"
+        android:src="@android:drawable/ic_media_next"
+        android:visibility="invisible" />
 </FrameLayout>

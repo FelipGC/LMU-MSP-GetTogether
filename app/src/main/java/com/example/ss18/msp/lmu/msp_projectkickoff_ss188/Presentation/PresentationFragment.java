@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -30,19 +31,20 @@ public class PresentationFragment extends Fragment {
     private AppContext context;
     private View startPresentationButton;
     private View stopPresentationButton;
+    private View nextPageButton;
+    private View previousPageButton;
     private ImageView pdfView;
     private PresentationViewModel model;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(
                 R.layout.fragment_presentation, container, false);
         initializeButtons(view);
         pdfView = view.findViewById(R.id.presentation_pdfView);
         initModel();
-//        reloadPage(savedInstanceState);
         return view;
     }
 
@@ -61,6 +63,20 @@ public class PresentationFragment extends Fragment {
                 stopPresentation();
             }
         });
+        nextPageButton = view.findViewById(R.id.presentation_nextPageButton);
+        nextPageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                model.goToNextPage();
+            }
+        });
+        previousPageButton = view.findViewById(R.id.presentation_previousPageButton);
+        previousPageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                model.gotToPreviousPage();
+            }
+        });
     }
 
     private void chooseDocumentToPresent() {
@@ -68,55 +84,6 @@ public class PresentationFragment extends Fragment {
         fileChooser.addCategory(Intent.CATEGORY_OPENABLE);
         fileChooser.setType("application/pdf");
         startActivityForResult(fileChooser, getOpenPresentationRequestCode());
-    }
-
-    private void stopPresentation() {
-        model.stopPresentation();
-    }
-
-    private void goToPage(int pageNr) {
-        model.goToPage(pageNr);
-    }
-
-    private void initModel() {
-        model = ViewModelProviders.of(this)
-                .get(PresentationViewModel.class);
-        model.getActivePage().observe(this, new Observer<Bitmap>() {
-            @Override
-            public void onChanged(@Nullable Bitmap bitmap) {
-                if (bitmap == null) {
-                    resetView();
-                }
-                showPage(bitmap);
-            }
-        });
-        model.getMessage().observe(this, new Observer<Integer>() {
-            @Override
-            public void onChanged(@Nullable Integer id) {
-                if (id == null) {
-                    return;
-                }
-                context.displayShortMessage(getString(id));
-            }
-        });
-//        Bitmap page = model.getActivePage().getValue();
-//        if (page != null) {
-//            showPage(page);
-//        }
-    }
-
-    private void showPage(Bitmap bitmap) {
-        pdfView.setVisibility(View.VISIBLE);
-        pdfView.setImageBitmap(bitmap);
-        stopPresentationButton.setVisibility(View.VISIBLE);
-        startPresentationButton.setVisibility(View.INVISIBLE);
-    }
-
-    private void resetView() {
-        pdfView.setImageResource(android.R.color.transparent);
-        pdfView.setVisibility(View.INVISIBLE);
-        stopPresentationButton.setVisibility(View.INVISIBLE);
-        startPresentationButton.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -130,6 +97,38 @@ public class PresentationFragment extends Fragment {
         }
         Uri documentUri = data.getData();
         model.loadDocument(documentUri, context.getContentResolver());
+    }
+
+    private void stopPresentation() {
+        model.stopPresentation();
+    }
+
+    private void initModel() {
+        model = ViewModelProviders.of(this)
+                .get(PresentationViewModel.class);
+        model.getActivePage().observe(this, new Observer<Bitmap>() {
+            @Override
+            public void onChanged(@Nullable Bitmap bitmap) {
+                pdfView.setImageBitmap(bitmap);
+            }
+        });
+        model.getMessage().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(@Nullable Integer id) {
+                if (id == null) {
+                    return;
+                }
+                context.displayShortMessage(getString(id));
+            }
+        });
+        model.getShowNextButton().observe(this,
+                new ShowViewObserver(nextPageButton));
+        model.getShowPreviousButton().observe(this,
+                new ShowViewObserver(previousPageButton));
+        model.getShowStartButton().observe(this,
+                new ShowViewObserver(startPresentationButton));
+        model.getShowStopButton().observe(this,
+                new ShowViewObserver(stopPresentationButton));
     }
 
     private void showErrorToast() {
