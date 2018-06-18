@@ -4,7 +4,11 @@ import android.content.ContentResolver;
 import android.net.Uri;
 import android.os.AsyncTask;
 
-public class LoadDocumentTask extends AsyncTask<Uri, Void, IDocument> {
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.AsyncTaskResult;
+
+import java.io.IOException;
+
+public class LoadDocumentTask extends AsyncTask<Uri, Void, AsyncTaskResult<IDocument>> {
     private final ContentResolver contentResolver;
     private IDocumentViewer documentViewer;
 
@@ -14,18 +18,24 @@ public class LoadDocumentTask extends AsyncTask<Uri, Void, IDocument> {
     }
 
     @Override
-    protected IDocument doInBackground(Uri... params) {
+    protected AsyncTaskResult<IDocument> doInBackground(Uri... params) {
         Uri documentUri = params[0];
-        return RenderedPdfDocument.load(documentUri, contentResolver); // TODO: Extract RenderedPdfDocument dependency
+        try {
+            IDocument document = RenderedPdfDocument.load(documentUri, contentResolver); // TODO: Extract RenderedPdfDocument dependency
+            return new AsyncTaskResult<>(document);
+        }
+        catch (IOException ex) {
+            return new AsyncTaskResult<>(ex);
+        }
     }
 
     @Override
-    protected void onPostExecute(IDocument document) {
-        super.onPostExecute(document);
-        if (document == null) {
-            documentViewer.showErrorToast();
+    protected void onPostExecute(AsyncTaskResult<IDocument> result) {
+        super.onPostExecute(result);
+        if (result.getError() != null) {
+            documentViewer.onDocumentLoadFailed();
             return;
         }
-        documentViewer.showDocument(document);
+        documentViewer.onDocumentLoaded(result.getResult());
     }
 }
