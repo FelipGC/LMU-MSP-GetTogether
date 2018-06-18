@@ -72,8 +72,5 @@
     <string name="gps">GPS</string>
     <string name="sprechen">SPRECHEN</string>
     <string name="stupsen">STUPSEN</string>
-    <string name="presentation_openDocumentErrorMessage">Bitte wählen sie eine gültige Präsentation aus.</string>
-    <string name="presentation_openPresentationRequestCode">1</string>
     <string name="presentation_imageContent">Die geladene Präsentation</string>
-    <string name="presentation_tabName">Live Presentation</string>
 </resources>
