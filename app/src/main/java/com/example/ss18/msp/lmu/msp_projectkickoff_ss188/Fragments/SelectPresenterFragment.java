@@ -17,7 +17,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActi
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.PresenterAdapter;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters.PresenterAdapter;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -167,5 +167,9 @@ public class SelectPresenterFragment extends Fragment {
                 pendingButton.setVisibility(View.GONE);
             else pendingButton.setText(String.format("Pending Connection(s): %d", cM.getPendingConnections().size()));
         }
+    }
+
+    public void updateJoinedPresentersAvatar() {
+        ((PresenterAdapter) establishedPresenters.getAdapter()).notifyDataSetChanged();
     }
 }

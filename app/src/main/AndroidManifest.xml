@@ -4,13 +4,13 @@
 
     <!-- Required for Nearby Connections -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 
     <application
         android:allowBackup="true"
@@ -27,9 +27,11 @@
             </intent-filter>
         </activity>
         <activity android:name=".Activities.MainActivity" />
-        <activity android:name=".Activities.AppLogicActivity"
-                  android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name=".Activities.AppLogicActivity"
+            android:windowSoftInputMode="adjustResize" />
         <activity android:name=".Activities.SettingsActivity" />
+        <activity android:name=".Activities.ImageSliderActivity"></activity>
     </application>
 
 </manifest>

@@ -15,4 +15,8 @@
         android:id="@+id/about"
         android:onClick="onClickAbout"
         android:title="@string/about" />
+    <item
+        android:id="@+id/logout"
+        android:onClick="onClickAbout"
+        android:title="@string/logout" />
 </menu>

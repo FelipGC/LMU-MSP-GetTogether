@@ -3,12 +3,15 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.text.GetChars;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.SelectPresenterFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ShareFragment;
@@ -20,6 +23,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Presentation.Presentati
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.AppContext;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission;
 
 public class AppLogicActivity extends BaseActivity implements AppContext {
     /**
@@ -43,13 +47,13 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     private InboxFragment inboxFragment;
     private ChatFragment chatFragment;
     private TabPageAdapter tabPageAdapter;
-
+    private final static VoiceTransmission voiceTransmission = new VoiceTransmission();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.onCreate(R.layout.activity_app_logic);
 
-        getSupportActionBar().setTitle("Gruppenname"); //TODO
+        getSupportActionBar().setTitle(LocalDataBase.getUserName()); //TODO
 
         //Get object from intent
         setUserRole((User) getIntent().getSerializableExtra("UserRole"));
@@ -67,7 +71,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
                 //Add tabs for spectator
                 tabPageAdapter.addFragment(selectPresenterFragment = new SelectPresenterFragment(), "Presenters");
                 tabPageAdapter.addFragment(inboxFragment = new InboxFragment(), "Inbox");
-                tabPageAdapter.addFragment(new LiveViewFragment(), "Live View");
+                tabPageAdapter.addFragment(new LiveViewFragment(), "Live");
                 tabPageAdapter.addFragment(chatFragment = new ChatFragment(), "Chat");
                 break;
             case PRESENTER:
@@ -83,7 +87,6 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
                 return;
 
         }
-
         ViewPager viewPager = findViewById(R.id.pager);
         viewPager.setAdapter(tabPageAdapter);
 
@@ -94,8 +97,8 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     /**
      * Updates the amount of participants on the GUI
      */
-    public void updateParticipantsGUI(int newSize, int maxSize) {
-        selectParticipantsFragment.updateParticipantsGUI(newSize, maxSize);
+    public void updateParticipantsGUI(ConnectionEndpoint e, int newSize, int maxSize) {
+        selectParticipantsFragment.updateParticipantsGUI(e, newSize, maxSize);
     }
 
     /**
@@ -192,6 +195,14 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
 
     public SelectPresenterFragment getSelectPresenterFragment() {
         return selectPresenterFragment;
+    }
+
+    public SelectParticipantsFragment getSelectParticipantsFragment() {
+        return selectParticipantsFragment;
+    }
+
+    public static VoiceTransmission getVoiceTransmission() {
+        return voiceTransmission;
     }
 
     @Override

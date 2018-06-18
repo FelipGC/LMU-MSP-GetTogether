@@ -1,39 +1,97 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.internal.BottomNavigationItemView;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters.ViewerAdapter;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission;
 
 public class SelectParticipantsFragment extends Fragment {
     private static final String TAG = "SelectParticipants";
     private static View mainView;
     private static ConnectionManager connectionManager;
+    private ViewerAdapter viewerAdapter;
+    private VoiceTransmission voiceTransmission;
+
+    @SuppressLint("ClickableViewAccessibility")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mainView = inflater.inflate(R.layout.fragment_participants,container,false);
         connectionManager = AppLogicActivity.getConnectionManager();
+        ListView listView = mainView.findViewById(R.id.viewerList);
+        viewerAdapter = new ViewerAdapter(getContext());
+        listView.setAdapter(viewerAdapter);
+        updateParticipantsGUI(null,connectionManager.getEstablishedConnections().size(),
+                connectionManager.getDiscoveredEndpoints().size());
+        //Define pokeItem
+        BottomNavigationItemView pokeItem = mainView.findViewById(R.id.vibrieren);
+        pokeItem.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_DOWN) {
+                    startPoking();
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    endPoking();
+                }
+                return true;
+            }
+        });
+        //Define VoiceChatButton
+        BottomNavigationItemView voiceChatItem = mainView.findViewById(R.id.voiceChat);
+        voiceChatItem.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_DOWN) {
+                    startRecordingVoice();
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    stopRecordingVoice();
+                }
+                return true;
+            }
+        });
+        voiceTransmission = AppLogicActivity.getVoiceTransmission();
+        //TODO: Define GPS button... @Laureen?
+
         return mainView;
     }
     /**
      * Updates the amount of participants on the GUI
      */
-    public void updateParticipantsGUI(int newSize, int maxSize){
+    public void updateParticipantsGUI(ConnectionEndpoint e,int newSize, int maxSize){
         TextView textView = mainView.findViewById(R.id.numberOfParticipants);
-        textView.setText(newSize + "/"+maxSize);
+        if(maxSize == 0)
+            textView.setText(R.string.leer);
+        else
+            textView.setText(newSize + "|"+maxSize);
+        //Update listView
+        if(e == null)
+            return;
+        Log.i(TAG,"UpdateParticipantsGUI ID: " + e.getId());
+        if(connectionManager.getEstablishedConnections().containsKey(e.getId())) {
+            viewerAdapter.add(e);
+        }else{
+            viewerAdapter.remove(e);
+        }
+        viewerAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -123,5 +181,47 @@ public class SelectParticipantsFragment extends Fragment {
                 }
             }
         });
+    }
+
+    /**
+     * Starts sending voice
+     */
+    private void startRecordingVoice(){
+        //TODO: Display something
+        voiceTransmission.startRecordingVoice();
+        Toast.makeText(getContext(), "Zeichnet auf...", Toast.LENGTH_SHORT).show();
+
+    }
+
+    /**
+     * Ends recording voice
+     */
+    private void stopRecordingVoice(){
+        //TODO: Display something
+        voiceTransmission.stopRecordingVoice();
+        Toast.makeText(getContext(), "Aufzeichnung beendet.", Toast.LENGTH_SHORT).show();
+
+    }
+    /**
+     * Sends vibration message to viewers
+     */
+    private void startPoking(){
+        connectionManager.getPayloadSender().sendPokeMessage();
+    }
+
+    /**
+     * Sends STOP vibration message to viewers
+     */
+    private void endPoking(){
+        connectionManager.getPayloadSender().sendStopPokingMessage();
+    }
+    public void updateParticipantsAvatar() {
+        viewerAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onDestroy() {
+        endPoking();
+        super.onDestroy();
     }
 }

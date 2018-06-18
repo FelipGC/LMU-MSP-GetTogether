@@ -119,7 +119,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
      ** Clears all messages, if the connection was destroyed
      */
     public void clearContent() {
-        Log.i("TAG", "Clear the chat content.");
+        Log.i(TAG, "Clear the chat content.");
         if(messageAdapter != null)
             messageAdapter.clearContent();
     }

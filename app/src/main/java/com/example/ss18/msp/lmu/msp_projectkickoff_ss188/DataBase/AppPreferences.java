@@ -24,14 +24,16 @@ public class AppPreferences {
     static final String PREF_IMAGE = "preferences_image";
 
     public String getUsername(){
-        return preferences.getString(PREF_USER, null);
+        String username = preferences.getString(PREF_USER, null);
+        return username;
     }
 
     public Uri getUserImage(){
         String image = preferences.getString(PREF_IMAGE, null);
         if(image == null) return null;
         else{
-            return Uri.parse(image);
+            Uri uri = Uri.parse(image);
+            return uri;
         }
     }
 

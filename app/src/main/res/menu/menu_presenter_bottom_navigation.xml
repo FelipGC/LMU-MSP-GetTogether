@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/gps"
+        android:enabled="true"
+        android:title="@string/gps"
+        android:icon="@drawable/gps_icon"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/voiceChat"
+        android:enabled="true"
+        android:title="@string/sprechen"
+        android:icon="@drawable/voice_icon"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/vibrieren"
+        android:enabled="true"
+        android:title="@string/stupsen"
+        android:icon="@drawable/vibrate_icon"
+        app:showAsAction="ifRoom"/>
+</menu>
+
+    <!--android:icon="@drawable/ic_favorite_white_24dp"-->

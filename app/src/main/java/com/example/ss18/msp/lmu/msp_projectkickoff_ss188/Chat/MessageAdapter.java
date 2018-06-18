@@ -29,10 +29,10 @@ public class MessageAdapter extends BaseAdapter {
         this.context = context;
     }
 
-    public static void addMessage(Message message) {
+    public void addMessage(Message message) {
         messages.add(message);
         Log.i(TAG , "Added new message to listView.");
-        //notifyDataSetChanged(); // to render the list we need to notify
+        notifyDataSetChanged(); // to render the list we need to notify
     }
 
     /*

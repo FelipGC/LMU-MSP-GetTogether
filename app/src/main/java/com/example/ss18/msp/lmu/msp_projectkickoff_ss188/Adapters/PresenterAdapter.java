@@ -1,4 +1,4 @@
-package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility;
+package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters;
 
 import android.app.Activity;
 import android.content.Context;
@@ -34,6 +34,15 @@ public class PresenterAdapter extends BaseAdapter {
     public PresenterAdapter(Context context, boolean enableSwitch) {
         this.context = context;
         this.enableSwitch = enableSwitch;
+    }
+
+    public boolean contains(String id) {
+        for (ConnectionEndpoint e : endpointList) {
+            if (e.getId().equals(id)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void add(ConnectionEndpoint endpoint) {
