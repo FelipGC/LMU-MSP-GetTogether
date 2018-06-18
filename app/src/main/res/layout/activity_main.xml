@@ -32,7 +32,7 @@
             android:src="@drawable/presenter_icon" />
 
         <TextView
-            android:id="@+id/textViewTitle"
+            android:id="@+id/textViewTitle3"
             android:layout_width="match_parent"
             android:layout_height="73dp"
             android:fontFamily="sans-serif-smallcaps"
