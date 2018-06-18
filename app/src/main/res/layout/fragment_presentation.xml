@@ -7,25 +7,19 @@
     tools:context=".Presentation.PresentationFragment">
 
     <android.support.design.widget.FloatingActionButton
+        style="@style/AppTheme.FAB"
         android:id="@+id/presentation_startPresentationButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
         android:clickable="true"
         android:focusable="true"
         android:src="@android:drawable/ic_media_play"
-        android:tint="@color/colorPrimary"
         android:visibility="visible" />
 
     <android.support.design.widget.FloatingActionButton
+        style="@style/AppTheme.FAB"
         android:id="@+id/presentation_stopPresentationButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
         android:clickable="true"
         android:focusable="true"
         android:src="@android:drawable/ic_lock_power_off"
-        android:tint="@color/colorPrimary"
         android:visibility="invisible" />
 
     <ImageView
@@ -35,24 +29,20 @@
         android:layout_height="match_parent" />
 
     <android.support.design.widget.FloatingActionButton
+        style="@style/AppTheme.FAB"
         android:id="@+id/presentation_previousPageButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_gravity="center|start"
         android:clickable="true"
         android:focusable="true"
         android:src="@android:drawable/ic_media_previous"
-        android:tint="@color/colorPrimary"
         android:visibility="invisible" />
 
     <android.support.design.widget.FloatingActionButton
+        style="@style/AppTheme.FAB"
         android:id="@+id/presentation_nextPageButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_gravity="center|end"
         android:clickable="true"
         android:focusable="true"
-        android:tint="@color/colorPrimary"
         android:src="@android:drawable/ic_media_next"
         android:visibility="invisible" />
 </FrameLayout>
