@@ -53,13 +53,7 @@ public final class PayloadReceiver extends PayloadCallback {
         Log.i(TAG, String.format("onPayloadReceived(endpointId=%s, payload=%s)", endpointId, payload));
         if (payload.getType() == Payload.Type.BYTES) {
             String payloadFilenameMessage = null;
-            try{
-                Location location = LocationUtility.getLocationFromBytes(payload.asBytes());
-                onLocationReceived(location);
-                return;
-            }catch (FormatException fe){
-                //nothing to do. go on.
-            }
+
             try {
                 payloadFilenameMessage = new String(payload.asBytes(), "UTF-8");
             } catch (UnsupportedEncodingException e) {
@@ -107,6 +101,14 @@ public final class PayloadReceiver extends PayloadCallback {
                         Log.i(TAG, "Received DISTANCE " + fileContent);
                         onDistanceWarningReceived(endpointId,fileContent);
                         break;
+                    case "LOCATION":
+                        String[] coords = fileContent.split("/");
+                        float longitude = Float.parseFloat(coords[0]);
+                        float latitude = Float.parseFloat(coords[1]);
+                        Location location = new Location("");
+                        location.setLongitude(longitude);
+                        location.setLatitude(latitude);
+                        onLocationReceived(location);
                     default:
                         Log.i(TAG, "Received FILE-NAME: " + fileContent);
                         filePayloadFilenames.put(Long.valueOf(payloadId), fileContent);

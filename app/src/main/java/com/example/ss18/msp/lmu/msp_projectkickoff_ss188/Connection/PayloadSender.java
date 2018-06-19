@@ -92,7 +92,8 @@ public class PayloadSender {
 
     public void sendLocation(Location location) {
         byte[] b = LocationUtility.getLocationAsBytes(location);
-        Payload payload = Payload.fromBytes(b);
+        String message = "LOCATION:" + location.getLongitude() + "/" + location.getLatitude();
+        Payload payload = Payload.fromBytes(message.getBytes());
 
         sendPayloadBytes(payload);
     }
