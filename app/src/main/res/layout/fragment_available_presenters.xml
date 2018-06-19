@@ -19,10 +19,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <ProgressBar
+            android:id="@+id/progressBar01"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="263dp" />
+
         <TextView
-            android:id="@+id/placeHolder"
+            android:id="@+id/hint01"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-smallcaps"
+            android:text="Suche nach Geräten..."
             android:textAlignment="center"
             android:textSize="24sp" />
 
@@ -30,6 +38,7 @@
             android:id="@+id/noDevicesFound"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-smallcaps"
             android:text="@string/no_devices_found"
             android:textAlignment="center"
             android:visibility="gone" />

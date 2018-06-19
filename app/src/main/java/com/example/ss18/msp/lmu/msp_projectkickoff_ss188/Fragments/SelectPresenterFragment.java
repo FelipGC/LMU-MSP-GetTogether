@@ -10,7 +10,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
@@ -26,10 +28,13 @@ public class SelectPresenterFragment extends Fragment {
     private static final String TAG = "SelectPresenter";
     private ListView availablePresenters;
     private ListView establishedPresenters;
+    private static ListAdapter pendAdapter = null;
+    private static ListAdapter estAdapter = null;
     private Button pendingButton;
     private TextView joinedTitle;
     private TextView availableTitle;
     private ConnectionManager cM;
+    private ProgressBar progressBar;
     /**
      * Views to display when at least on endpoint is found
      */
@@ -54,11 +59,20 @@ public class SelectPresenterFragment extends Fragment {
                 availableTitle = view.findViewById(R.id.presentersListViewTitle_available),
                 joinedTitle = view.findViewById(R.id.presentersListViewTitle_established),
                 pendingButton = view.findViewById(R.id.presentersListViewTitle_pending)));
-        viewNoDevices.add(view.findViewById(R.id.noDevicesFound));
+        viewNoDevices.addAll(Arrays.asList(view.findViewById(R.id.noDevicesFound),
+                view.findViewById(R.id.hint01)));
+        progressBar = view.findViewById(R.id.progressBar01);
+
 
         //Set adapters
-        availablePresenters.setAdapter(new PresenterAdapter(getContext(),false));
-        establishedPresenters.setAdapter(new PresenterAdapter(getContext(),true));
+        if(pendAdapter == null)
+            pendAdapter = new PresenterAdapter(getContext(),false);
+        if(estAdapter == null)
+            estAdapter = new PresenterAdapter(getContext(),true);
+        else if(estAdapter.getCount() > 0)
+            progressBar.setVisibility(View.GONE);
+        availablePresenters.setAdapter(pendAdapter);
+        establishedPresenters.setAdapter(estAdapter);
 
         //Set up clickListeners for the individual items and lists
         //On Click: Displays list of pending connections as a dialog
@@ -97,8 +111,9 @@ public class SelectPresenterFragment extends Fragment {
         Log.i(TAG,"REMOVE ENDPOINT FROM ADAPTERS");
         ((PresenterAdapter) availablePresenters.getAdapter()).remove(connectionEndpoint);
         ((PresenterAdapter) establishedPresenters.getAdapter()).remove(connectionEndpoint);
-        if(cM == null || cM.getPendingConnections().size() == 0)
+        if(cM == null || cM.getPendingConnections().size() == 0) {
             pendingButton.setVisibility(View.GONE);
+        }
         else pendingButton.setText(String.format("Pending Connection(s): %d", cM.getPendingConnections().size()));
     }
 
@@ -114,6 +129,7 @@ public class SelectPresenterFragment extends Fragment {
                 view.setVisibility(View.GONE);
             for (View viewNoDevice : viewNoDevices)
                 viewNoDevice.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.VISIBLE);
         }//We found devices
         else {
             //Hide GUI we do not want
@@ -123,6 +139,9 @@ public class SelectPresenterFragment extends Fragment {
                 view.setVisibility(View.VISIBLE);
             //Update lists
             updateListViews(endpoint);
+            //Progress bar
+            if(estAdapter.getCount() > 0)
+                progressBar.setVisibility(View.GONE);
         }
     }
 

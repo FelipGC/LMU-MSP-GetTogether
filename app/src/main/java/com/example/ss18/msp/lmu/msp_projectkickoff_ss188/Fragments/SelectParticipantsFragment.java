@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,17 +29,21 @@ public class SelectParticipantsFragment extends Fragment {
     private static final String TAG = "SelectParticipants";
     private static View mainView;
     private static ConnectionManager connectionManager;
-    private ViewerAdapter viewerAdapter;
+    private static ViewerAdapter viewerAdapter = null;
     private VoiceTransmission voiceTransmission;
-
+    private ProgressBar progressBar;
     @SuppressLint("ClickableViewAccessibility")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mainView = inflater.inflate(R.layout.fragment_participants,container,false);
         connectionManager = AppLogicActivity.getConnectionManager();
+        progressBar = mainView.findViewById(R.id.progressBar);
+        if(viewerAdapter == null)
+            viewerAdapter = new ViewerAdapter(getContext());
+        else if(viewerAdapter.getCount() > 0)
+            progressBar.setVisibility(View.GONE);
         ListView listView = mainView.findViewById(R.id.viewerList);
-        viewerAdapter = new ViewerAdapter(getContext());
         listView.setAdapter(viewerAdapter);
         updateParticipantsGUI(null,connectionManager.getEstablishedConnections().size(),
                 connectionManager.getDiscoveredEndpoints().size());
@@ -78,10 +83,17 @@ public class SelectParticipantsFragment extends Fragment {
      */
     public void updateParticipantsGUI(ConnectionEndpoint e,int newSize, int maxSize){
         TextView textView = mainView.findViewById(R.id.numberOfParticipants);
-        if(maxSize == 0)
+        if(maxSize == 0) {
             textView.setText(R.string.leer);
-        else
-            textView.setText(newSize + "|"+maxSize);
+            progressBar.setVisibility(View.VISIBLE);
+        }
+        else {
+            textView.setText(newSize + "|" + maxSize);
+            progressBar.setVisibility(View.GONE);
+        }
+        if(newSize == 0){
+            progressBar.setVisibility(View.VISIBLE);
+        }
         //Update listView
         if(e == null)
             return;
