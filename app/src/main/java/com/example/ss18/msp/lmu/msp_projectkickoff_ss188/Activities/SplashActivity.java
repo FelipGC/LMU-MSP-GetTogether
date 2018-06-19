@@ -62,7 +62,7 @@ public class SplashActivity extends AppCompatActivity {
             }
         }
         if(!waitingForPermission){
-            loaded();
+            onAllPermissionsGranted();
         }
     }
 
@@ -85,7 +85,7 @@ public class SplashActivity extends AppCompatActivity {
             }
             recreate();
         }
-        loaded();
+        onAllPermissionsGranted();
     }
     //endregion
 
@@ -131,7 +131,7 @@ public class SplashActivity extends AppCompatActivity {
 
     }
 
-    private void loaded(){
+    private void onAllPermissionsGranted(){
         String username = preferences.getUsername();
         Log.i(TAG, "userNameAlreadyEntered: " + username);
         if (username == null) {
