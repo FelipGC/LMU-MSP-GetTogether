@@ -339,7 +339,7 @@ public class ConnectionManager {
     /**
      * Stops looking for new devices/endpoints to connect to
      */
-    public void stopDiscovering() {
+    public void stopDiscovering() { // DONE
         connectionsClient.stopDiscovery();
         connectionsClient.stopAllEndpoints();
     }
@@ -347,7 +347,7 @@ public class ConnectionManager {
     /**
      * Stops advertising to new discoverers
      */
-    public void stopAdvertising() {
+    public void stopAdvertising() { // DONE
         connectionsClient.stopAdvertising();
         connectionsClient.stopAllEndpoints();
     }
@@ -443,7 +443,7 @@ public class ConnectionManager {
 
     public void disconnectFromAllEndpoints() {
         connectionsClient.stopAllEndpoints();
-    }
+    }//DONE
 
     private void updateParticipantsCount(ConnectionEndpoint e) {
         appLogicActivity.updateParticipantsGUI(e, establishedConnections.size(), discoveredEndpoints.size());
