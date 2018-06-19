@@ -51,6 +51,9 @@ public abstract class AbstractLocationService extends Service {
             // TODO handling missing permission
             return;
         }
+       /* if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+            startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+        }*/
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,

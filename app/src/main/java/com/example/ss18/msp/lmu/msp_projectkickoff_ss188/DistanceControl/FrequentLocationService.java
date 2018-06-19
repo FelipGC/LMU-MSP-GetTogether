@@ -57,6 +57,7 @@ public class FrequentLocationService extends AbstractLocationService {
             @Override
             public void onProviderDisabled(String provider) {
                 Log.i(TAG,"LocationListener::onProviderDisabled - Sending of location not possible.");
+                //startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
             }
         };
     }
