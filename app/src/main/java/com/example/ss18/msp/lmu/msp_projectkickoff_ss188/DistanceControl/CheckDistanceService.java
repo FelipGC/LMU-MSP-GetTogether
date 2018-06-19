@@ -30,10 +30,10 @@ public class CheckDistanceService extends AbstractLocationService {
                 if(locationTo == null)
                     return;
                 float distance = LocationUtility.getDistanceBetween(location,locationTo);
-                if(distance > 0){//TODO
-                    NotificationUtility.displayNotification("Distance Warning",
-                            String.format("distance = %s",distance),
-                            NotificationCompat.PRIORITY_DEFAULT);
+                NotificationUtility.displayNotification("DEBUG: Distance To Presenter",
+                        String.format("distance = %s",distance),
+                        NotificationCompat.PRIORITY_DEFAULT);
+                if(distance > 10){//TODO
                     payloadSender.sendDistanceWarning(distance);
                 }
             }

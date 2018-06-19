@@ -161,9 +161,6 @@ public final class PayloadReceiver extends PayloadCallback {
     }
 
     private void onLocationReceived(Location receivedLocation){
-        NotificationUtility.displayNotification("Location received",
-                String.format("long = %s, lat = %s",receivedLocation.getLongitude(),receivedLocation.getLatitude()),
-                NotificationCompat.PRIORITY_DEFAULT);
         Intent intent = new Intent(getAppLogicActivity(), CheckDistanceService.class);
         intent.putExtra("location", receivedLocation);
         getAppLogicActivity().startService(intent);
@@ -172,7 +169,7 @@ public final class PayloadReceiver extends PayloadCallback {
     private void onDistanceWarningReceived(String senderId,String distance){
         String senderName = cM.getDiscoveredEndpoints().get(senderId).getName();
         NotificationUtility.displayNotification("Entfernungswarnung",
-                String.format("Teilnehmer %s ist %s entfernt.",senderName,distance),
+                String.format("Teilnehmer %s ist %s Meter entfernt.",senderName,distance),
                 NotificationCompat.PRIORITY_DEFAULT);
     }
 
