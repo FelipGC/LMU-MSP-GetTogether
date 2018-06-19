@@ -50,14 +50,19 @@ public class SplashActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.M)
     protected void setRequiredPermissions() {
         Log.i(TAG, "AsetRequiredPermissions()");
+        boolean waitingForPermission = false;
         //Check if we have all permissions, if not, then add!
         for (String permission : REQUIRED_PERMISSIONS) {
             if (ContextCompat.checkSelfPermission(this, permission)
                     != PackageManager.PERMISSION_GRANTED) {
+                waitingForPermission = true;
                 Log.i(TAG, "Requesting permission: " + permission);
                 requestPermissions(REQUIRED_PERMISSIONS, 1);
                 return;
             }
+        }
+        if(!waitingForPermission){
+            loaded();
         }
     }
 
@@ -80,6 +85,7 @@ public class SplashActivity extends AppCompatActivity {
             }
             recreate();
         }
+        loaded();
     }
     //endregion
 
@@ -115,13 +121,17 @@ public class SplashActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 
         setTheme(R.style.AppTheme);
+        preferences = AppPreferences.getInstance(this);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             setRequiredPermissions();
         }
         super.onCreate(savedInstanceState);
-        preferences = AppPreferences.getInstance(this);
 
         createNotificationChannel();
+
+    }
+
+    private void loaded(){
         String username = preferences.getUsername();
         Log.i(TAG, "userNameAlreadyEntered: " + username);
         if (username == null) {
@@ -140,7 +150,6 @@ public class SplashActivity extends AppCompatActivity {
         }
         finish();
     }
-
 
 
 
