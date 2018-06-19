@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -109,6 +110,9 @@ public class SplashActivity extends AppCompatActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        //Disable rotation
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+
         setTheme(R.style.AppTheme);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             setRequiredPermissions();

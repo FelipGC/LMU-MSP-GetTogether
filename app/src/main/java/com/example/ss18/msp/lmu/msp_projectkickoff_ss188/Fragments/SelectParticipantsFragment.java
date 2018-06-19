@@ -150,6 +150,7 @@ public class SelectParticipantsFragment extends Fragment {
                 //Select all
                 for (int i = 0; i < discoveredDevices.length; i++) {
                     dialog.getListView().setItemChecked(i, true);
+                    selectedDevices[i] = true;
                 }
             }
         });
@@ -159,6 +160,7 @@ public class SelectParticipantsFragment extends Fragment {
                 //Deselect all
                 for (int i = 0; i < discoveredDevices.length; i++) {
                     dialog.getListView().setItemChecked(i, false);
+                    selectedDevices[i] = false;
                 }
             }
         });

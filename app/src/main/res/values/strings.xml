@@ -67,7 +67,7 @@
     <string name="yes">Yes</string>
     <string name="no_name_entered">Ooooops keinen Namen?</string>
     <string name="generate_random_name">Du hast keinen Benutzernamen eingegeben. Möchtest du vielleicht einen zufälligen erstellen?</string>
-    <string name="logout">Logout</string>
+    <string name="logout">Beenden</string>
     <string name="leer">Leer :(</string>
     <string name="gps">GPS</string>
     <string name="sprechen">SPRECHEN</string>
