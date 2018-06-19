@@ -15,6 +15,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSende
 
 public abstract class AbstractLocationService extends Service {
 
+    protected Intent intent;
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -22,6 +23,7 @@ public abstract class AbstractLocationService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        this.intent = intent;
         setLocationListener();
         setUpdateDistance();
         setUpdateTime();

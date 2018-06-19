@@ -12,13 +12,6 @@ public class CheckDistanceService extends AbstractLocationService {
     private Location locationTo;
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        locationTo = intent.getParcelableExtra("location");
-        return super.onStartCommand(intent, flags, startId);
-    }
-
-
-    @Override
     protected void setUpdateDistance() {
         updateDistance = 0;
     }
@@ -33,9 +26,10 @@ public class CheckDistanceService extends AbstractLocationService {
         listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+                locationTo = intent.getParcelableExtra("location");
                 locationManager.removeUpdates(listener);
                 float distance = LocationUtility.getDistanceBetween(location,locationTo);
-                if(distance > 10){//TODO
+                if(distance > 0){//TODO
                     NotificationUtility.displayNotification("Distance Warning",
                             String.format("distance = %s",distance),
                             NotificationCompat.PRIORITY_DEFAULT);
