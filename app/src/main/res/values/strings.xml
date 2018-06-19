@@ -4,7 +4,7 @@
     <string name="presenter">Moderator</string>
     <string name="spectator">Zuschauer</string>
     <string name="missingPermission">Ungenügende Erlaubnisse</string>
-    <string name="startDiscovering">Du bist jetzt ein Moderator!</string>
+    <string name="startDiscovering">Du bist jetzt Moderator!</string>
     <string name="startAdvertising">Du bist jetzt ein Zuschauer!</string>
     <string name="username">Wähle deinen Nicknamen...</string>
     <string name="enter">Enter</string>
@@ -33,9 +33,9 @@
     <string name="welcome">Willkommen</string>
     <string name="welcomeUser">Willkommen %1$s!</string>
     <string name="dismiss">Ausblenden</string>
-    <string name="selectDevices">Wähle deine Geräte zum File-Sharing:</string>
-    <string name="deselectAll">Deaktiviere alle</string>
-    <string name="selectAll">Erlaube alle</string>
+    <string name="selectDevices">Wähle deine Zuschauer:</string>
+    <string name="deselectAll">Niemand</string>
+    <string name="selectAll">Jeder</string>
     <string name="noDevicesFound">Es wurden keine Zuschauer gefunden dir beitreten wollen</string>
     <string name="okay">Okay</string>
     <string name="joined_presenters">Verbunden:</string>
