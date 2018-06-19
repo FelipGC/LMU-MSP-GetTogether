@@ -9,7 +9,6 @@ import android.support.v4.app.NotificationCompat;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.NotificationUtility;
 
 public class CheckDistanceService extends AbstractLocationService {
-    private Location locationTo;
 
     @Override
     protected void setUpdateDistance() {
@@ -26,13 +25,15 @@ public class CheckDistanceService extends AbstractLocationService {
         listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                locationTo = intent.getParcelableExtra("location");
-                locationManager.removeUpdates(listener);
+                locationManager.removeUpdates(CheckDistanceService.this.listener);
+                Location locationTo = intent.getParcelableExtra("location");
+                if(locationTo == null)
+                    return;
                 float distance = LocationUtility.getDistanceBetween(location,locationTo);
-                if(distance > 0){//TODO
-                    NotificationUtility.displayNotification("Distance Warning",
-                            String.format("distance = %s",distance),
-                            NotificationCompat.PRIORITY_DEFAULT);
+                NotificationUtility.displayNotification("DEBUG: Distance To Presenter",
+                        String.format("distance = %s",distance),
+                        NotificationCompat.PRIORITY_DEFAULT);
+                if(distance > 10){//TODO
                     payloadSender.sendDistanceWarning(distance);
                 }
             }
@@ -49,7 +50,6 @@ public class CheckDistanceService extends AbstractLocationService {
 
             @Override
             public void onProviderDisabled(String provider) {
-
             }
         };
     }
