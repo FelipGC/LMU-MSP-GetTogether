@@ -33,7 +33,6 @@ public abstract class AbstractLocationService extends Service {
     }
 
     protected LocationManager locationManager = null;
-    protected Location location;
     protected PayloadSender payloadSender;
     protected Location myLocation;
     protected LocationListener listener;

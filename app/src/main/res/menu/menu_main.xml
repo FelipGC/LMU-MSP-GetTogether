@@ -17,6 +17,6 @@
         android:title="@string/about" />
     <item
         android:id="@+id/logout"
-        android:onClick="onClickAbout"
+        android:onClick="endApplication"
         android:title="@string/logout" />
 </menu>

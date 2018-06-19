@@ -3,7 +3,6 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
-import android.nfc.FormatException;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
@@ -13,11 +12,8 @@ import android.util.Log;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.CheckDistanceService;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.FrequentLocationService;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.LocationUtility;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.FileUtility;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.FixedSizeList;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.NotificationUtility;
 import com.google.android.gms.nearby.connection.Payload;
@@ -25,6 +21,7 @@ import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
 import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
@@ -109,6 +106,7 @@ public final class PayloadReceiver extends PayloadCallback {
                         location.setLongitude(longitude);
                         location.setLatitude(latitude);
                         onLocationReceived(location);
+                        break;
                     default:
                         Log.i(TAG, "Received FILE-NAME: " + fileContent);
                         filePayloadFilenames.put(Long.valueOf(payloadId), fileContent);
@@ -122,6 +120,10 @@ public final class PayloadReceiver extends PayloadCallback {
             // Add this to our tracking map, so that we can retrieve the payload later.
             incomingPayloads.put(payload.getId(), payload);
             //TODO: Sending files may take some time. Display progressbar or something
+        }else if (payload.getType() == Payload.Type.STREAM) {
+            Log.i(TAG, "Received STREAM: ID=" + payload.getId());
+            //We received a stream. i.e Voice stream
+            receivedVoiceStream(payload.asStream().asInputStream());
         }
     }
 
@@ -134,16 +136,14 @@ public final class PayloadReceiver extends PayloadCallback {
             //Checks to see if the message is a chat message or a document
             Payload payload = incomingPayloads.remove(update.getPayloadId());
             Log.i(TAG, "onPayloadTransferUpdate() Incoming payload: " + payload);
-
             if (payload != null) {
                 //Load data
                 if (payload.getType() == Payload.Type.FILE) {
                     receivedFileParser(payload, update, endpointId);
                 } else Log.i(TAG, "Payload received is not Type.FILE, but: " + payload.getType());
             }
-            if (update.getStatus() == PayloadTransferUpdate.Status.FAILURE) {
-                Log.i(TAG, "Payload status: PayloadTransferUpdate.Status.FAILURE");
-            }
+        }else  if (update.getStatus() == PayloadTransferUpdate.Status.FAILURE) {
+            Log.i(TAG, "Payload status: PayloadTransferUpdate.Status.FAILURE");
         }
     }
     /*
@@ -268,6 +268,14 @@ public final class PayloadReceiver extends PayloadCallback {
                 String.format("%s has sent you a document.", cM.getEstablishedConnections().get(endpointId).getName()),
                 NotificationCompat.PRIORITY_DEFAULT);
         Log.i(TAG, "Payload file name: " + payloadFile.getName());
+    }
+
+    /**
+     * Gets called after receiving a voice stream
+     */
+    private void receivedVoiceStream(InputStream inputStream) {
+        //TODO: Handle simultaneous receivedVoiceStream()
+        AppLogicActivity.getVoiceTransmission().playAudio(inputStream);
     }
 
 }

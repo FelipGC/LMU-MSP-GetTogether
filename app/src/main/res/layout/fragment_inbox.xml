@@ -12,14 +12,13 @@
         android:layout_width="347dp"
         android:layout_height="100dp"
         android:layout_centerInParent="true"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="44dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="21dp"
-        android:fontFamily="serif"
-        android:text="Empty"
+        android:fontFamily="sans-serif-smallcaps"
+        android:text="Leer"
         android:textAlignment="center"
         android:textSize="50sp"
-        android:textStyle="italic"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -30,7 +29,7 @@
         android:layout_width="247dp"
         android:layout_height="247dp"
         android:layout_marginBottom="88dp"
-        android:layout_marginEnd="68dp"
+        android:layout_marginEnd="69dp"
         android:layout_marginStart="69dp"
         android:layout_marginTop="116dp"
         android:background="@drawable/document_icon"
@@ -40,6 +39,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
 
 </android.support.constraint.ConstraintLayout>

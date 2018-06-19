@@ -4,13 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent"
+    android:background="@color/backgroundColor"
     tools:context=".Activities.AppLogicActivity">
 
     <ImageButton
         android:id="@+id/buttonFileSelector"
-        android:layout_width="190dp"
-        android:layout_height="190dp"
+        android:layout_width="247dp"
+        android:layout_height="247dp"
         android:layout_marginBottom="18dp"
         android:layout_marginEnd="97dp"
         android:layout_marginStart="97dp"
@@ -18,24 +18,28 @@
         android:background="@drawable/button_select_file"
         android:contentDescription="@string/spectator"
         android:elevation="10dp"
+        android:onClick="selectFileButtonClicked"
         android:scaleType="fitCenter"
         android:src="@drawable/file_icon"
-        android:onClick="selectFileButtonClicked"
         app:layout_constraintBottom_toTopOf="@+id/textView"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
+        android:layout_width="349dp"
+        android:layout_height="60dp"
         android:layout_centerInParent="true"
         android:layout_marginBottom="160dp"
         android:layout_marginEnd="92dp"
         android:layout_marginStart="92dp"
-        android:text="Select a file"
+        android:fontFamily="sans-serif-smallcaps"
+        android:text="Verteile Bilder"
         android:textAlignment="center"
+        android:textSize="43sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

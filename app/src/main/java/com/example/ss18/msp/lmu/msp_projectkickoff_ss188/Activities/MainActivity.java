@@ -14,6 +14,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.Presenter;
@@ -66,6 +67,19 @@ public class  MainActivity extends BaseActivity {
         Log.i(TAG,"Settings option clicked");
         Intent myIntent = new Intent(MainActivity.this,SettingsActivity.class);
         MainActivity.this.startActivity(myIntent);
+    }
+
+    /**
+     *Gets executen when the user presses the endApplication button and ends the application
+     * @param item The clicked Menuitem
+     */
+    public void endApplication(MenuItem item){
+       Log.i(TAG,"User closed the app!");
+       ConnectionManager c = AppLogicActivity.getConnectionManager();
+       if(c == null)
+           return;
+       c.terminateConnection();
+       finish();
     }
 
     /**

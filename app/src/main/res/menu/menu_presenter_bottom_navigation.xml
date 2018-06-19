@@ -8,7 +8,7 @@
         android:icon="@drawable/gps_icon"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/sprechen"
+        android:id="@+id/voiceChat"
         android:enabled="true"
         android:title="@string/sprechen"
         android:icon="@drawable/voice_icon"
