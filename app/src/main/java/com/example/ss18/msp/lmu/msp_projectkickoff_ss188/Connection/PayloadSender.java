@@ -100,10 +100,11 @@ public class PayloadSender {
     public void sendDistanceWarning(float distance){
         String message = "DISTANCE:"+distance;
         Payload payload = Payload.fromBytes(message.getBytes());
-        sendPayloadBytesToSpecific(findPresenter(),payload);
+        sendPayloadBytes(payload);
+        //sendPayloadBytesToSpecific(,payload);
     }
 
-    private ConnectionEndpoint findPresenter(){
+   /* private ConnectionEndpoint findPresenter(){
         HashMap<String, ConnectionEndpoint> connections = cM.getEstablishedConnections();
         for (ConnectionEndpoint endpoint : connections.values()) {
             if(endpoint.isPresenter()){
@@ -111,7 +112,7 @@ public class PayloadSender {
             }
         }
         return null;
-    }
+    }*/
 
     /**
      * Sends a poke message to the viewers (makes their device vibrate)

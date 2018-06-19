@@ -13,6 +13,7 @@ import android.util.Log;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.CheckDistanceService;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.FrequentLocationService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.LocationUtility;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
@@ -81,7 +82,7 @@ public final class PayloadReceiver extends PayloadCallback {
                         String newEndpointID = fileContent.substring(0, substringDividerIndex);
                         String newEndpointName = fileContent.substring(substringDividerIndex + 1);
                         //TODO how to discover if it is presenter
-                        cM.getDiscoveredEndpoints().put(newEndpointID, new ConnectionEndpoint(endpointId, newEndpointName, false));
+                        cM.getDiscoveredEndpoints().put(newEndpointID, new ConnectionEndpoint(endpointId, newEndpointName));
                         break;
                     case "CHAT":
                         //If we already received it quit
