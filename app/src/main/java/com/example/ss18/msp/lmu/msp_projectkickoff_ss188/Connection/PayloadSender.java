@@ -16,9 +16,9 @@ public class PayloadSender {
     private final String TAG = "PayloadSender";
 
     public PayloadSender() {
-        Log.i(TAG,"new PayloadSender()");
+        Log.i(TAG, "new PayloadSender()");
         cM = ConnectionManager.getInstance();
-        Log.i(TAG,"cM: " + cM);
+        Log.i(TAG, "cM: " + cM);
     }
 
     public void sendChatMessage(String chatMessage) throws UnsupportedEncodingException {
@@ -38,47 +38,59 @@ public class PayloadSender {
     public void sendPayloadBytesBut(String idToExclude, Payload payload) {
         for (String endpointId : cM.getEstablishedConnections().keySet()) {
             Log.i(TAG, "sendPayloadBytes to: " + endpointId);
-            if(!endpointId.equals(idToExclude))
+            if (!endpointId.equals(idToExclude))
                 cM.getConnectionsClient().sendPayload(endpointId, payload);
         }
     }
 
-    public void sendPayloadBytesToSpecific(ConnectionEndpoint recipient, Payload payload){
-        cM.getConnectionsClient().sendPayload(recipient.getId(),payload);
+    public void sendPayloadBytesToSpecific(ConnectionEndpoint recipient, Payload payload) {
+        cM.getConnectionsClient().sendPayload(recipient.getId(), payload);
     }
 
     /**
      * Sends a Payload object out to ALL endPoints
      */
-    private void sendPayloadBytes(Payload payload) {
-        for (String endpointId : cM.getEstablishedConnections().keySet()) {
-            Log.i(TAG, "sendPayloadBytes to: " + endpointId);
-            cM.getConnectionsClient().sendPayload(endpointId, payload);
+    private void sendPayloadBytes(final Payload payload) {
+        for (final String endpointId : cM.getEstablishedConnections().keySet()) {
+            new Thread(new Runnable() {
+                public void run() {
+                    Log.i(TAG, "sendPayloadBytes to: " + endpointId);
+                    cM.getConnectionsClient().sendPayload(endpointId, payload);
+                }
+            }).start();
         }
     }
+
     /**
      * Sends a Payload stream out to ALL endPoints
      */
-    private void sendPayloadStream(Payload payload){
-        for (String endpointId : cM.getEstablishedConnections().keySet()) {
-            Log.i(TAG, "sendPayloadStream to: " + endpointId);
-            cM.getConnectionsClient().sendPayload(endpointId, payload);
-        }
+    private void sendPayloadStream(final String endpointId, final Payload payload) {
+        new Thread(new Runnable() {
+            public void run() {
+                Log.i(TAG, "sendPayloadStream to: " + endpointId);
+                cM.getConnectionsClient().sendPayload(endpointId, payload);
+            }
+        }).start();
+
     }
 
     /**
      * Sends a Payload object out to all endPoints
      */
-    public void sendPayloadFile(Payload payload, String payloadStoringName) {
-        for (String endpointId : cM.getEstablishedConnections().keySet()) {
-            try {
-                Log.i(TAG, "sendPayloadFile to: " + endpointId);
-                sendPayloadFile(endpointId, payload, payloadStoringName);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+    public void sendPayloadFile(final Payload payload, final String payloadStoringName) {
+        for (final String endpointId : cM.getEstablishedConnections().keySet()) {
+            new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        Log.i(TAG, "sendPayloadFile to: " + endpointId);
+                        sendPayloadFile(endpointId, payload, payloadStoringName);
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
         }
     }
 
@@ -86,7 +98,7 @@ public class PayloadSender {
      * Sends a Payload object out to one specific endPoint
      */
     public void sendPayloadFile(String endpointId, Payload payload, String payloadStoringName) throws Exception {
-        Log.i(TAG,"PL: " + payload + " Name: " + payloadStoringName);
+        Log.i(TAG, "PL: " + payload + " Name: " + payloadStoringName);
         // Send the name of the payload/file as a bytes payload first!
         cM.getConnectionsClient().sendPayload(
                 endpointId, Payload.fromBytes(payloadStoringName.getBytes("UTF-8")));
@@ -106,8 +118,8 @@ public class PayloadSender {
         sendPayloadBytes(payload);
     }
 
-    public void sendDistanceWarning(float distance){
-        String message = "DISTANCE:"+distance;
+    public void sendDistanceWarning(float distance) {
+        String message = "DISTANCE:" + distance;
         Payload payload = Payload.fromBytes(message.getBytes());
         sendPayloadBytes(payload);
         //sendPayloadBytesToSpecific(,payload);
@@ -126,9 +138,9 @@ public class PayloadSender {
     /**
      * Sends a poke message to the viewers (makes their device vibrate)
      */
-    public void sendPokeMessage()  {
+    public void sendPokeMessage() {
         // Adding the POKE_S tag to identify start vibration messages on receive.
-        String messageToSend = "POKE:"+"S";
+        String messageToSend = "POKE:" + "S";
         Log.i(TAG, "sendPokeMessage()");
         // Send the name of the payload/file as a bytes payload first!
         try {
@@ -143,7 +155,7 @@ public class PayloadSender {
      * Sends a STOP poke message to the viewers (makes their device STOP vibrating)
      */
     public void sendStopPokingMessage() {
-        String messageToSend = "POKE:"+"E";
+        String messageToSend = "POKE:" + "E";
         Log.i(TAG, "sendStopPokingMessage()");
         // Send the name of the payload/file as a bytes payload first!
         try {
@@ -154,7 +166,7 @@ public class PayloadSender {
         }
     }
 
-    public void startSendingVoice(Payload payload){
-        sendPayloadStream(payload);
+    public void startSendingVoice(String id, Payload payload) {
+        sendPayloadStream(id,payload);
     }
 }
