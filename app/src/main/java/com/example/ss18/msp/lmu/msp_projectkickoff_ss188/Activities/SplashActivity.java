@@ -32,6 +32,7 @@ public class SplashActivity extends AppCompatActivity {
     private static final String[] REQUIRED_PERMISSIONS =
             new String[]{
                     Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.BLUETOOTH,
                     Manifest.permission.BLUETOOTH_ADMIN,
                     Manifest.permission.ACCESS_WIFI_STATE,

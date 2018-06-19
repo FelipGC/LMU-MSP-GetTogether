@@ -1,11 +1,14 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
+import android.location.Location;
 import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.LocationUtility;
 import com.google.android.gms.nearby.connection.Payload;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 
 public class PayloadSender {
 
@@ -39,6 +42,11 @@ public class PayloadSender {
                 cM.getConnectionsClient().sendPayload(endpointId, payload);
         }
     }
+
+    public void sendPayloadBytesToSpecific(ConnectionEndpoint recipient, Payload payload){
+        cM.getConnectionsClient().sendPayload(recipient.getId(),payload);
+    }
+
     /**
      * Sends a Payload object out to ALL endPoints
      */
@@ -90,6 +98,31 @@ public class PayloadSender {
             LocalDataBase.sentPayLoadData.put(payload.getId(), payload);
         } else throw new Exception("Payload to send must not be null!");
     }
+
+    public void sendLocation(Location location) {
+        byte[] b = LocationUtility.getLocationAsBytes(location);
+        String message = "LOCATION:" + location.getLongitude() + "/" + location.getLatitude();
+        Payload payload = Payload.fromBytes(message.getBytes());
+
+        sendPayloadBytes(payload);
+    }
+
+    public void sendDistanceWarning(float distance){
+        String message = "DISTANCE:"+distance;
+        Payload payload = Payload.fromBytes(message.getBytes());
+        sendPayloadBytes(payload);
+        //sendPayloadBytesToSpecific(,payload);
+    }
+
+   /* private ConnectionEndpoint findPresenter(){
+        HashMap<String, ConnectionEndpoint> connections = cM.getEstablishedConnections();
+        for (ConnectionEndpoint endpoint : connections.values()) {
+            if(endpoint.isPresenter()){
+                return endpoint;
+            }
+        }
+        return null;
+    }*/
 
     /**
      * Sends a poke message to the viewers (makes their device vibrate)

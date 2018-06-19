@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 
     <application
@@ -31,7 +32,16 @@
             android:name=".Activities.AppLogicActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".Activities.SettingsActivity" />
-        <activity android:name=".Activities.ImageSliderActivity"></activity>
+        <activity android:name=".Activities.ImageSliderActivity" />
+
+        <service
+            android:name=".DistanceControl.FrequentLocationService"
+            android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name=".DistanceControl.CheckDistanceService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

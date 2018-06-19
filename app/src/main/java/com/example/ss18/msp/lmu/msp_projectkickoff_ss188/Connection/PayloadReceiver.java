@@ -1,6 +1,7 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
-
+import android.content.Intent;
+import android.location.Location;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
@@ -10,6 +11,7 @@ import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.CheckDistanceService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.FixedSizeList;
@@ -48,11 +50,13 @@ public final class PayloadReceiver extends PayloadCallback {
         Log.i(TAG, String.format("onPayloadReceived(endpointId=%s, payload=%s)", endpointId, payload));
         if (payload.getType() == Payload.Type.BYTES) {
             String payloadFilenameMessage = null;
+
             try {
                 payloadFilenameMessage = new String(payload.asBytes(), "UTF-8");
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
+
             //Extracts the payloadId and filename from the message and stores it in the
             //filePayloadFilenames map. The format is payloadId:filename.
             Log.i(TAG, "Received string: " + payloadFilenameMessage);
@@ -68,6 +72,7 @@ public final class PayloadReceiver extends PayloadCallback {
                         substringDividerIndex = fileContent.indexOf(':');
                         String newEndpointID = fileContent.substring(0, substringDividerIndex);
                         String newEndpointName = fileContent.substring(substringDividerIndex + 1);
+                        //TODO how to discover if it is presenter
                         cM.getDiscoveredEndpoints().put(newEndpointID, new ConnectionEndpoint(endpointId, newEndpointName));
                         break;
                     case "CHAT":
@@ -88,6 +93,19 @@ public final class PayloadReceiver extends PayloadCallback {
                             NotificationUtility.startVibration();
                         else
                             NotificationUtility.endVibration();
+                        break;
+                    case "DISTANCE":
+                        Log.i(TAG, "Received DISTANCE " + fileContent);
+                        onDistanceWarningReceived(endpointId,fileContent);
+                        break;
+                    case "LOCATION":
+                        String[] coords = fileContent.split("/");
+                        float longitude = Float.parseFloat(coords[0]);
+                        float latitude = Float.parseFloat(coords[1]);
+                        Location location = new Location("");
+                        location.setLongitude(longitude);
+                        location.setLatitude(latitude);
+                        onLocationReceived(location);
                         break;
                     default:
                         Log.i(TAG, "Received FILE-NAME: " + fileContent);
@@ -140,6 +158,22 @@ public final class PayloadReceiver extends PayloadCallback {
                 NotificationCompat.PRIORITY_DEFAULT);
         ChatFragment chat = getAppLogicActivity().getChatFragment();
         chat.getDataFromEndPoint(id, message);
+    }
+
+    private void onLocationReceived(Location receivedLocation){
+        NotificationUtility.displayNotification("Location received",
+                String.format("long = %s, lat = %s",receivedLocation.getLongitude(),receivedLocation.getLatitude()),
+                NotificationCompat.PRIORITY_DEFAULT);
+        Intent intent = new Intent(getAppLogicActivity(), CheckDistanceService.class);
+        intent.putExtra("location", receivedLocation);
+        getAppLogicActivity().startService(intent);
+    }
+
+    private void onDistanceWarningReceived(String senderId,String distance){
+        String senderName = cM.getDiscoveredEndpoints().get(senderId).getName();
+        NotificationUtility.displayNotification("Entfernungswarnung",
+                String.format("Teilnehmer %s ist %s entfernt.",senderName,distance),
+                NotificationCompat.PRIORITY_DEFAULT);
     }
 
     /**

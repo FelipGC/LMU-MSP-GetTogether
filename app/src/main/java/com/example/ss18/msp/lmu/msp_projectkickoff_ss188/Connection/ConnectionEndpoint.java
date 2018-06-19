@@ -35,6 +35,7 @@ public final class ConnectionEndpoint {
 
         //LocalDataBase.addBitmapToUser(id,extractBitMap(nameAndBitmap));
         this.originalName = this.name = userName;
+       // this.isPresenter = isPresenter;
         checkForDuplicatedNames();
     }
 
@@ -66,6 +67,8 @@ public final class ConnectionEndpoint {
     public String getOriginalName() {
         return originalName;
     }
+
+    //public boolean isPresenter(){return isPresenter;}
 
     @Override
     public boolean equals(Object obj) {
