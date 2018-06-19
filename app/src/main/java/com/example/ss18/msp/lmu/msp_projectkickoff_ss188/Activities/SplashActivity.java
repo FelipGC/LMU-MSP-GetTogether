@@ -124,6 +124,8 @@ public class SplashActivity extends AppCompatActivity {
         preferences = AppPreferences.getInstance(this);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             setRequiredPermissions();
+        }else{
+            onAllPermissionsGranted();
         }
         super.onCreate(savedInstanceState);
 
