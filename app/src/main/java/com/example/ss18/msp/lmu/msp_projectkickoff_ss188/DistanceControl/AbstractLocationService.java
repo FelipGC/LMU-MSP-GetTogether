@@ -45,20 +45,19 @@ public abstract class AbstractLocationService extends Service {
     protected abstract void setUpdateDistance();
 
     protected void checkLocation(){
-        if(locationManager== null) {
-            locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-            if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
-                //ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},);
-                // TODO handling missing permission
-                return;
-            }
-            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                        updateTime, updateDistance, listener);
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
-                        updateTime,updateDistance,listener);
-            }
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
+            //ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},);
+            // TODO handling missing permission
+            return;
+        }
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                    updateTime, updateDistance, listener);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
+                    updateTime,updateDistance,listener);
         }
     }
+
 }
