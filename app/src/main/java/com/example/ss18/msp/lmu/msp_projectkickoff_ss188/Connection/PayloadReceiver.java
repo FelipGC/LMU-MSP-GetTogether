@@ -100,9 +100,9 @@ public final class PayloadReceiver extends PayloadCallback {
                         break;
                     case "LOCATION":
                         String[] coords = fileContent.split("/");
-                        float longitude = Float.parseFloat(coords[0]);
-                        float latitude = Float.parseFloat(coords[1]);
-                        Location location = new Location("");
+                        float latitude = Float.parseFloat(coords[0]);
+                        float longitude = Float.parseFloat(coords[1]);
+                        Location location = new Location("unknown");
                         location.setLongitude(longitude);
                         location.setLatitude(latitude);
                         onLocationReceived(location);
