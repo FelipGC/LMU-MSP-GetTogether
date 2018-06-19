@@ -4,13 +4,13 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.NotificationUtility;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.Payload.PayloadBroadcastReceiver;
 import com.google.android.gms.nearby.connection.DiscoveredEndpointInfo;
 import com.google.android.gms.nearby.connection.DiscoveryOptions;
 import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback;
+import com.google.android.gms.nearby.connection.Payload;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
@@ -43,6 +43,7 @@ public class NearbyDiscoveryService extends AbstractConnectionService {
     @Override
     public void onCreate() {
         super.onCreate();
+        createPayloadBroadcastReceiver();
         connectionsClient.startDiscovery(serviceID, endpointDiscoveryCallback, new DiscoveryOptions(STRATEGY)).addOnSuccessListener(
                 new OnSuccessListener<Void>() {
                     @Override
@@ -66,5 +67,17 @@ public class NearbyDiscoveryService extends AbstractConnectionService {
     public void onDestroy() {
         super.onDestroy();
         connectionsClient.stopDiscovery();
+    }
+
+    @Override
+    public void createPayloadBroadcastReceiver() {
+        payloadReceiver = new PayloadBroadcastReceiver(this);
+
+    }
+
+    @Override
+    public void onPayloadReceived(Payload payload) {
+        Log.i(TAG,"We received payload: " + payload);
+
     }
 }

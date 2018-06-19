@@ -7,10 +7,12 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.Payload.PayloadBroadcastReceiver;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
 import com.google.android.gms.nearby.connection.ConnectionResolution;
+import com.google.android.gms.nearby.connection.Payload;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
@@ -42,6 +44,7 @@ public class NearbyAdvertiseService extends AbstractConnectionService {
     @Override
     public void onCreate() { // Möglihcherweise onStartCommand
         super.onCreate();
+        createPayloadBroadcastReceiver();
         connectionsClient.startAdvertising(
                 AppLogicActivity.getUserRole().getUserName(), serviceID, connectionLifecycleCallback,
                 new AdvertisingOptions(STRATEGY)).addOnSuccessListener(
@@ -67,5 +70,15 @@ public class NearbyAdvertiseService extends AbstractConnectionService {
     public void onDestroy() {
         super.onDestroy();
         connectionsClient.stopAdvertising();
+    }
+
+    @Override
+    public void createPayloadBroadcastReceiver() {
+        payloadReceiver = new PayloadBroadcastReceiver(this);
+    }
+
+    @Override
+    public void onPayloadReceived(Payload payload) {
+        Log.i(TAG,"We received payload: " + payload);
     }
 }
