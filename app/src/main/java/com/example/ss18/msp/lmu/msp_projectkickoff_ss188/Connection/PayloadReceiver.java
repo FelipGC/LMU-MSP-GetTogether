@@ -68,7 +68,7 @@ public final class PayloadReceiver extends PayloadCallback {
                 //or a chat message
                 switch (payloadId) {
                     case "C_ENDPOINT":
-                        Log.i(TAG, "Received C_ENDPOINT" + fileContent);
+                        Log.i(TAG, "Received C_ENDPOINT: " + fileContent);
                         substringDividerIndex = fileContent.indexOf(':');
                         String newEndpointID = fileContent.substring(0, substringDividerIndex);
                         String newEndpointName = fileContent.substring(substringDividerIndex + 1);
@@ -108,7 +108,7 @@ public final class PayloadReceiver extends PayloadCallback {
                         onLocationReceived(location);
                         break;
                     default:
-                        Log.i(TAG, "Received FILE-NAME: " + fileContent);
+                        Log.i(TAG, "Received FILE-NAME: " + fileContent + " PayloadID=" + payloadId);
                         filePayloadFilenames.put(Long.valueOf(payloadId), fileContent);
                         break;
                 }
@@ -226,12 +226,15 @@ public final class PayloadReceiver extends PayloadCallback {
                     if (uri != null) {
                         //Send bitmap to all other endpoints
                         for (String id : cM.getEstablishedConnections().keySet()) {
-                            cM.payloadSender.sendPayloadFile(id, payload, payload.getId() + ":PROF_PIC:" + bitMapSender + ":");
+                            if(!id.equals(bitMapSender))
+                                cM.payloadSender.sendPayloadFile(id, payload, payload.getId() + ":PROF_PIC:" + bitMapSender + ":");
                         }
                     }
                     //Send all other endpoint`s bitmap to the endpoint
                     for (String id : cM.getEstablishedConnections().keySet()) {
-                        uri = LocalDataBase.getProfilePictureUri(id);
+                        if(id.equals(bitMapSender))
+                            continue;
+                            uri = LocalDataBase.getProfilePictureUri(id);
                         if (uri == null)
                             break;
                         ParcelFileDescriptor file = getAppLogicActivity().getContentResolver().openFileDescriptor(uri, "r");

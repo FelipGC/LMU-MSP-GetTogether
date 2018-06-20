@@ -161,6 +161,9 @@ public class ConnectionManager {
                                 payloadSender.sendPayloadFile(endpointId, payload, payload.getId() + (SPECTATOR ? ":PROF_PIC_V:" : ":PROF_PIC:"));
                                 if(!SPECTATOR){
                                     for (ConnectionEndpoint otherEndpoint : establishedConnections.values()) {
+                                        //Do not send info to the same endpoint
+                                        if(otherEndpoint.getId().equals(endpointId))
+                                            continue;
                                         //Send all the other viewers to the viewer
                                         sendConnectionEndpointTo(endpointId, otherEndpoint);
                                         //Send this endpoint to all others
