@@ -4,17 +4,22 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.Payload.PayloadBroadcastReceiver;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.NotificationUtility;
 import com.google.android.gms.nearby.connection.DiscoveredEndpointInfo;
 import com.google.android.gms.nearby.connection.DiscoveryOptions;
 import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback;
-import com.google.android.gms.nearby.connection.Payload;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class NearbyDiscoveryService extends AbstractConnectionService {
+    private Map<String, ConnectionEndpoint> discoveredEndpoints = new HashMap<>();
 
     /**
      * Callbacks for connections to other devices.
@@ -23,14 +28,31 @@ public class NearbyDiscoveryService extends AbstractConnectionService {
     //Finds nearby devices and stores them in "discoveredEndpoints"
     private final EndpointDiscoveryCallback endpointDiscoveryCallback =
             new EndpointDiscoveryCallback() {
+
                 @Override
-                public void onEndpointFound(final String endpointId, final DiscoveredEndpointInfo info) {
-                    // TODO: First step in handshake
+                public void onEndpointFound(@NonNull String endpointId,
+                                            @NonNull DiscoveredEndpointInfo info) {
+                    Log.i(TAG, String.format(
+                            "discovererOnEndpointFound(endpointId = %s,endpointName = %s)",
+                            endpointId, info.getEndpointName()));
+                    ConnectionEndpoint connectionEndpoint =
+                            new ConnectionEndpoint(endpointId, info.getEndpointName());
+                    discoveredEndpoints.put(connectionEndpoint.getId(), connectionEndpoint);
+                    NotificationUtility.displayNotification("Presenter found!",
+                            info.getEndpointName()
+                                    + " can be added to the presentation",
+                            NotificationCompat.PRIORITY_LOW);
+                    broadcastMessage(getString(R.string.connection_endpointFound),
+                            connectionEndpoint.toJsonString());
                 }
 
                 @Override
-                public void onEndpointLost(String endpointId) {
-                    // TODO
+                public void onEndpointLost(@NonNull String endpointId) {
+                    Log.i(TAG, String.format("onEndpointLost(endpointId=%s)", endpointId));
+                    ConnectionEndpoint endpoint = discoveredEndpoints.get(endpointId);
+                    discoveredEndpoints.remove(endpointId);
+                    broadcastMessage(getString(R.string.connection_endpointLost),
+                            endpoint.toJsonString());
                 }
             };
 
@@ -43,15 +65,17 @@ public class NearbyDiscoveryService extends AbstractConnectionService {
     @Override
     public void onCreate() {
         super.onCreate();
-        createPayloadBroadcastReceiver();
-        connectionsClient.startDiscovery(serviceID, endpointDiscoveryCallback, new DiscoveryOptions(STRATEGY)).addOnSuccessListener(
-                new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unusedResult) {
-                        // We're discovering!
-                        Log.i(TAG, "We are discovering...");
-                    }
-                })
+        DiscoveryOptions.Builder builder = new DiscoveryOptions.Builder();
+        builder.setStrategy(STRATEGY);
+        connectionsClient.startDiscovery(serviceID, endpointDiscoveryCallback, builder.build())
+                .addOnSuccessListener(
+                        new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unusedResult) {
+                                // We're discovering!
+                                Log.i(TAG, "We are discovering...");
+                            }
+                        })
                 .addOnFailureListener(
                         new OnFailureListener() {
                             @Override
@@ -67,17 +91,5 @@ public class NearbyDiscoveryService extends AbstractConnectionService {
     public void onDestroy() {
         super.onDestroy();
         connectionsClient.stopDiscovery();
-    }
-
-    @Override
-    public void createPayloadBroadcastReceiver() {
-        payloadReceiver = new PayloadBroadcastReceiver(this);
-
-    }
-
-    @Override
-    public void onPayloadReceived(Payload payload) {
-        Log.i(TAG,"We received payload: " + payload);
-
     }
 }

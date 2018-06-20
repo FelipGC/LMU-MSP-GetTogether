@@ -10,6 +10,9 @@ import android.util.Log;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Represents a device we can connect to.
  */
@@ -87,6 +90,18 @@ public final class ConnectionEndpoint {
     @Override
     public String toString() {
         return String.format("ConnectionEndpoint{id=%s, name=%s}", id, name);
+    }
+
+    public String toJsonString() {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("displayName", getName());
+            json.put("id", getId());
+            return json.toString();
+        } catch (JSONException ex) {
+            Log.w(TAG, ex.getMessage());
+            return null;
+        }
     }
 
     public Uri getProfilePicture() {

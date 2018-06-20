@@ -42,12 +42,6 @@
             android:name=".DistanceControl.CheckDistanceService"
             android:enabled="true"
             android:exported="true"></service>
-        <receiver android:name=".Connection.Payload.PayloadBroadcastReceiver" >
-            <intent-filter>
-                <action android:name="android.intent.action.BROADCAST_PAYLOAD" >
-                </action>
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>

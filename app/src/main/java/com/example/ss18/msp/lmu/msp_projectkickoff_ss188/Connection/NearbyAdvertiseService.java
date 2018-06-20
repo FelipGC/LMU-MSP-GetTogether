@@ -42,9 +42,8 @@ public class NearbyAdvertiseService extends AbstractConnectionService {
     }
 
     @Override
-    public void onCreate() { // Möglihcherweise onStartCommand
+    public void onCreate() { // Möglicherweise onStartCommand
         super.onCreate();
-        createPayloadBroadcastReceiver();
         connectionsClient.startAdvertising(
                 AppLogicActivity.getUserRole().getUserName(), serviceID, connectionLifecycleCallback,
                 new AdvertisingOptions(STRATEGY)).addOnSuccessListener(
@@ -70,15 +69,5 @@ public class NearbyAdvertiseService extends AbstractConnectionService {
     public void onDestroy() {
         super.onDestroy();
         connectionsClient.stopAdvertising();
-    }
-
-    @Override
-    public void createPayloadBroadcastReceiver() {
-        payloadReceiver = new PayloadBroadcastReceiver(this);
-    }
-
-    @Override
-    public void onPayloadReceived(Payload payload) {
-        Log.i(TAG,"We received payload: " + payload);
     }
 }
