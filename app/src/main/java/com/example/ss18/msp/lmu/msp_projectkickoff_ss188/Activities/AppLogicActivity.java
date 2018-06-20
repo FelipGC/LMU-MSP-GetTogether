@@ -73,6 +73,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
                 tabPageAdapter.addFragment(inboxFragment = new InboxFragment(), "Inbox");
                 tabPageAdapter.addFragment(new LiveViewFragment(), "Live");
                 tabPageAdapter.addFragment(chatFragment = new ChatFragment(), "Chat");
+                selectPresenterFragment.reset();
                 break;
             case PRESENTER:
                 startAdvertising();
@@ -81,6 +82,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
                 tabPageAdapter.addFragment(new PresentationFragment(), getString(R.string.presentation_tabName));
                 tabPageAdapter.addFragment(shareFragment = new ShareFragment(), "Share");
                 tabPageAdapter.addFragment(chatFragment = new ChatFragment(), "Chat");
+                selectParticipantsFragment.reset();
                 break;
             default:
                 Log.e(TAG, "Role type missing!");

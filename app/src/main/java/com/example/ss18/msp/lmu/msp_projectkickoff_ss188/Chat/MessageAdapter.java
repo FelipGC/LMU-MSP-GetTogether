@@ -79,7 +79,8 @@ public class MessageAdapter extends BaseAdapter {
             holder.name = (TextView) convertView.findViewById(R.id.name);
             holder.name.setText(message.getUserName());
             Uri uri = LocalDataBase.getProfilePictureUri(message.getId());
-            holder.avatar.setImageURI(uri);
+            if(uri != null)
+                holder.avatar.setImageURI(uri);
             Log.i(TAG,"Loading image into avatar: " + uri);
             //GradientDrawable drawable = (GradientDrawable) holder.avatar.getBackground();
             //drawable.setColor(Color.GREEN);

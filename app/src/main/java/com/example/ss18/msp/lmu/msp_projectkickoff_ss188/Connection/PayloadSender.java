@@ -37,14 +37,15 @@ public class PayloadSender {
      */
     public void sendPayloadBytesBut(String idToExclude, Payload payload) {
         for (String endpointId : cM.getEstablishedConnections().keySet()) {
-            Log.i(TAG, "sendPayloadBytes to: " + endpointId);
-            if (!endpointId.equals(idToExclude))
+            if (!endpointId.equals(idToExclude)) {
+                Log.i(TAG, "sendPayloadBytes to: " + endpointId);
                 cM.getConnectionsClient().sendPayload(endpointId, payload);
+            }
         }
     }
 
-    public void sendPayloadBytesToSpecific(ConnectionEndpoint recipient, Payload payload) {
-        cM.getConnectionsClient().sendPayload(recipient.getId(), payload);
+    public void sendPayloadBytesToSpecific(String recipient, Payload payload) {
+        cM.getConnectionsClient().sendPayload(recipient, payload);
     }
 
     /**
@@ -52,12 +53,8 @@ public class PayloadSender {
      */
     private void sendPayloadBytes(final Payload payload) {
         for (final String endpointId : cM.getEstablishedConnections().keySet()) {
-            new Thread(new Runnable() {
-                public void run() {
-                    Log.i(TAG, "sendPayloadBytes to: " + endpointId);
-                    cM.getConnectionsClient().sendPayload(endpointId, payload);
-                }
-            }).start();
+            Log.i(TAG, "sendPayloadBytes to: " + endpointId);
+            cM.getConnectionsClient().sendPayload(endpointId, payload);
         }
     }
 
@@ -65,13 +62,8 @@ public class PayloadSender {
      * Sends a Payload stream out to ALL endPoints
      */
     private void sendPayloadStream(final String endpointId, final Payload payload) {
-        new Thread(new Runnable() {
-            public void run() {
-                Log.i(TAG, "sendPayloadStream to: " + endpointId);
-                cM.getConnectionsClient().sendPayload(endpointId, payload);
-            }
-        }).start();
-
+        Log.i(TAG, "sendPayloadStream to: " + endpointId);
+        cM.getConnectionsClient().sendPayload(endpointId, payload);
     }
 
     /**
@@ -79,25 +71,21 @@ public class PayloadSender {
      */
     public void sendPayloadFile(final Payload payload, final String payloadStoringName) {
         for (final String endpointId : cM.getEstablishedConnections().keySet()) {
-            new Thread(new Runnable() {
-                public void run() {
-                    try {
-                        Log.i(TAG, "sendPayloadFile to: " + endpointId);
-                        sendPayloadFile(endpointId, payload, payloadStoringName);
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
+            try {
+                Log.i(TAG, "sendPayloadFile to: " + endpointId);
+                sendPayloadFile(endpointId, payload, payloadStoringName);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
     /**
      * Sends a Payload object out to one specific endPoint
      */
-    public void sendPayloadFile(String endpointId, Payload payload, String payloadStoringName) throws Exception {
+    public void sendPayloadFile(final String endpointId, final Payload payload, String payloadStoringName) throws Exception {
         Log.i(TAG, "PL: " + payload + " Name: " + payloadStoringName);
         // Send the name of the payload/file as a bytes payload first!
         cM.getConnectionsClient().sendPayload(
@@ -105,7 +93,13 @@ public class PayloadSender {
         if (payload != null) {
             Log.i(TAG, "Sent: " + payload.getId() + " with type: " + payload.getType() + " to: " + endpointId);
             //Send the payload data afterwards!
-            cM.getConnectionsClient().sendPayload(endpointId, payload);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.i(TAG,"SENDING FILE");
+                    cM.getConnectionsClient().sendPayload(endpointId, payload);
+                }
+            }).start();
             //Add to receivedPayLoadData in our data
             LocalDataBase.sentPayLoadData.put(payload.getId(), payload);
         } else throw new Exception("Payload to send must not be null!");

@@ -238,4 +238,8 @@ public class SelectParticipantsFragment extends Fragment {
         endPoking();
         super.onDestroy();
     }
+
+    public void reset() {
+        viewerAdapter = null;
+    }
 }

@@ -191,4 +191,9 @@ public class SelectPresenterFragment extends Fragment {
     public void updateJoinedPresentersAvatar() {
         ((PresenterAdapter) establishedPresenters.getAdapter()).notifyDataSetChanged();
     }
+
+    public void reset() {
+        estAdapter = null;
+        pendAdapter = null;
+    }
 }

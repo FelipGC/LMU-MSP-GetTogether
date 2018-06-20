@@ -52,6 +52,7 @@ public final class LocalDataBase {
     }
 
     public static Uri getProfilePictureUri() {
+        Log.i(TAG,"Own profPic: " + profilePicture);
         return profilePicture;
     }
     public static Uri getProfilePictureUri(String id) {

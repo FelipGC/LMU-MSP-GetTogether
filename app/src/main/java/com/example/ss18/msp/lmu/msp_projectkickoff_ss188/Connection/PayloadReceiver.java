@@ -79,7 +79,7 @@ public final class PayloadReceiver extends PayloadCallback {
                         //If we already received it quit
                         if (fixedSizeList.contains(payload.getId()))
                             return;
-
+                        Log.i(TAG, "Received CHAT" + fileContent);
                         fixedSizeList.add(payload.getId());
                         //We have a new chat message
                         onChatMessageReceived(endpointId, fileContent);
@@ -222,13 +222,16 @@ public final class PayloadReceiver extends PayloadCallback {
             case "PROF_PIC_V":
                 Log.i(TAG, "<<PROF_PIC_V>>");
                 try {
-                    //Send bitmap to all other endpoints
-                    for (String id : cM.getEstablishedConnections().keySet()) {
-                        cM.payloadSender.sendPayloadFile(id, payload, payload.getId() + ":PROF_PIC:" + bitMapSender + ":");
+                    Uri uri = LocalDataBase.getProfilePictureUri(bitMapSender);
+                    if (uri != null) {
+                        //Send bitmap to all other endpoints
+                        for (String id : cM.getEstablishedConnections().keySet()) {
+                            cM.payloadSender.sendPayloadFile(id, payload, payload.getId() + ":PROF_PIC:" + bitMapSender + ":");
+                        }
                     }
                     //Send all other endpoint`s bitmap to the endpoint
                     for (String id : cM.getEstablishedConnections().keySet()) {
-                        Uri uri = LocalDataBase.getProfilePictureUri(id);
+                        uri = LocalDataBase.getProfilePictureUri(id);
                         if (uri == null)
                             break;
                         ParcelFileDescriptor file = getAppLogicActivity().getContentResolver().openFileDescriptor(uri, "r");
