@@ -1,14 +1,17 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
+import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.BroadcastReceivers.RequestConnectionBroadcastReceiver;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.NotificationUtility;
+import com.google.android.gms.nearby.connection.ConnectionInfo;
+import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
+import com.google.android.gms.nearby.connection.ConnectionResolution;
 import com.google.android.gms.nearby.connection.DiscoveredEndpointInfo;
 import com.google.android.gms.nearby.connection.DiscoveryOptions;
 import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback;
@@ -24,8 +27,6 @@ public class NearbyDiscoveryService extends AbstractConnectionService {
     /**
      * Callbacks for connections to other devices.
      */
-    //Callbacks for finding devices
-    //Finds nearby devices and stores them in "discoveredEndpoints"
     private final EndpointDiscoveryCallback endpointDiscoveryCallback =
             new EndpointDiscoveryCallback() {
 
@@ -38,10 +39,6 @@ public class NearbyDiscoveryService extends AbstractConnectionService {
                     ConnectionEndpoint connectionEndpoint =
                             new ConnectionEndpoint(endpointId, info.getEndpointName());
                     discoveredEndpoints.put(connectionEndpoint.getId(), connectionEndpoint);
-                    NotificationUtility.displayNotification("Presenter found!",
-                            info.getEndpointName()
-                                    + " can be added to the presentation",
-                            NotificationCompat.PRIORITY_LOW);
                     broadcastMessage(getString(R.string.connection_endpointFound),
                             connectionEndpoint.toJsonString());
                 }
@@ -56,6 +53,27 @@ public class NearbyDiscoveryService extends AbstractConnectionService {
                 }
             };
 
+    private ConnectionLifecycleCallback connectionLifecycleCallback =
+            new ConnectionLifecycleCallback() {
+
+                @Override
+                public void onConnectionInitiated(@NonNull String endpoint,
+                                                  @NonNull ConnectionInfo info) {
+                    // TODO: Second step of Handshake
+                }
+
+                @Override
+                public void onConnectionResult(@NonNull String endpointId,
+                                               @NonNull ConnectionResolution resolution) {
+                    // TODO: Third step of Handshake
+                }
+
+                @Override
+                public void onDisconnected(@NonNull String endpointId) {
+                    disconnectEndpoint(endpointId);
+                }
+            };
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -65,6 +83,11 @@ public class NearbyDiscoveryService extends AbstractConnectionService {
     @Override
     public void onCreate() {
         super.onCreate();
+        initBroadcastReceiver();
+        startDiscovery();
+    }
+
+    private void startDiscovery() {
         DiscoveryOptions.Builder builder = new DiscoveryOptions.Builder();
         builder.setStrategy(STRATEGY);
         connectionsClient.startDiscovery(serviceID, endpointDiscoveryCallback, builder.build())
@@ -85,6 +108,13 @@ public class NearbyDiscoveryService extends AbstractConnectionService {
                                 e.printStackTrace();
                             }
                         });
+    }
+
+    private void initBroadcastReceiver() {
+        BroadcastReceiver broadcastReceiver =
+                new RequestConnectionBroadcastReceiver(connectionsClient,
+                        connectionLifecycleCallback);
+        addBroadcastReceiver(broadcastReceiver, R.string.connection_requestConnection);
     }
 
     @Override

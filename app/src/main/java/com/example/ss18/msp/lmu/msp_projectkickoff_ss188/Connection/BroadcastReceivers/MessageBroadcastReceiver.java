@@ -8,13 +8,13 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEn
 import com.google.android.gms.nearby.connection.ConnectionsClient;
 import com.google.android.gms.nearby.connection.Payload;
 
-import java.util.List;
+import java.util.Collection;
 
 public class MessageBroadcastReceiver extends BroadcastReceiver {
     private final ConnectionsClient connection;
-    private final List<ConnectionEndpoint> connectedEndpoints;
+    private final Collection<ConnectionEndpoint> connectedEndpoints;
 
-    public MessageBroadcastReceiver(ConnectionsClient connection, List<ConnectionEndpoint> connectedEndpoints) {
+    public MessageBroadcastReceiver(ConnectionsClient connection, Collection<ConnectionEndpoint> connectedEndpoints) {
         this.connection = connection;
         this.connectedEndpoints = connectedEndpoints;
     }

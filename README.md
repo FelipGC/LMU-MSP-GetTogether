@@ -8,8 +8,19 @@
 ### Action
     com.example.ss18.msp.lmu.CONNECTION_MESSAGE_ACTION
 
-### Extra
+### Extras
     * "DATA": string # Arbitrary message. Recommended: Json - String.
+
+## Request connection
+
+### Type
+    Broadcast
+
+### Action
+    com.example.ss18.msp.lmu.CONNECTION_REQUEST_CONNECTION
+
+### Extras
+    * "DATA": string # ConnectionEndpointJson
 
 # Connection events:
 
@@ -44,7 +55,7 @@
     com.example.ss18.msp.lmu.CONNECTION_ENDPOINT_LOST
 
 ### Extras
-    * "DATA": string -> ConnectionEndpointJson
+    * "DATA": string # ConnectionEndpointJson
 
 # JSON Objects
 

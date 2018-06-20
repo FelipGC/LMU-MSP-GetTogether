@@ -75,4 +75,6 @@ Get Together "ist eine App, die eine einfache und komfortable Übertragung von D
     <string name="connection_endpointFound">com.example.ss18.msp.lmu.CONNECTION_ENDPOINT_FOUND</string>
     <string name="connection_endpointLost">com.example.ss18.msp.lmu.CONNECTION_ENDPOINT_LOST</string>
     <string name="connection_message_action">com.example.ss18.msp.lmu.CONNECTION_MESSAGE_ACTION</string>
+    <string name="connection_endpointDisconnected">com.example.ss18.msp.lmu.CONNECTION_ENDPOINT_DISCONNECTED</string>
+    <string name="connection_requestConnection">com.example.ss18.msp.lmu.CONNECTION_REQUEST_CONNECTION</string>
 </resources>

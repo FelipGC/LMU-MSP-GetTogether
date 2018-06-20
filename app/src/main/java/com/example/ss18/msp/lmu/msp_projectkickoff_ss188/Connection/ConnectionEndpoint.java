@@ -109,4 +109,16 @@ public final class ConnectionEndpoint {
         Log.i(TAG,"getProfilePicture() for: " + getName() + " result:\n" + uri);
         return uri;
     }
+
+    public static ConnectionEndpoint parseJson(String jsonString) {
+        try {
+            JSONObject json = new JSONObject(jsonString);
+            String displayName = json.getString("displayName");
+            String id = json.getString("id");
+            return new ConnectionEndpoint(id, displayName);
+        } catch(JSONException ex) {
+            Log.w(TAG, ex.getMessage());
+            return null;
+        }
+    }
 }

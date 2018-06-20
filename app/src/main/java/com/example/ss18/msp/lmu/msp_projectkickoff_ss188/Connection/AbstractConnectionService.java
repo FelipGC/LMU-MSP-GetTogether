@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.support.annotation.NonNull;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.BroadcastReceivers.MessageBroadcastReceiver;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
@@ -11,13 +12,15 @@ import com.google.android.gms.nearby.connection.ConnectionsClient;
 import com.google.android.gms.nearby.connection.Strategy;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractConnectionService extends Service {
 
     protected ConnectionsClient connectionsClient;
     private List<BroadcastReceiver> broadcastReceivers = new ArrayList<>();
-    private List<ConnectionEndpoint> connectedEndpoints = new ArrayList<>();
+    protected Map<String, ConnectionEndpoint> connectedEndpoints = new HashMap<>();
     protected final String TAG = "ConnectionManager";
 
     /**
@@ -33,7 +36,8 @@ public abstract class AbstractConnectionService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        addBroadcastReceiver(new MessageBroadcastReceiver(connectionsClient, connectedEndpoints),
+        addBroadcastReceiver(
+                new MessageBroadcastReceiver(connectionsClient, connectedEndpoints.values()),
                 R.string.connection_message_action);
     }
 
@@ -59,5 +63,14 @@ public abstract class AbstractConnectionService extends Service {
         Intent in = new Intent(action);
         in.putExtra("DATA", data);
         sendBroadcast(in);
+    }
+
+    protected void disconnectEndpoint(@NonNull String endpointId) {
+        if (!connectedEndpoints.containsKey(endpointId)) {
+            return;
+        }
+        ConnectionEndpoint endpoint = connectedEndpoints.remove(endpointId);
+        broadcastMessage(getString(R.string.connection_endpointDisconnected),
+                endpoint.toJsonString());
     }
 }
