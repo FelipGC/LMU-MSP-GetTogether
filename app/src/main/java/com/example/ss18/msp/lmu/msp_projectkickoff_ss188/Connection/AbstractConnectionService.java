@@ -1,6 +1,7 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
 import android.app.Service;
+import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -141,6 +142,21 @@ public abstract class AbstractConnectionService extends Service implements IServ
                 connectedEndpoints.values()) {
             connectionsClient.sendPayload(endpoint.getId(), Payload.fromBytes(message.getBytes()));
         }
+    }
+
+    @Override
+    public void sendStream(ParcelFileDescriptor fileDescriptor) {
+        // TODO
+    }
+
+    @Override
+    public void sendFile(ParcelFileDescriptor fileDescriptor) {
+        // TODO
+    }
+
+    @Override
+    public void sendFileTo(String endpointId, ParcelFileDescriptor fileDescriptor) {
+        // TODO
     }
 
     @Override
