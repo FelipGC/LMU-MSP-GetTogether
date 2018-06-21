@@ -137,26 +137,34 @@ public abstract class AbstractConnectionService extends Service implements IServ
      * @param message The text message. Preferably an Json string for a clean API.
      */
     @Override
-    public void sendMessage(String message) {
+    public void broadcastMessage(String message) {
+        Payload payload = Payload.fromBytes(message.getBytes()); // One message per send or one for all?
+        sendPayload(payload);
+    }
+
+    @Override
+    public void broadcastStream(ParcelFileDescriptor fileDescriptor) {
+        Payload payload = Payload.fromStream(fileDescriptor);
+        sendPayload(payload);
+    }
+
+    @Override
+    public void broadcastFile(ParcelFileDescriptor fileDescriptor) {
+        Payload payload = Payload.fromFile(fileDescriptor);
+        sendPayload(payload);
+    }
+
+    @Override
+    public void sendFile(String endpointId, ParcelFileDescriptor fileDescriptor) {
+        Payload payload = Payload.fromFile(fileDescriptor);
+        connectionsClient.sendPayload(endpointId, payload);
+    }
+
+    private void sendPayload(Payload payload) {
         for (ConnectionEndpoint endpoint :
                 connectedEndpoints.values()) {
-            connectionsClient.sendPayload(endpoint.getId(), Payload.fromBytes(message.getBytes()));
+            connectionsClient.sendPayload(endpoint.getId(), payload);
         }
-    }
-
-    @Override
-    public void sendStream(ParcelFileDescriptor fileDescriptor) {
-        // TODO
-    }
-
-    @Override
-    public void sendFile(ParcelFileDescriptor fileDescriptor) {
-        // TODO
-    }
-
-    @Override
-    public void sendFileTo(String endpointId, ParcelFileDescriptor fileDescriptor) {
-        // TODO
     }
 
     @Override
