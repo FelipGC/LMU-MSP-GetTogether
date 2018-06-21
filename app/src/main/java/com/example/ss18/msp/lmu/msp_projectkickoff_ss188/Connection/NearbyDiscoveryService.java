@@ -159,9 +159,13 @@ public class NearbyDiscoveryService extends AbstractConnectionService implements
         return discoveredEndpoints.values();
     }
 
+    public int getDiscoveredEndpointsSize(){
+        return discoveredEndpoints.size();
+    }
     public class NearbyDiscoveryBinder extends Binder {
         public IDiscoveryService getService() {
             return NearbyDiscoveryService.this;
         }
     }
+
 }

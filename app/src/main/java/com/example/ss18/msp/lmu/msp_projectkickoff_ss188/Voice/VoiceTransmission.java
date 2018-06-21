@@ -11,6 +11,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
 import com.google.android.gms.nearby.connection.Payload;
 
 import java.io.IOException;
@@ -25,6 +26,7 @@ public final class VoiceTransmission implements IVoice {
 
     private boolean isRecording = false;
     private static final String TAG = "VoiceTransmission";
+    private static final PayloadSender pS = new PayloadSender();
     /**
      * The background thread recording audio for us.
      */
@@ -46,8 +48,7 @@ public final class VoiceTransmission implements IVoice {
             return;
         }
         // Send the first half of the payload (the read side) to Nearby Connections.
-        ConnectionManager.getInstance().getPayloadSender().
-                startSendingVoice(Payload.fromStream(payloadPipe[0]));
+        pS.startSendingVoice(payloadPipe[0]);
         //Create output stream
         final OutputStream mOutputStream =  new ParcelFileDescriptor.AutoCloseOutputStream(payloadPipe[1]);
         //Create Thread and start recording

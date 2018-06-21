@@ -1,8 +1,10 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
 import android.location.Location;
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.LocationUtility;
 import com.google.android.gms.nearby.connection.Payload;
@@ -12,13 +14,12 @@ import java.util.HashMap;
 
 public class PayloadSender {
 
-    private final ConnectionManager cM;
     private final String TAG = "PayloadSender";
+    private final AppLogicActivity appLogicActivity;
 
     public PayloadSender() {
         Log.i(TAG,"new PayloadSender()");
-        cM = ConnectionManager.getInstance();
-        Log.i(TAG,"cM: " + cM);
+        appLogicActivity = AppLogicActivity.getInstance();
     }
 
     public void sendChatMessage(String chatMessage) throws UnsupportedEncodingException {
@@ -32,53 +33,33 @@ public class PayloadSender {
         sendPayloadBytes(payload);
     }
 
-    /**
-     * Sends a Payload object out to ALL endPoints but a specific one
-     */
-    public void sendPayloadBytesBut(String idToExclude, Payload payload) {
-        for (String endpointId : cM.getEstablishedConnections().keySet()) {
-            Log.i(TAG, "sendPayloadBytes to: " + endpointId);
-            if(!endpointId.equals(idToExclude))
-                cM.getConnectionsClient().sendPayload(endpointId, payload);
-        }
-    }
-
-    public void sendPayloadBytesToSpecific(ConnectionEndpoint recipient, Payload payload){
-        cM.getConnectionsClient().sendPayload(recipient.getId(),payload);
-    }
-
+  
     /**
      * Sends a Payload object out to ALL endPoints
      */
     private void sendPayloadBytes(Payload payload) {
-        for (String endpointId : cM.getEstablishedConnections().keySet()) {
-            Log.i(TAG, "sendPayloadBytes to: " + endpointId);
-            cM.getConnectionsClient().sendPayload(endpointId, payload);
-        }
+        appLogicActivity.getmService().broadcastMessage(String.valueOf(payload.asBytes()));
     }
     /**
      * Sends a Payload stream out to ALL endPoints
      */
-    private void sendPayloadStream(Payload payload){
-        for (String endpointId : cM.getEstablishedConnections().keySet()) {
-            Log.i(TAG, "sendPayloadStream to: " + endpointId);
-            cM.getConnectionsClient().sendPayload(endpointId, payload);
-        }
+    private void sendPayloadStream(ParcelFileDescriptor pfD){
+        appLogicActivity.getmService().broadcastStream(pfD);
     }
 
     /**
      * Sends a Payload object out to all endPoints
      */
     public void sendPayloadFile(Payload payload, String payloadStoringName) {
-        for (String endpointId : cM.getEstablishedConnections().keySet()) {
-            try {
-                Log.i(TAG, "sendPayloadFile to: " + endpointId);
-                sendPayloadFile(endpointId, payload, payloadStoringName);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        Log.i(TAG,"PL: " + payload + " Name: " + payloadStoringName);
+        Log.i(TAG,"PL: " + payload + " Name: " + payloadStoringName);
+        // Send the name of the payload/file as a bytes payload first!
+        appLogicActivity.getmService().broadcastMessage(payloadStoringName);
+        if (payload != null) {
+            Log.i(TAG, "Sent: " + payload.getId() + " with type: " + payload.getType());
+            appLogicActivity.getmService().broadcastFile(payload.asFile().asParcelFileDescriptor());
+            //Add to receivedPayLoadData in our data
+            LocalDataBase.sentPayLoadData.put(payload.getId(), payload);
         }
     }
 
@@ -86,17 +67,9 @@ public class PayloadSender {
      * Sends a Payload object out to one specific endPoint
      */
     public void sendPayloadFile(String endpointId, Payload payload, String payloadStoringName) throws Exception {
-        Log.i(TAG,"PL: " + payload + " Name: " + payloadStoringName);
-        // Send the name of the payload/file as a bytes payload first!
-        cM.getConnectionsClient().sendPayload(
-                endpointId, Payload.fromBytes(payloadStoringName.getBytes("UTF-8")));
-        if (payload != null) {
-            Log.i(TAG, "Sent: " + payload.getId() + " with type: " + payload.getType() + " to: " + endpointId);
-            //Send the payload data afterwards!
-            cM.getConnectionsClient().sendPayload(endpointId, payload);
-            //Add to receivedPayLoadData in our data
-            LocalDataBase.sentPayLoadData.put(payload.getId(), payload);
-        } else throw new Exception("Payload to send must not be null!");
+        appLogicActivity.getmService().broadcastMessage(payloadStoringName);
+        appLogicActivity.getmService().sendFile(endpointId, payload.asFile().asParcelFileDescriptor());
+
     }
 
     public void sendLocation(Location location) {
@@ -155,7 +128,7 @@ public class PayloadSender {
         }
     }
 
-    public void startSendingVoice(Payload payload){
-        sendPayloadStream(payload);
+    public void startSendingVoice(ParcelFileDescriptor pfD){
+        sendPayloadStream(pfD);
     }
 }

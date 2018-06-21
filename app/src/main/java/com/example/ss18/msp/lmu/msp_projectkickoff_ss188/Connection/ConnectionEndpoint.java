@@ -47,7 +47,7 @@ public final class ConnectionEndpoint {
      */
     private void checkForDuplicatedNames() {
         int nrDuplicates = 0;
-        for (ConnectionEndpoint otherEndpoint : AppLogicActivity.getConnectionManager().getDiscoveredEndpoints().values()) {
+        for (ConnectionEndpoint otherEndpoint : AppLogicActivity.getInstance().getmService().getConnectedEndpoints()) {
             if (otherEndpoint.getOriginalName().equals(originalName))
                 nrDuplicates++;
         }

@@ -10,7 +10,6 @@ import android.location.LocationManager;
 import android.os.IBinder;
 import android.support.v4.content.ContextCompat;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
 
 public abstract class AbstractLocationService extends Service {
@@ -27,7 +26,7 @@ public abstract class AbstractLocationService extends Service {
         setLocationListener();
         setUpdateDistance();
         setUpdateTime();
-        payloadSender = ConnectionManager.getInstance().getPayloadSender();
+        payloadSender = new PayloadSender();
         checkLocation();
         return super.onStartCommand(intent, flags, startId);
     }

@@ -19,7 +19,8 @@ import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.NearbyAdvertiseService;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters.ViewerAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission;
@@ -27,21 +28,21 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission
 public class SelectParticipantsFragment extends Fragment {
     private static final String TAG = "SelectParticipants";
     private static View mainView;
-    private static ConnectionManager connectionManager;
     private ViewerAdapter viewerAdapter;
     private VoiceTransmission voiceTransmission;
-
+    private NearbyAdvertiseService mService;
+    private PayloadSender payloadSender = new PayloadSender();
     @SuppressLint("ClickableViewAccessibility")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mainView = inflater.inflate(R.layout.fragment_participants,container,false);
-        connectionManager = AppLogicActivity.getConnectionManager();
         ListView listView = mainView.findViewById(R.id.viewerList);
         viewerAdapter = new ViewerAdapter(getContext());
         listView.setAdapter(viewerAdapter);
-        updateParticipantsGUI(null,connectionManager.getEstablishedConnections().size(),
-                connectionManager.getDiscoveredEndpoints().size());
+        mService = AppLogicActivity.getInstance().getmAdvertiseService();
+        updateParticipantsGUI(null,mService.getConnectedEndpointsSize(),
+                mService.getPendingEndpointsSize());
         //Define pokeItem
         BottomNavigationItemView pokeItem = mainView.findViewById(R.id.vibrieren);
         pokeItem.setOnTouchListener(new View.OnTouchListener() {
@@ -86,12 +87,16 @@ public class SelectParticipantsFragment extends Fragment {
         if(e == null)
             return;
         Log.i(TAG,"UpdateParticipantsGUI ID: " + e.getId());
-        if(connectionManager.getEstablishedConnections().containsKey(e.getId())) {
-            viewerAdapter.add(e);
-        }else{
-            viewerAdapter.remove(e);
+        for(ConnectionEndpoint endpoint : mService.getConnectedEndpoints()){
+            if(endpoint.getId().equals(e.getId())){
+                viewerAdapter.add(e);
+                viewerAdapter.notifyDataSetChanged();
+                return;
+            }
         }
+        viewerAdapter.remove(e);
         viewerAdapter.notifyDataSetChanged();
+        return;
     }
 
     /**
@@ -103,7 +108,11 @@ public class SelectParticipantsFragment extends Fragment {
         Log.i(TAG,"Participants button clicked");
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.selectDevices);
-        final ConnectionEndpoint[] discoveredDevices = connectionManager.getDiscoveredEndpoints().values().toArray(new ConnectionEndpoint[0]);
+        final ConnectionEndpoint[] discoveredDevices = new ConnectionEndpoint[mService.getConnectedEndpointsSize()];
+        int index = 0;
+        for(ConnectionEndpoint endpoint : mService.getConnectedEndpoints()){
+            discoveredDevices[index++] = endpoint;
+        }
         final boolean[] selectedDevices = new boolean[discoveredDevices.length]; //Default to be true(selected)
 
         //We found no device
@@ -121,7 +130,7 @@ public class SelectParticipantsFragment extends Fragment {
             //Assign nicknames
             for (int i = 0; i < discoveredDevices.length; i++) {
                 deviceNicknames[i] = discoveredDevices[i].getName();
-                if(connectionManager.getEstablishedConnections().containsKey(discoveredDevices[i].getId()))
+                if(mService.isConnected(discoveredDevices[i].getId()))
                     selectedDevices[i] = true;
             }
 
@@ -171,15 +180,14 @@ public class SelectParticipantsFragment extends Fragment {
                 for (int device = 0; device < selectedDevices.length; device++) {
                     ConnectionEndpoint endpoint = discoveredDevices[device];
                     boolean isChecked = selectedDevices[device];
-                    boolean newEndpoint = !connectionManager.getEstablishedConnections().containsKey(endpoint.getId())
-                            && !connectionManager.getPendingConnections().containsKey(endpoint.getId());
+                    boolean newEndpoint = !mService.isConnected(endpoint.getId())
+                            && !mService.isPending(endpoint.getId());
                     if (isChecked && newEndpoint) {
                             Log.i(TAG,"Accepting connection for " + endpoint.getName());
                         // If the user checked the item, add it to the selected items, if not already connected
-                            connectionManager.getPendingConnections().put(endpoint.getId(), endpoint);
-                            connectionManager.acceptConnectionIfPending(endpoint);
+                        mService.acceptRequest(endpoint.getId());
                     } else if(!isChecked && !newEndpoint)
-                        connectionManager.disconnectFromEndpoint(endpoint.getId());
+                        mService.disconnectFromUser(endpoint.getId());
                 }
             }
         });
@@ -208,14 +216,14 @@ public class SelectParticipantsFragment extends Fragment {
      * Sends vibration message to viewers
      */
     private void startPoking(){
-        connectionManager.getPayloadSender().sendPokeMessage();
+        payloadSender.sendPokeMessage();
     }
 
     /**
      * Sends STOP vibration message to viewers
      */
     private void endPoking(){
-        connectionManager.getPayloadSender().sendStopPokingMessage();
+        payloadSender.sendStopPokingMessage();
     }
     public void updateParticipantsAvatar() {
         viewerAdapter.notifyDataSetChanged();

@@ -39,7 +39,6 @@ import java.util.HashMap;
 public class ConnectionManager {
 
     private final String TAG = "ConnectionManager";
-    private static final ConnectionManager CONNECTION_MANAGER = new ConnectionManager();
     /**
      * The connection strategy as defined in https://developers.google.com/nearby/connections/strategies
      */
@@ -50,10 +49,6 @@ public class ConnectionManager {
     private final String serviceID = "SERVICE_ID_NEARBY_CONNECTIONS";
 
     PayloadSender payloadSender;
-
-    public static ConnectionManager getInstance() {
-        return CONNECTION_MANAGER;
-    }
 
     /**
      * A reference to the corresponding activity

@@ -4,7 +4,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.google.android.gms.nearby.connection.Payload;
 
@@ -24,6 +24,7 @@ public final class LocalDataBase {
     private static String userName = "Unknown user";
     private static Uri profilePicture = null;
 
+    public static final HashMap<String,ConnectionEndpoint> otherUsers = new HashMap<>();
     /**
      * Stores payloads we sent during an active session (gets cleared after app exits/closes)
      */
@@ -62,7 +63,7 @@ public final class LocalDataBase {
     public static void addUriToID(Uri uri, String id){
         Log.i(TAG,"Added uri: " + uri + " to id: " + id);
         idToUri.put(id, uri);
-        AppLogicActivity appLogicActivity = ConnectionManager.getAppLogicActivity();
+        AppLogicActivity appLogicActivity = AppLogicActivity.getInstance();
         if(AppLogicActivity.getUserRole().getRoleType() == User.UserRole.PRESENTER)
             appLogicActivity.getSelectParticipantsFragment().updateParticipantsAvatar();
         else appLogicActivity.getSelectPresenterFragment().updateJoinedPresentersAvatar();

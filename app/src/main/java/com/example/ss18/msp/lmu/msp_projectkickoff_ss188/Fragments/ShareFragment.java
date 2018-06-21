@@ -41,7 +41,7 @@ public class ShareFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_share, container, false);
-        payloadSender = ConnectionManager.getInstance().getPayloadSender();
+        payloadSender = new PayloadSender();
         return view;
     }
 

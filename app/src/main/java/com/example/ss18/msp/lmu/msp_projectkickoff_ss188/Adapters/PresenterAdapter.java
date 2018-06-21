@@ -127,9 +127,9 @@ public class PresenterAdapter extends BaseAdapter {
                 //OnClick: Add to pending list
                 Toast.makeText(context, String.format(String.format("Requested to join: %s",
                         endpoint.getName())), Toast.LENGTH_SHORT).show();
-                AppLogicActivity.getConnectionManager().getPendingConnections().put(endpoint.getId(), endpoint);
-                AppLogicActivity.getConnectionManager().requestConnection(endpoint);
-                AppLogicActivity.getConnectionManager().updatePresenters(endpoint);
+                //AppLogicActivity.getConnectionManager().getPendingConnections().put(endpoint.getId(), endpoint);
+                AppLogicActivity.getInstance().getmAdvertiseService().acceptRequest(endpoint.getId());
+                AppLogicActivity.getInstance().updatePresentersGUI(endpoint);
             }
         });
         alertDialog.show();
@@ -162,8 +162,8 @@ public class PresenterAdapter extends BaseAdapter {
                 Toast.makeText(context, String.format(String.format("Unsubscribed from: %s",
                         connectionEndpoint.getName())), Toast.LENGTH_SHORT).show();
                 //Disconnect from endpoint
-                AppLogicActivity.getConnectionManager().disconnectFromEndpoint(connectionEndpoint.getId());
-                AppLogicActivity.getConnectionManager().updatePresenters(connectionEndpoint);
+                AppLogicActivity.getInstance().getmAdvertiseService().disconnectFromUser(connectionEndpoint.getId());
+                AppLogicActivity.getInstance().updatePresentersGUI(connectionEndpoint);
             }
         });
 
