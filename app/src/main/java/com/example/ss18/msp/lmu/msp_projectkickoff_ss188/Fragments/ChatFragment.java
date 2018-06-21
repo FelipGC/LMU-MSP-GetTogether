@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -26,6 +27,8 @@ import com.google.android.gms.nearby.connection.Payload;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+
+import static android.content.Context.INPUT_METHOD_SERVICE;
 
 public class ChatFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "ChatFragment";
@@ -50,6 +53,19 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         payloadSender = ConnectionManager.getInstance().getPayloadSender();
         return view;
     }
+
+    @Override
+    public void onPause(){
+        Log.i("TAG", "Chat Fragment onPause");
+        super.onPause();
+
+        View view = getActivity().getCurrentFocus();
+        if (view != null) {
+            InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
 
     /*
      ** Gets executed when the user presses the "Send" button
