@@ -34,8 +34,8 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "ChatFragment";
 
     private EditText editText;
-    private MessageAdapter messageAdapter;
-    private ListView messagesView;
+    private static MessageAdapter messageAdapter;
+    private static ListView messagesView;
     private ImageButton buttonSend;
     private PayloadSender payloadSender;
 
