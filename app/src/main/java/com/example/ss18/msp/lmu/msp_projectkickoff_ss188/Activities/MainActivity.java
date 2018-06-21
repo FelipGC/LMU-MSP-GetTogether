@@ -21,7 +21,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.Presenter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.Spectator;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 
-public class  MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity {
 
     private static final String TAG = "MAIN_ACTIVITY";
 
@@ -61,34 +61,38 @@ public class  MainActivity extends BaseActivity {
 
     /**
      * Gets executed when the user selects "Settings" on the activity menu
+     *
      * @param item the clicked Menuitem
      */
-    public void onClickSettings(MenuItem item){
-        Log.i(TAG,"Settings option clicked");
-        Intent myIntent = new Intent(MainActivity.this,SettingsActivity.class);
+    public void onClickSettings(MenuItem item) {
+        Log.i(TAG, "Settings option clicked");
+        Intent myIntent = new Intent(MainActivity.this, SettingsActivity.class);
         MainActivity.this.startActivity(myIntent);
     }
 
     /**
-     *Gets executen when the user presses the endApplication button and ends the application
+     * Gets executen when the user presses the endApplication button and ends the application
+     *
      * @param item The clicked Menuitem
      */
-    public void endApplication(MenuItem item){
-       Log.i(TAG,"User closed the app!");
-       ConnectionManager c = AppLogicActivity.getConnectionManager();
-       if(c == null)
-           return;
-       c.terminateConnection();
-       finish();
+    public void endApplication(MenuItem item) {
+        Log.i(TAG, "User closed the app!");
+        Intent serviceIntent = new Intent();
+        serviceIntent.setAction(".Connection.NearbyAdvertiseService");
+        stopService(serviceIntent);
+        serviceIntent.setAction(".Connection.NearbyDiscoveryService");
+        stopService(serviceIntent);
+        finish();
     }
 
     /**
      * Gets executed when the user selects "About" on the activity menu
+     *
      * @param item The clicked Menuitem
      */
-    public void onClickAbout(MenuItem item){
+    public void onClickAbout(MenuItem item) {
 
-        Log.i(TAG,"About option clicked");
+        Log.i(TAG, "About option clicked");
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("About");
         dialog.setMessage(R.string.aboutTextCredits);
@@ -104,10 +108,11 @@ public class  MainActivity extends BaseActivity {
 
     /**
      * Gets executed when the user selects "Help" on the activity menu
+     *
      * @param item The clicked Menuitem
      */
-    public void onClickHelp(MenuItem item){
-        Log.i(TAG,"Help option clicked");
+    public void onClickHelp(MenuItem item) {
+        Log.i(TAG, "Help option clicked");
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Help & Feedback");
         dialog.setMessage(R.string.help_feedback);
@@ -145,9 +150,10 @@ public class  MainActivity extends BaseActivity {
 
     /**
      * Creates a new (secondary) activity
+     *
      * @param userRole Implementation of User with specific role
      */
-    private void createSecondaryActivity(User userRole){
+    private void createSecondaryActivity(User userRole) {
         Intent intent = new Intent(this, AppLogicActivity.class);
         intent.putExtra("UserRole", userRole);
         startActivity(intent);

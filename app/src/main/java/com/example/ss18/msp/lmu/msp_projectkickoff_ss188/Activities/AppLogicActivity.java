@@ -1,5 +1,6 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -109,21 +110,35 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
             selectPresenterFragment.updateDeviceList(endpoint);
     }
 
-    //Advertising and Discovery
+
+    /**
+     * Starts a Nearby service with a given serviceID
+     * @param serviceID the ID of theservice to start
+     */
+    private void startNearbyService(String serviceID){
+        stopNearbyService();
+        Intent serviceIntent = new Intent();
+        serviceIntent.setAction(serviceID);
+        startService(serviceIntent);
+    }
+
+    /**
+     * Stops all potential Nearby-Services
+     */
+    private void stopNearbyService(){
+        Intent serviceIntent = new Intent();
+        serviceIntent.setAction(".Connection.NearbyAdvertiseService");
+        stopService(serviceIntent);
+        serviceIntent.setAction(".Connection.NearbyDiscoveryService");
+        stopService(serviceIntent);
+    }
 
     /**
      * Calls startAdvertising() on the connectionManager
      */
     private void startAdvertising() {
         Toast.makeText(this, R.string.startDiscovering, Toast.LENGTH_LONG).show();
-        connectionManager.startAdvertising();
-    }
-
-    /**
-     * Calls stopAdvertising() on the connectionManager
-     */
-    private void stopAdvertising() {
-        connectionManager.stopAdvertising();
+        startNearbyService(".Connection.NearbyAdvertiseService");
     }
 
     /**
@@ -131,14 +146,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
      */
     private void startDiscovering() {
         Toast.makeText(this, R.string.startAdvertising, Toast.LENGTH_LONG).show();
-        connectionManager.startDiscovering();
-    }
-
-    /**
-     * Calls stopDiscovering() on the connectionManager
-     */
-    private void stopDiscovering() {
-        connectionManager.stopDiscovering();
+        startNearbyService(".Connection.NearbyDiscoveryService");
     }
 
     //Getters & Setters
