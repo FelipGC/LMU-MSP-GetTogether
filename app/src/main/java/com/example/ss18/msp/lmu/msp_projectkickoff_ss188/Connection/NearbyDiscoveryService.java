@@ -1,14 +1,12 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
-import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.BroadcastReceivers.RequestConnectionBroadcastReceiver;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
 import com.google.android.gms.nearby.connection.ConnectionResolution;
@@ -18,11 +16,16 @@ import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class NearbyDiscoveryService extends AbstractConnectionService {
-    private Map<String, ConnectionEndpoint> discoveredEndpoints = new HashMap<>();
+public class NearbyDiscoveryService extends AbstractConnectionService implements IDiscoveryService {
+    private final String TAG = "DiscoveryService";
+    private final Map<String, ConnectionEndpoint> discoveredEndpoints = new HashMap<>();
+    private final IBinder binder = new NearbyDiscoveryBinder();
+    private final List<EndpointDiscoveryCallback> discoveryCallbacks = new ArrayList<>();
 
     /**
      * Callbacks for connections to other devices.
@@ -39,52 +42,59 @@ public class NearbyDiscoveryService extends AbstractConnectionService {
                     ConnectionEndpoint connectionEndpoint =
                             new ConnectionEndpoint(endpointId, info.getEndpointName());
                     discoveredEndpoints.put(connectionEndpoint.getId(), connectionEndpoint);
-                    broadcastMessage(getString(R.string.connection_endpointFound),
-                            connectionEndpoint.toJsonString());
+                    for (EndpointDiscoveryCallback callback :
+                            discoveryCallbacks) {
+                        callback.onEndpointFound(endpointId, info);
+                    }
                 }
 
                 @Override
                 public void onEndpointLost(@NonNull String endpointId) {
                     Log.i(TAG, String.format("onEndpointLost(endpointId=%s)", endpointId));
-                    ConnectionEndpoint endpoint = discoveredEndpoints.get(endpointId);
+                    if (!discoveredEndpoints.containsKey(endpointId)) {
+                        return;
+                    }
                     discoveredEndpoints.remove(endpointId);
-                    broadcastMessage(getString(R.string.connection_endpointLost),
-                            endpoint.toJsonString());
-                }
-            };
-
-    private ConnectionLifecycleCallback connectionLifecycleCallback =
-            new ConnectionLifecycleCallback() {
-
-                @Override
-                public void onConnectionInitiated(@NonNull String endpoint,
-                                                  @NonNull ConnectionInfo info) {
-                    // TODO: Second step of Handshake
-                }
-
-                @Override
-                public void onConnectionResult(@NonNull String endpointId,
-                                               @NonNull ConnectionResolution resolution) {
-                    // TODO: Third step of Handshake
-                }
-
-                @Override
-                public void onDisconnected(@NonNull String endpointId) {
-                    disconnectEndpoint(endpointId);
+                    for (EndpointDiscoveryCallback callback :
+                            discoveryCallbacks) {
+                        callback.onEndpointLost(endpointId);
+                    }
                 }
             };
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return binder;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        initBroadcastReceiver();
         startDiscovery();
+    }
+
+    @Override
+    protected ConnectionLifecycleCallback initLifecycle() {
+        return new ConnectionLifecycleCallback() {
+            @Override
+            public void onConnectionInitiated(@NonNull String endpointId,
+                                              @NonNull ConnectionInfo connectionInfo) {
+                if (!discoveredEndpoints.containsKey(endpointId)) {
+                    return;
+                }
+                connectionsClient.acceptConnection(endpointId, payloadCallback);
+            }
+
+            @Override
+            public void onConnectionResult(@NonNull String s,
+                                           @NonNull ConnectionResolution connectionResolution) {
+            }
+
+            @Override
+            public void onDisconnected(@NonNull String s) {
+            }
+        };
     }
 
     private void startDiscovery() {
@@ -110,16 +120,48 @@ public class NearbyDiscoveryService extends AbstractConnectionService {
                         });
     }
 
-    private void initBroadcastReceiver() {
-        BroadcastReceiver broadcastReceiver =
-                new RequestConnectionBroadcastReceiver(connectionsClient,
-                        connectionLifecycleCallback);
-        addBroadcastReceiver(broadcastReceiver, R.string.connection_requestConnection);
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
         connectionsClient.stopDiscovery();
+    }
+
+    @Override
+    public void listenDiscovery(EndpointDiscoveryCallback callback) {
+        discoveryCallbacks.add(callback);
+    }
+
+    @Override
+    public void requestConnection(String endpointId, String name) {
+        connectionsClient.requestConnection(name, endpointId, connectionLifecycleCallback)
+                .addOnSuccessListener(
+                        new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.i(TAG, "We have requested a connection!");
+                            }
+                        }
+
+                )
+                .addOnFailureListener(
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.i(TAG, "Something went wrong! requestConnection()");
+                                e.printStackTrace();
+                            }
+                        }
+                );
+    }
+
+    @Override
+    public Iterable<ConnectionEndpoint> getDiscoveredEndpoints() {
+        return discoveredEndpoints.values();
+    }
+
+    public class NearbyDiscoveryBinder extends Binder {
+        public IDiscoveryService getService() {
+            return NearbyDiscoveryService.this;
+        }
     }
 }

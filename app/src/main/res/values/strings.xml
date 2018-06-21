@@ -63,6 +63,7 @@ Get Together "ist eine App, die eine einfache und komfortable Übertragung von D
     <string name="presentation_openDocumentErrorMessage">Bitte wählen sie eine gültige Präsentation aus.</string>
     <string name="presentation_openPresentationRequestCode">1</string>
     <string name="presentation_tabName">Live Präsentation</string>
+    <string name="presentation_imageContent">Die geladene Präsentation</string>
     <string name="yes">Ja</string>
     <string name="no_name_entered">Ooooops keinen Namen?</string>
     <string name="generate_random_name">Du hast keinen Benutzernamen eingegeben. Möchtest du vielleicht einen zufälligen erstellen?</string>
@@ -71,10 +72,4 @@ Get Together "ist eine App, die eine einfache und komfortable Übertragung von D
     <string name="gps">GPS</string>
     <string name="sprechen">SPRECHEN</string>
     <string name="stupsen">STUPSEN</string>
-    <string name="presentation_imageContent">Die geladene Präsentation</string>
-    <string name="connection_endpointFound">com.example.ss18.msp.lmu.CONNECTION_ENDPOINT_FOUND</string>
-    <string name="connection_endpointLost">com.example.ss18.msp.lmu.CONNECTION_ENDPOINT_LOST</string>
-    <string name="connection_message_action">com.example.ss18.msp.lmu.CONNECTION_MESSAGE_ACTION</string>
-    <string name="connection_endpointDisconnected">com.example.ss18.msp.lmu.CONNECTION_ENDPOINT_DISCONNECTED</string>
-    <string name="connection_requestConnection">com.example.ss18.msp.lmu.CONNECTION_REQUEST_CONNECTION</string>
 </resources>
