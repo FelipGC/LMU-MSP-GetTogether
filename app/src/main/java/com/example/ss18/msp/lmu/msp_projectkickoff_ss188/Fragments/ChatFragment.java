@@ -80,6 +80,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
 
             Message msg = new Message(messageText,null, name, true);
             messageAdapter.addMessage(msg);
+            messageAdapter.notifyDataSetChanged();
             // scroll the ListView to the last added element
             messagesView.setSelection(messagesView.getCount() - 1);
 
@@ -115,6 +116,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
 
         Message received = new Message(message, id, payloadSender, false);
         messageAdapter.addMessage(received);
+        messageAdapter.notifyDataSetChanged();
         // scroll the ListView to the last added element
         messagesView.setSelection(messagesView.getCount() - 1);
     }
@@ -127,6 +129,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
 
         Message received = new Message(message, null, "SYSTEM", false);
         messageAdapter.addMessage(received);
+        messageAdapter.notifyDataSetChanged();
         // scroll the ListView to the last added element
         messagesView.setSelection(messagesView.getCount() - 1);
     }
