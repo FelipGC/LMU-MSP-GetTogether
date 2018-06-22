@@ -68,6 +68,7 @@ public final class VoiceTransmission implements IVoice {
             pS.startSendingVoice(payloadPipe[0]);
             //Create output stream
             final OutputStream mOutputStream =  new ParcelFileDescriptor.AutoCloseOutputStream(payloadPipe[1]);
+            outputStreamList.add(mOutputStream);
         }
         //Create Thread and start recording
         mThread = new Thread(new Runnable() {

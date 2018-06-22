@@ -36,7 +36,6 @@ public abstract class AbstractLocationService extends Service {
         setLocationListener();
         setUpdateDistance();
         setUpdateTime();
-        payloadSender = new PayloadSender();
         checkLocation();
     }
 

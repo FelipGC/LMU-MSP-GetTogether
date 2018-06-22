@@ -25,6 +25,8 @@ import java.io.UnsupportedEncodingException;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 
+import static android.content.Context.INPUT_METHOD_SERVICE;
+
 public class ChatFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "ChatFragment";
 
