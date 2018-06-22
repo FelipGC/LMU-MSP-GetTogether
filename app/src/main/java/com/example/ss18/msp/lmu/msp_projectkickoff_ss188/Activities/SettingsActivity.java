@@ -12,7 +12,6 @@ import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
 import android.util.Log;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -27,7 +26,6 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.RandomNameGenerator;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -132,6 +130,7 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
         if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK && resultData != null) {
             Uri uri = resultData.getData();
             Log.i(TAG, "Uri: " + uri.toString());
+            userImage.setImageURI(uri);
 
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
@@ -145,6 +144,7 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
             Log.i(TAG, "Image taken.");
 
             Bitmap image = (Bitmap) resultData.getExtras().get("data");
+            userImage.setImageBitmap(image);
             compressImage(image);
         }
         //Calling super is mandatory!
@@ -161,9 +161,13 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
         byte[] byteArray = stream.toByteArray();
         Log.i(TAG, "First size is: " + bitmap.getByteCount());
 
-        //Compress the image
+        //Decode first to check dimensions
         BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inSampleSize = 8;
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length, options);
+        //Calculate the compression
+        options.inSampleSize = calculateInSampleSize(options, 300, 300);
+        //Compress the image
         options.inJustDecodeBounds = false;
         Bitmap compressedBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length, options);
 
@@ -196,6 +200,30 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
         preferences.setUserImage(newUri.toString());
         setImage();
 
+    }
+
+    //Calculates the compression as not all images are the same size
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
     }
 
     /**
