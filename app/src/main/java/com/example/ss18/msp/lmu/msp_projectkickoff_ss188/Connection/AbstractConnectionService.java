@@ -5,7 +5,6 @@ import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
@@ -60,8 +59,6 @@ public abstract class AbstractConnectionService extends Service implements IServ
                     ConnectionEndpoint endpoint =
                             new ConnectionEndpoint(endpointId, info.getEndpointName());
                     pendingEndpoints.put(endpoint.getId(), endpoint);
-                    //Add to list for view (very important)
-                    LocalDataBase.otherUsers.put(endpoint.getId(), endpoint);
                     if (serviceSpecificLifecycleCallback != null) {
                         serviceSpecificLifecycleCallback.onConnectionInitiated(endpointId, info);
                     }

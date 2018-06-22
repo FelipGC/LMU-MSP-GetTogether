@@ -6,11 +6,14 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.MessageFactory;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.NotificationUtility;
+import com.google.android.gms.nearby.connection.Payload;
 
 import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.Constants.MAX_GPS_DISTANCE;
 
-public class CheckDistanceService extends AbstractLocationService {
+public class CheckDistanceService extends AbstractLocationService implements MessageFactory {
 
     private static String TAG = "CheckDistanceService";
 
@@ -42,9 +45,9 @@ public class CheckDistanceService extends AbstractLocationService {
                             String.format("Distanz zum Moderator: %s m.",distance),
                             NotificationCompat.PRIORITY_DEFAULT);
                 }
-                //LAUREEM: Wir schicken die Distanz jetzt immer falls sich die position stark ändert (5 meter)!
+                //LAUREEM: Wir schicken die Distanz jetzt immer falls sich die position stark ändert (3 Meter)!
                 if(lastDistance-distance > 3)
-                    payloadSender.sendDistance(distance);
+                    transferFabricatedMessage(String.valueOf(distance));
                 lastDistance = distance;
             }
 
@@ -62,5 +65,17 @@ public class CheckDistanceService extends AbstractLocationService {
             public void onProviderDisabled(String provider) {
             }
         };
+    }
+
+    @Override
+    public String fabricateMessage(String message) {
+        String fabricatedMessage = "DISTANCE:" + message;
+        return fabricatedMessage;
+    }
+
+    @Override
+    public void transferFabricatedMessage(String message) {
+        String fabricatedMessage = fabricateMessage(message);
+        AppLogicActivity.getInstance().getmService().broadcastMessage(fabricatedMessage);
     }
 }

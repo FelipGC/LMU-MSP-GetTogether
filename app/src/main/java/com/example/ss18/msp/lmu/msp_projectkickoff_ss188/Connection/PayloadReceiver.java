@@ -67,14 +67,6 @@ public final class PayloadReceiver extends PayloadCallback {
                 //We must check whether we are receiving a file name (in order to rename a file)
                 //or a chat message
                 switch (payloadId) {
-                    case "C_ENDPOINT":
-                        Log.i(TAG, "Received C_ENDPOINT: " + fileContent);
-                        substringDividerIndex = fileContent.indexOf(':');
-                        String newEndpointID = fileContent.substring(0, substringDividerIndex);
-                        String newEndpointName = fileContent.substring(substringDividerIndex + 1);
-                        //TODO how to discover if it is presenter
-                        LocalDataBase.otherUsers.put(newEndpointID, new ConnectionEndpoint(endpointId, newEndpointName));
-                        break;
                     case "CHAT":
                         //If we already received it quit
                         if (fixedSizeList.contains(payload.getId()))

@@ -7,8 +7,12 @@ import android.os.Bundle;
 
 import android.util.Log;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.MessageFactory;
+import com.google.android.gms.nearby.connection.Payload;
 
-public class FrequentLocationService extends AbstractLocationService {
+
+public class FrequentLocationService extends AbstractLocationService implements MessageFactory{
 
     private final String TAG = "FrequentLocationService";
 
@@ -28,7 +32,7 @@ public class FrequentLocationService extends AbstractLocationService {
             @Override
             public void onLocationChanged(Location location) {
                 Log.i(TAG, "LocationListener::onLocationChanged - new location data available");
-                payloadSender.sendLocation(location);
+                transferFabricatedMessage(location.getLatitude() + "/" + location.getLongitude());
             }
 
             @Override
@@ -47,5 +51,17 @@ public class FrequentLocationService extends AbstractLocationService {
                 //startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
             }
         };
+    }
+
+    @Override
+    public String fabricateMessage(String message) {
+        String fabricatedMessage = "LOCATION:" + message;
+        return fabricatedMessage;
+        }
+
+    @Override
+    public void transferFabricatedMessage(String message) {
+        String fabricatedMessage = fabricateMessage(message);
+        AppLogicActivity.getInstance().getmService().broadcastMessage(fabricatedMessage);
     }
 }

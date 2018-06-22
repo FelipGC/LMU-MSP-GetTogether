@@ -15,11 +15,14 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.Message;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.MessageAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.MessageFactory;
+import com.google.android.gms.nearby.connection.Payload;
 
 import java.io.UnsupportedEncodingException;
 
@@ -27,7 +30,7 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 
-public class ChatFragment extends Fragment implements View.OnClickListener {
+public class ChatFragment extends Fragment implements View.OnClickListener, MessageFactory {
     private static final String TAG = "ChatFragment";
 
     private EditText editText;
@@ -76,25 +79,13 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
             String name = LocalDataBase.getUserName();
 
             Message msg = new Message(messageText,null, name, true);
-            messageAdapter.addMessage(msg);
+            MessageAdapter.addMessage(msg);
             // scroll the ListView to the last added element
             messagesView.setSelection(messagesView.getCount() - 1);
 
             editText.getText().clear();
-            sendDataToEndpoints(messageText);
+            transferFabricatedMessage(messageText);
 
-        }
-    }
-
-    /**
-     * Sends the message to (all) endpoints
-     * @param message is a string
-     */
-    private void sendDataToEndpoints(String message) {
-        try {
-            payloadSender.sendChatMessage(message);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
         }
     }
 
@@ -135,5 +126,19 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         Log.i(TAG, "Clear the chat content.");
         if(messageAdapter != null)
             messageAdapter.clearContent();
+    }
+
+    @Override
+    public String fabricateMessage(String message) {
+        // Adding the CHAT tag to identify chat messages on receive.
+        String messageToSend = "CHAT" + ":" + LocalDataBase.getUserName() + ":" + message;
+        Log.i(TAG, "fabricateMessage(): " + messageToSend);
+        return null;
+    }
+
+    @Override
+    public void transferFabricatedMessage(String message) {
+        String fabricatedMessage = fabricateMessage(message);
+        AppLogicActivity.getInstance().getmService().broadcastMessage(fabricatedMessage);
     }
 }

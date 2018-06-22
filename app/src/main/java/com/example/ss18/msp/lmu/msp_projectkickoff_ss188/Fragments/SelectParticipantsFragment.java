@@ -24,9 +24,13 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.NearbyAdvert
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters.ViewerAdapter;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.MessageFactory;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission;
+import com.google.android.gms.nearby.connection.Payload;
 
-public class SelectParticipantsFragment extends Fragment {
+import java.io.UnsupportedEncodingException;
+
+public class SelectParticipantsFragment extends Fragment implements MessageFactory{
     private static final String TAG = "SelectParticipants";
     private View mainView;
     private ViewerAdapter viewerAdapter;
@@ -249,14 +253,14 @@ public class SelectParticipantsFragment extends Fragment {
      * Sends vibration message to viewers
      */
     private void startPoking(){
-        payloadSender.sendPokeMessage();
+        fabricateMessage("S");
     }
 
     /**
      * Sends STOP vibration message to viewers
      */
     private void endPoking(){
-        payloadSender.sendStopPokingMessage();
+        fabricateMessage("E");
     }
     public void updateParticipantsAvatar() {
         viewerAdapter.notifyDataSetChanged();
@@ -270,5 +274,20 @@ public class SelectParticipantsFragment extends Fragment {
 
     public void reset() {
         viewerAdapter = null;
+    }
+
+    @Override
+    public String fabricateMessage(String message) {
+        Log.i(TAG, "sendPokeMessage()");
+        // Adding the POKE_S tag to identify start vibration messages on receive.
+        String fabricatedMessage = "POKE:" + message;
+        // Send the name of the payload/file as a bytes payload first!
+        return  fabricatedMessage;
+    }
+
+    @Override
+    public void transferFabricatedMessage(String message) {
+        String fabricatedMessage = fabricateMessage(message);
+        AppLogicActivity.getInstance().getmService().broadcastMessage(fabricatedMessage);
     }
 }

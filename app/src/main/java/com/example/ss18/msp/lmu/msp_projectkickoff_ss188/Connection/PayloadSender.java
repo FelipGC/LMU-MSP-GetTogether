@@ -22,25 +22,6 @@ public class PayloadSender {
         appLogicActivity = AppLogicActivity.getInstance();
     }
 
-    public void sendChatMessage(String chatMessage) throws UnsupportedEncodingException {
-        //String name = LocalDataBase.getUserName();
-        // Adding the CHAT tag to identify chat messages on receive.
-        String messageToSend = "CHAT" + ":" + LocalDataBase.getUserName() + ":" + chatMessage;
-        Log.i(TAG, "SendDataToEndpoint: " + messageToSend);
-        //Send message
-        // Send the name of the payload/file as a bytes payload first!
-        Payload payload = Payload.fromBytes(messageToSend.getBytes("UTF-8"));
-        sendPayloadBytes(payload);
-    }
-
-
-    /**
-     * Sends a Payload object out to ALL endPoints
-     */
-    private void sendPayloadBytes(Payload payload) {
-        appLogicActivity.getmService().broadcastMessage(String.valueOf(payload.asBytes()));
-    }
-
     /**
      * Sends a Payload stream out to ALL endPoints
      */
@@ -52,7 +33,6 @@ public class PayloadSender {
      * Sends a Payload object out to all endPoints
      */
     public void sendPayloadFile(Payload payload, String payloadStoringName) {
-        Log.i(TAG,"PL: " + payload + " Name: " + payloadStoringName);
         Log.i(TAG,"PL: " + payload + " Name: " + payloadStoringName);
         // Send the name of the payload/file as a bytes payload first!
         appLogicActivity.getmService().broadcastMessage(payloadStoringName);
@@ -71,61 +51,6 @@ public class PayloadSender {
         appLogicActivity.getmService().broadcastMessage(payloadStoringName);
         appLogicActivity.getmService().sendFile(endpointId, payload.asFile().asParcelFileDescriptor());
 
-    }
-
-    public void sendLocation(Location location) {
-        String message = "LOCATION:" + location.getLatitude() + "/" + location.getLongitude();
-        Payload payload = Payload.fromBytes(message.getBytes());
-
-        sendPayloadBytes(payload);
-    }
-
-    public void sendDistance(float distance) {
-        String message = "DISTANCE:" + distance;
-        Payload payload = Payload.fromBytes(message.getBytes());
-        sendPayloadBytes(payload);
-        //sendPayloadBytesToSpecific(,payload);
-    }
-
-   /* private ConnectionEndpoint findPresenter(){
-        HashMap<String, ConnectionEndpoint> connections = cM.getEstablishedConnections();
-        for (ConnectionEndpoint endpoint : connections.values()) {
-            if(endpoint.isPresenter()){
-                return endpoint;
-            }
-        }
-        return null;
-    }*/
-
-    /**
-     * Sends a poke message to the viewers (makes their device vibrate)
-     */
-    public void sendPokeMessage() {
-        // Adding the POKE_S tag to identify start vibration messages on receive.
-        String messageToSend = "POKE:" + "S";
-        Log.i(TAG, "sendPokeMessage()");
-        // Send the name of the payload/file as a bytes payload first!
-        try {
-            Payload payload = Payload.fromBytes(messageToSend.getBytes("UTF-8"));
-            sendPayloadBytes(payload);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Sends a STOP poke message to the viewers (makes their device STOP vibrating)
-     */
-    public void sendStopPokingMessage() {
-        String messageToSend = "POKE:" + "E";
-        Log.i(TAG, "sendStopPokingMessage()");
-        // Send the name of the payload/file as a bytes payload first!
-        try {
-            Payload payload = Payload.fromBytes(messageToSend.getBytes("UTF-8"));
-            sendPayloadBytes(payload);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
     }
 
     public void startSendingVoice(ParcelFileDescriptor pfD){
