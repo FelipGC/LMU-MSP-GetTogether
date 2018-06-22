@@ -112,7 +112,7 @@ public class PayloadSender {
         sendPayloadBytes(payload);
     }
 
-    public void sendDistanceWarning(float distance) {
+    public void sendDistance(float distance) {
         String message = "DISTANCE:" + distance;
         Payload payload = Payload.fromBytes(message.getBytes());
         sendPayloadBytes(payload);

@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
 import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
+import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.Constants.MAX_GPS_DISTANCE;
 
 public final class PayloadReceiver extends PayloadCallback {
 
@@ -96,7 +97,12 @@ public final class PayloadReceiver extends PayloadCallback {
                         break;
                     case "DISTANCE":
                         Log.i(TAG, "Received DISTANCE " + fileContent);
-                        onDistanceWarningReceived(endpointId,fileContent);
+                        float distance = Float.parseFloat(fileContent);
+                        if(distance > MAX_GPS_DISTANCE) {
+                            onDistanceWarningReceived(endpointId, fileContent);
+                        }
+                        //Update location
+                        cM.getEstablishedConnections().get(endpointId).setLastKnownDistance(fileContent + "m");
                         break;
                     case "LOCATION":
                         String[] coords = fileContent.split("/");

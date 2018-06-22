@@ -24,6 +24,8 @@ public final class ConnectionEndpoint {
 
     private final static String TAG = "ConnectionEndpoint";
 
+    private String lastKnownDistance = "Derzeit unbekannt.";
+
     public ConnectionEndpoint(@NonNull String id, @NonNull String userName) {
         Log.i(TAG,"ConnectionEndpoint created with ID="+id+"\n UserName:\n"+userName);
         this.id = id;
@@ -93,5 +95,13 @@ public final class ConnectionEndpoint {
         Uri uri = LocalDataBase.getProfilePictureUri(id);
         Log.i(TAG,"getProfilePicture() for: " + getName() + " result:\n" + uri);
         return uri;
+    }
+
+    public void setLastKnownDistance(String lastKnownDistance) {
+        this.lastKnownDistance = lastKnownDistance;
+    }
+
+    public String getLastKnownDistance(){
+        return lastKnownDistance;
     }
 }

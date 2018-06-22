@@ -74,7 +74,26 @@ public class SelectParticipantsFragment extends Fragment {
             }
         });
         voiceTransmission = AppLogicActivity.getVoiceTransmission();
-        //TODO: Define GPS button... @Laureen?
+
+        BottomNavigationItemView gpsButton = mainView.findViewById(R.id.gps);
+        gpsButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_DOWN){
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("GPS Entfernungen:");
+                    String[] list = new String[connectionManager.getEstablishedConnections().size()];
+                    int index = 0;
+                    for (ConnectionEndpoint e : connectionManager.getEstablishedConnections().values()) {
+                        list[index] = e.getName() + ": " + e.getLastKnownDistance();
+                    }
+                    builder.setItems(list,null);
+                    builder.create();
+                    builder.show();
+                }
+                return true;
+            }
+        });
 
         return mainView;
     }
