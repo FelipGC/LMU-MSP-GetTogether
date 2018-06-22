@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -24,6 +25,12 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.AppPreferences
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.RandomNameGenerator;
+
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 
 public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuItemClickListener {
@@ -125,10 +132,28 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
             Uri uri = resultData.getData();
             Log.i(TAG, "Uri: " + uri.toString());
 
+            try {
+                //Get Bitmap from the uri and turn it into byte array to be used by the BitmapFactory
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] byteArray = stream.toByteArray();
+
+                //Compress the image
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inSampleSize = 8;
+                options.inJustDecodeBounds = false;
+                Bitmap compressedBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length, options);
+
+                userImage.setImageBitmap(compressedBitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             //TODO: Resize the image (300,300) and save it somewhere and overwrite uri = new file!!!!!!!
 
-            preferences.setUserImage(uri.toString());
-            setImage();
+            //preferences.setUserImage(uri.toString());
+            //setImage();
         }
 
         if (requestCode == CAMERA_REQUEST_CODE && resultCode == Activity.RESULT_OK && resultData != null) {
@@ -170,7 +195,7 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
     private void setImage() {
         Uri uri = preferences.getUserImage();
         Log.i(TAG, "Load user image: " + uri.toString());
-        //TODO: Add default profile picture in case it is null
+        //Add default profile picture in case it is null
         if (uri == null) {
             Log.i(TAG, "Add default image in case the user didn't choose one.");
             userImage.setImageResource(R.drawable.user_image);
