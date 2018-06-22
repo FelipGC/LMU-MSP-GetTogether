@@ -3,14 +3,21 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.PopupMenu;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,8 +26,13 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.RandomNameGenerator;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
-public class SettingsActivity extends BaseActivity {
+
+public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuItemClickListener {
 
     private AppPreferences preferences;
 
@@ -33,6 +45,7 @@ public class SettingsActivity extends BaseActivity {
      * Code id for reading
      */
     private static final int READ_REQUEST_CODE = 42;
+    private static final int CAMERA_REQUEST_CODE = 1;
 
     /**
      * Tag for Logging/Debugging
@@ -108,6 +121,7 @@ public class SettingsActivity extends BaseActivity {
         startActivityForResult(intent, READ_REQUEST_CODE);
     }
 
+
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
@@ -116,14 +130,100 @@ public class SettingsActivity extends BaseActivity {
         if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK && resultData != null) {
             Uri uri = resultData.getData();
             Log.i(TAG, "Uri: " + uri.toString());
+            userImage.setImageURI(uri);
 
-            //TODO: Resize the image (300,300) and save it somewhere and overwrite uri = new file!!!!!!!
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+                compressImage(bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
-            preferences.setUserImage(uri.toString());
-            setImage();
+        if (requestCode == CAMERA_REQUEST_CODE && resultCode == Activity.RESULT_OK && resultData != null) {
+            Log.i(TAG, "Image taken.");
+
+            Bitmap image = (Bitmap) resultData.getExtras().get("data");
+            userImage.setImageBitmap(image);
+            compressImage(image);
         }
         //Calling super is mandatory!
         super.onActivityResult(requestCode, resultCode, resultData);
+    }
+
+    /*
+    **Method to compress the bitmaps as they are too large to send
+     */
+    private void compressImage(Bitmap bitmap) {
+        //Get Bitmap from the uri and turn it into byte array to be used by the BitmapFactory
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        byte[] byteArray = stream.toByteArray();
+        Log.i(TAG, "First size is: " + bitmap.getByteCount());
+
+        //Decode first to check dimensions
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length, options);
+        //Calculate the compression
+        options.inSampleSize = calculateInSampleSize(options, 300, 300);
+        //Compress the image
+        options.inJustDecodeBounds = false;
+        Bitmap compressedBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length, options);
+
+        Log.i(TAG, "Second size is: " + compressedBitmap.getByteCount());
+        saveImage(compressedBitmap, compressedBitmap.toString());
+    }
+
+    /*
+    **Saves the compressed bitmap and generates a new uri to be saved to the preferences
+     */
+    private void saveImage(Bitmap finalBitmap, String imageName) {
+
+        String root = Environment.getExternalStorageDirectory().toString();
+        File directory = new File(root);
+        directory.mkdirs();
+        String fileName = imageName+ ".jpg";
+        File file = new File(directory, fileName);
+        if (file.exists()) file.delete();
+        Log.i("Saved", root + fileName);
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Uri newUri = Uri.fromFile(file);
+        preferences.setUserImage(newUri.toString());
+        setImage();
+
+    }
+
+    //Calculates the compression as not all images are the same size
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
     }
 
     /**
@@ -131,15 +231,33 @@ public class SettingsActivity extends BaseActivity {
      */
     public void onClickChangePhoto(View button) {
         Log.i(TAG, "Change photo option clicked");
-        performFileSearch();
+        PopupMenu popup = new PopupMenu(this, button);
+        popup.setOnMenuItemClickListener(this);
+        popup.inflate(R.menu.menu_camera);
+        popup.show();
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.choose_picture:
+                performFileSearch();
+                return true;
+            case R.id.take_picture:
+                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
+                return true;
+            default:
+                return false;
+        }
     }
 
     private void setImage() {
         Uri uri = preferences.getUserImage();
         Log.i(TAG, "Load user image: " + uri.toString());
-        //TODO: Add default profile picture in case it is null
+        //Add default profile picture in case it is null
         if (uri == null) {
-            Log.i(TAG, "!!!!!!!!!WE MUST AD A DEFAUTL PROFILE PICTURE IN CASE IT IS NULL!!!!!!!!!");
+            Log.i(TAG, "Add default image in case the user didn't choose one.");
             userImage.setImageResource(R.drawable.user_image);
         }
         userImage.setImageURI(uri);
