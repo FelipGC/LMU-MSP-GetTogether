@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,11 +28,12 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission
 
 public class SelectParticipantsFragment extends Fragment {
     private static final String TAG = "SelectParticipants";
-    private static View mainView;
+    private View mainView;
     private ViewerAdapter viewerAdapter;
     private VoiceTransmission voiceTransmission;
     private NearbyAdvertiseService mService;
     private PayloadSender payloadSender = new PayloadSender();
+    private ProgressBar progressBar;
     @SuppressLint("ClickableViewAccessibility")
     @Nullable
     @Override
@@ -39,6 +41,11 @@ public class SelectParticipantsFragment extends Fragment {
         mainView = inflater.inflate(R.layout.fragment_participants,container,false);
         ListView listView = mainView.findViewById(R.id.viewerList);
         viewerAdapter = new ViewerAdapter(getContext());
+        progressBar = mainView.findViewById(R.id.progressBar);
+        if(viewerAdapter == null)
+            viewerAdapter = new ViewerAdapter(getContext());
+        else if(viewerAdapter.getCount() > 0)
+            progressBar.setVisibility(View.GONE);
         listView.setAdapter(viewerAdapter);
         mService = AppLogicActivity.getInstance().getmAdvertiseService();
         updateParticipantsGUI(null,mService.getConnectedEndpointsSize(),
@@ -70,7 +77,26 @@ public class SelectParticipantsFragment extends Fragment {
             }
         });
         voiceTransmission = AppLogicActivity.getVoiceTransmission();
-        //TODO: Define GPS button... @Laureen?
+
+        BottomNavigationItemView gpsButton = mainView.findViewById(R.id.gps);
+        gpsButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_DOWN){
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("GPS Entfernungen:");
+                    String[] list = new String[mService.getConnectedEndpointsSize()];
+                    int index = 0;
+                    for (ConnectionEndpoint e : mService.getConnectedEndpoints()) {
+                        list[index] = e.getName() + ": " + e.getLastKnownDistance();
+                    }
+                    builder.setItems(list,null);
+                    builder.create();
+                    builder.show();
+                }
+                return true;
+            }
+        });
 
         return mainView;
     }
@@ -79,10 +105,17 @@ public class SelectParticipantsFragment extends Fragment {
      */
     public void updateParticipantsGUI(ConnectionEndpoint e,int newSize, int maxSize){
         TextView textView = mainView.findViewById(R.id.numberOfParticipants);
-        if(maxSize == 0)
+        if(maxSize == 0) {
             textView.setText(R.string.leer);
-        else
-            textView.setText(newSize + "|"+maxSize);
+            progressBar.setVisibility(View.VISIBLE);
+        }
+        else {
+            textView.setText(newSize + "|" + maxSize);
+            progressBar.setVisibility(View.GONE);
+        }
+        if(newSize == 0){
+            progressBar.setVisibility(View.VISIBLE);
+        }
         //Update listView
         if(e == null)
             return;
@@ -233,5 +266,9 @@ public class SelectParticipantsFragment extends Fragment {
     public void onDestroy() {
         endPoking();
         super.onDestroy();
+    }
+
+    public void reset() {
+        viewerAdapter = null;
     }
 }

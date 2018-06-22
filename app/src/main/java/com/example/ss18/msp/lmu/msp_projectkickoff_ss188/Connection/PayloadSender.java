@@ -33,13 +33,14 @@ public class PayloadSender {
         sendPayloadBytes(payload);
     }
 
-  
+
     /**
      * Sends a Payload object out to ALL endPoints
      */
     private void sendPayloadBytes(Payload payload) {
         appLogicActivity.getmService().broadcastMessage(String.valueOf(payload.asBytes()));
     }
+
     /**
      * Sends a Payload stream out to ALL endPoints
      */
@@ -73,15 +74,14 @@ public class PayloadSender {
     }
 
     public void sendLocation(Location location) {
-        byte[] b = LocationUtility.getLocationAsBytes(location);
-        String message = "LOCATION:" + location.getLongitude() + "/" + location.getLatitude();
+        String message = "LOCATION:" + location.getLatitude() + "/" + location.getLongitude();
         Payload payload = Payload.fromBytes(message.getBytes());
 
         sendPayloadBytes(payload);
     }
 
-    public void sendDistanceWarning(float distance){
-        String message = "DISTANCE:"+distance;
+    public void sendDistance(float distance) {
+        String message = "DISTANCE:" + distance;
         Payload payload = Payload.fromBytes(message.getBytes());
         sendPayloadBytes(payload);
         //sendPayloadBytesToSpecific(,payload);
@@ -100,9 +100,9 @@ public class PayloadSender {
     /**
      * Sends a poke message to the viewers (makes their device vibrate)
      */
-    public void sendPokeMessage()  {
+    public void sendPokeMessage() {
         // Adding the POKE_S tag to identify start vibration messages on receive.
-        String messageToSend = "POKE:"+"S";
+        String messageToSend = "POKE:" + "S";
         Log.i(TAG, "sendPokeMessage()");
         // Send the name of the payload/file as a bytes payload first!
         try {
@@ -117,7 +117,7 @@ public class PayloadSender {
      * Sends a STOP poke message to the viewers (makes their device STOP vibrating)
      */
     public void sendStopPokingMessage() {
-        String messageToSend = "POKE:"+"E";
+        String messageToSend = "POKE:" + "E";
         Log.i(TAG, "sendStopPokingMessage()");
         // Send the name of the payload/file as a bytes payload first!
         try {

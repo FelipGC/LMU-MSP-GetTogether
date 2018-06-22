@@ -24,6 +24,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
+import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
+import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.Constants.MAX_GPS_DISTANCE;
 
 public final class PayloadReceiver extends PayloadCallback {
 
@@ -66,7 +68,7 @@ public final class PayloadReceiver extends PayloadCallback {
                 //or a chat message
                 switch (payloadId) {
                     case "C_ENDPOINT":
-                        Log.i(TAG, "Received C_ENDPOINT" + fileContent);
+                        Log.i(TAG, "Received C_ENDPOINT: " + fileContent);
                         substringDividerIndex = fileContent.indexOf(':');
                         String newEndpointID = fileContent.substring(0, substringDividerIndex);
                         String newEndpointName = fileContent.substring(substringDividerIndex + 1);
@@ -77,7 +79,7 @@ public final class PayloadReceiver extends PayloadCallback {
                         //If we already received it quit
                         if (fixedSizeList.contains(payload.getId()))
                             return;
-
+                        Log.i(TAG, "Received CHAT" + fileContent);
                         fixedSizeList.add(payload.getId());
                         //We have a new chat message
                         onChatMessageReceived(endpointId, fileContent);
@@ -94,19 +96,26 @@ public final class PayloadReceiver extends PayloadCallback {
                         break;
                     case "DISTANCE":
                         Log.i(TAG, "Received DISTANCE " + fileContent);
-                        onDistanceWarningReceived(endpointId, fileContent);
+                        float distance = Float.parseFloat(fileContent);
+                        if(distance > MAX_GPS_DISTANCE) {
+                            onDistanceWarningReceived(endpointId, fileContent);
+                        }
+                        //Update location
+                        for (ConnectionEndpoint connectionEndpoint : appLogicActivity.getmService().getConnectedEndpoints()) {
+                            connectionEndpoint.setLastKnownDistance(fileContent + "m");
+                        }
                         break;
                     case "LOCATION":
                         String[] coords = fileContent.split("/");
-                        float longitude = Float.parseFloat(coords[0]);
-                        float latitude = Float.parseFloat(coords[1]);
-                        Location location = new Location("");
+                        float latitude = Float.parseFloat(coords[0]);
+                        float longitude = Float.parseFloat(coords[1]);
+                        Location location = new Location("unknown");
                         location.setLongitude(longitude);
                         location.setLatitude(latitude);
                         onLocationReceived(location);
                         break;
                     default:
-                        Log.i(TAG, "Received FILE-NAME: " + fileContent);
+                        Log.i(TAG, "Received FILE-NAME: " + fileContent + " PayloadID=" + payloadId);
                         filePayloadFilenames.put(Long.valueOf(payloadId), fileContent);
                         break;
                 }
@@ -158,10 +167,7 @@ public final class PayloadReceiver extends PayloadCallback {
         chat.getDataFromEndPoint(id, message);
     }
 
-    private void onLocationReceived(Location receivedLocation) {
-        NotificationUtility.displayNotification("Location received",
-                String.format("long = %s, lat = %s", receivedLocation.getLongitude(), receivedLocation.getLatitude()),
-                NotificationCompat.PRIORITY_DEFAULT);
+    private void onLocationReceived(Location receivedLocation){
         Intent intent = new Intent(appLogicActivity, CheckDistanceService.class);
         intent.putExtra("location", receivedLocation);
         appLogicActivity.startService(intent);
@@ -170,7 +176,7 @@ public final class PayloadReceiver extends PayloadCallback {
     private void onDistanceWarningReceived(String senderId, String distance) {
         String senderName = LocalDataBase.otherUsers.get(senderId).getName();
         NotificationUtility.displayNotification("Entfernungswarnung",
-                String.format("Teilnehmer %s ist %s entfernt.", senderName, distance),
+                String.format("Teilnehmer %s ist %s Meter entfernt.",senderName,distance),
                 NotificationCompat.PRIORITY_DEFAULT);
     }
 
@@ -235,8 +241,8 @@ public final class PayloadReceiver extends PayloadCallback {
                     for (ConnectionEndpoint e : appLogicActivity.getmAdvertiseService().getConnectedEndpoints()) {
                         String id = e.getId();
                         Uri uri = LocalDataBase.getProfilePictureUri(id);
-                        if (uri == null)
-                            break;
+                        if (uri == null || e.getId().equals(bitMapSender))
+                            continue;
                         ParcelFileDescriptor file = appLogicActivity.getContentResolver().openFileDescriptor(uri, "r");
                         Payload profilePic = Payload.fromFile(file);
                         //Send name
