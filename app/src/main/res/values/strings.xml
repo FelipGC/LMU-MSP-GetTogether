@@ -18,6 +18,8 @@
     <string name="changedInfo">Ihre Nutzereinstellungen wurden aktualisiert.</string>
     <string name="settings_user">Nutzereinstellungen</string>
     <string name="register_new">Registrierung</string>
+    <string name="take_picture">Foto Aufnehmen</string>
+    <string name="choose_picture">Foto Auswählen</string>
 
     <string name="about">Über die App</string>
     <string name="settings">Einstellungen</string>

@@ -3,14 +3,20 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.PopupMenu;
 import android.util.Log;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,7 +26,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.RandomNameGenerator;
 
 
-public class SettingsActivity extends BaseActivity {
+public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuItemClickListener {
 
     private AppPreferences preferences;
 
@@ -33,6 +39,7 @@ public class SettingsActivity extends BaseActivity {
      * Code id for reading
      */
     private static final int READ_REQUEST_CODE = 42;
+    private static final int CAMERA_REQUEST_CODE = 1;
 
     /**
      * Tag for Logging/Debugging
@@ -108,6 +115,7 @@ public class SettingsActivity extends BaseActivity {
         startActivityForResult(intent, READ_REQUEST_CODE);
     }
 
+
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
@@ -122,6 +130,13 @@ public class SettingsActivity extends BaseActivity {
             preferences.setUserImage(uri.toString());
             setImage();
         }
+
+        if (requestCode == CAMERA_REQUEST_CODE && resultCode == Activity.RESULT_OK && resultData != null) {
+            Log.i(TAG, "Image taken.");
+
+            Bitmap image = (Bitmap) resultData.getExtras().get("data");
+            userImage.setImageBitmap(image);
+        }
         //Calling super is mandatory!
         super.onActivityResult(requestCode, resultCode, resultData);
     }
@@ -131,7 +146,25 @@ public class SettingsActivity extends BaseActivity {
      */
     public void onClickChangePhoto(View button) {
         Log.i(TAG, "Change photo option clicked");
-        performFileSearch();
+        PopupMenu popup = new PopupMenu(this, button);
+        popup.setOnMenuItemClickListener(this);
+        popup.inflate(R.menu.menu_camera);
+        popup.show();
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.choose_picture:
+                performFileSearch();
+                return true;
+            case R.id.take_picture:
+                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
+                return true;
+            default:
+                return false;
+        }
     }
 
     private void setImage() {
@@ -139,7 +172,7 @@ public class SettingsActivity extends BaseActivity {
         Log.i(TAG, "Load user image: " + uri.toString());
         //TODO: Add default profile picture in case it is null
         if (uri == null) {
-            Log.i(TAG, "!!!!!!!!!WE MUST AD A DEFAUTL PROFILE PICTURE IN CASE IT IS NULL!!!!!!!!!");
+            Log.i(TAG, "Add default image in case the user didn't choose one.");
             userImage.setImageResource(R.drawable.user_image);
         }
         userImage.setImageURI(uri);
