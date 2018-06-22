@@ -1,9 +1,11 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments;
 
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,7 +30,7 @@ public class SelectPresenterFragment extends Fragment {
     private static final String TAG = "SelectPresenter";
     private ListView availablePresenters;
     private ListView establishedPresenters;
-    private static ListAdapter pendAdapter = null;
+    private static ListAdapter availAdapter = null;
     private static ListAdapter estAdapter = null;
     private Button pendingButton;
     private TextView joinedTitle;
@@ -65,13 +67,13 @@ public class SelectPresenterFragment extends Fragment {
 
 
         //Set adapters
-        if(pendAdapter == null)
-            pendAdapter = new PresenterAdapter(getContext(),false);
+        if(availAdapter == null)
+            availAdapter = new PresenterAdapter(getContext(),false);
         if(estAdapter == null)
             estAdapter = new PresenterAdapter(getContext(),true);
         else if(estAdapter.getCount() > 0)
             progressBar.setVisibility(View.GONE);
-        availablePresenters.setAdapter(pendAdapter);
+        availablePresenters.setAdapter(availAdapter);
         establishedPresenters.setAdapter(estAdapter);
 
         //Set up clickListeners for the individual items and lists
@@ -130,6 +132,8 @@ public class SelectPresenterFragment extends Fragment {
             for (View viewNoDevice : viewNoDevices)
                 viewNoDevice.setVisibility(View.VISIBLE);
             progressBar.setVisibility(View.VISIBLE);
+            progressBar.getIndeterminateDrawable()
+                    .setColorFilter(ContextCompat.getColor(getContext(), R.color.colorAccent), PorterDuff.Mode.SRC_IN );
         }//We found devices
         else {
             //Hide GUI we do not want
@@ -142,6 +146,13 @@ public class SelectPresenterFragment extends Fragment {
             //Progress bar
             if(estAdapter.getCount() > 0)
                 progressBar.setVisibility(View.GONE);
+            else if(availAdapter.getCount() > 0){
+                progressBar.getIndeterminateDrawable()
+                        .setColorFilter(ContextCompat.getColor(getContext(), R.color.greenAccent), PorterDuff.Mode.SRC_IN );
+            }else{
+                progressBar.getIndeterminateDrawable()
+                        .setColorFilter(ContextCompat.getColor(getContext(), R.color.colorAccent), PorterDuff.Mode.SRC_IN );
+            }
         }
     }
 
@@ -184,7 +195,10 @@ public class SelectPresenterFragment extends Fragment {
             }
             if(cM.getPendingConnections().size() == 0)
                 pendingButton.setVisibility(View.GONE);
-            else pendingButton.setText(String.format("Pending Connection(s): %d", cM.getPendingConnections().size()));
+            else{
+
+                pendingButton.setText(String.format("Pending Connection(s): %d", cM.getPendingConnections().size()));
+            }
         }
     }
 
@@ -194,6 +208,6 @@ public class SelectPresenterFragment extends Fragment {
 
     public void reset() {
         estAdapter = null;
-        pendAdapter = null;
+        availAdapter = null;
     }
 }

@@ -2,11 +2,13 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments;
 
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -105,13 +107,17 @@ public class SelectParticipantsFragment extends Fragment {
         if(maxSize == 0) {
             textView.setText(R.string.leer);
             progressBar.setVisibility(View.VISIBLE);
+            progressBar.getIndeterminateDrawable()
+                    .setColorFilter(ContextCompat.getColor(getContext(), R.color.colorAccent), PorterDuff.Mode.SRC_IN );
         }
         else {
             textView.setText(newSize + "|" + maxSize);
             progressBar.setVisibility(View.GONE);
         }
-        if(newSize == 0){
+        if(newSize == 0 && maxSize != 0){
             progressBar.setVisibility(View.VISIBLE);
+            progressBar.getIndeterminateDrawable()
+                    .setColorFilter(ContextCompat.getColor(getContext(), R.color.greenAccent), PorterDuff.Mode.SRC_IN );
         }
         //Update listView
         if(e == null)
@@ -240,6 +246,7 @@ public class SelectParticipantsFragment extends Fragment {
      */
     private void startPoking(){
         connectionManager.getPayloadSender().sendPokeMessage();
+        Toast.makeText(getContext(), "[VIBRIREREN]", Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -247,6 +254,7 @@ public class SelectParticipantsFragment extends Fragment {
      */
     private void endPoking(){
         connectionManager.getPayloadSender().sendStopPokingMessage();
+        Toast.makeText(getContext(), "[ENDE]", Toast.LENGTH_SHORT).show();
     }
     public void updateParticipantsAvatar() {
         viewerAdapter.notifyDataSetChanged();
