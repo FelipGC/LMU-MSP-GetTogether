@@ -27,6 +27,8 @@ public final class ConnectionEndpoint {
 
     private final static String TAG = "ConnectionEndpoint";
 
+    private String lastKnownDistance = "Derzeit unbekannt.";
+
     public ConnectionEndpoint(@NonNull String id, @NonNull String userName) {
         Log.i(TAG,"ConnectionEndpoint created with ID="+id+"\n UserName:\n"+userName);
         this.id = id;
@@ -47,7 +49,7 @@ public final class ConnectionEndpoint {
      */
     private void checkForDuplicatedNames() {
         int nrDuplicates = 0;
-        for (ConnectionEndpoint otherEndpoint : AppLogicActivity.getConnectionManager().getDiscoveredEndpoints().values()) {
+        for (ConnectionEndpoint otherEndpoint : AppLogicActivity.getInstance().getmService().getConnectedEndpoints()) {
             if (otherEndpoint.getOriginalName().equals(originalName))
                 nrDuplicates++;
         }
@@ -120,5 +122,13 @@ public final class ConnectionEndpoint {
             Log.w(TAG, ex.getMessage());
             return null;
         }
+    }
+
+    public void setLastKnownDistance(String lastKnownDistance) {
+        this.lastKnownDistance = lastKnownDistance;
+    }
+
+    public String getLastKnownDistance(){
+        return lastKnownDistance;
     }
 }

@@ -1,25 +1,12 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl;
 
-import android.Manifest;
-import android.app.Activity;
-import android.app.Service;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
+
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+
 import android.util.Log;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
-
-import java.security.Permission;
 
 public class FrequentLocationService extends AbstractLocationService {
 
@@ -32,7 +19,7 @@ public class FrequentLocationService extends AbstractLocationService {
 
     @Override
     protected void setUpdateTime() {
-        updateTime = 30 *1000; //TODO
+        updateTime = 30 * 1000; //TODO
     }
 
     @Override
@@ -57,6 +44,7 @@ public class FrequentLocationService extends AbstractLocationService {
             @Override
             public void onProviderDisabled(String provider) {
                 Log.i(TAG,"LocationListener::onProviderDisabled - Sending of location not possible.");
+                //startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
             }
         };
     }

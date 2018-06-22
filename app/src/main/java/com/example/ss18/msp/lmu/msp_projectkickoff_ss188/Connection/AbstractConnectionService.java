@@ -5,6 +5,7 @@ import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
@@ -59,6 +60,8 @@ public abstract class AbstractConnectionService extends Service implements IServ
                     ConnectionEndpoint endpoint =
                             new ConnectionEndpoint(endpointId, info.getEndpointName());
                     pendingEndpoints.put(endpoint.getId(), endpoint);
+                    //Add to list for view (very important)
+                    LocalDataBase.otherUsers.put(endpoint.getId(), endpoint);
                     if (serviceSpecificLifecycleCallback != null) {
                         serviceSpecificLifecycleCallback.onConnectionInitiated(endpointId, info);
                     }
@@ -141,7 +144,11 @@ public abstract class AbstractConnectionService extends Service implements IServ
         Payload payload = Payload.fromBytes(message.getBytes()); // One message per send or one for all?
         sendPayload(payload);
     }
+    @Override
+    public void sendMessageTo(String id, String message) {
+        connectionsClient.sendPayload(id, Payload.fromBytes(message.getBytes()));
 
+    }
     @Override
     public void broadcastStream(ParcelFileDescriptor fileDescriptor) {
         Payload payload = Payload.fromStream(fileDescriptor);
@@ -186,7 +193,21 @@ public abstract class AbstractConnectionService extends Service implements IServ
         return connectedEndpoints.containsKey(endpointId);
     }
 
-    protected boolean isPending(String endpointId) {
+    public boolean isPending(String endpointId) {
         return pendingEndpoints.containsKey((endpointId));
+    }
+    public boolean isConnected(String id){
+        return connectedEndpoints.containsKey(id);
+    }
+    public int getConnectedEndpointsSize(){
+        return connectedEndpoints.size();
+    }
+    public int getPendingEndpointsSize(){
+        return pendingEndpoints.size();
+    }
+
+    @Override
+    public void disconnectFromUser(String id) {
+        connectionsClient.disconnectFromEndpoint(id);
     }
 }

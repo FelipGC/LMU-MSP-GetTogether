@@ -10,12 +10,17 @@ import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
 import com.google.android.gms.nearby.connection.Payload;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static android.os.Process.THREAD_PRIORITY_AUDIO;
 import static android.os.Process.setThreadPriority;
@@ -25,6 +30,7 @@ public final class VoiceTransmission implements IVoice {
 
     private boolean isRecording = false;
     private static final String TAG = "VoiceTransmission";
+    private static final PayloadSender pS = new PayloadSender();
     /**
      * The background thread recording audio for us.
      */
@@ -32,77 +38,87 @@ public final class VoiceTransmission implements IVoice {
 
     @Override
     public void startRecordingVoice() {
-        if(isRecording) {
-            Log.i(TAG,"Already recording");
+        if (isRecording) {
+            Log.i(TAG, "Already recording");
             return;
         }
         isRecording = true;
-        ParcelFileDescriptor[] payloadPipe;
-        try {
-            payloadPipe = ParcelFileDescriptor.createPipe();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.e(TAG,"Failed to create ParcelFileDescriptor.createPipe()",e);
-            return;
+        final MinimalAudioBuffer buffer = new MinimalAudioBuffer();
+        final AudioRecord record =
+                new AudioRecord(
+                        MediaRecorder.AudioSource.DEFAULT,
+                        buffer.sampleRate,
+                        AudioFormat.CHANNEL_IN_MONO,
+                        AudioFormat.ENCODING_PCM_16BIT,
+                        buffer.size);
+
+        final ArrayList<OutputStream> outputStreamList = new ArrayList<>();
+        for (final ConnectionEndpoint endPoint : AppLogicActivity.getInstance().getmService().getConnectedEndpoints()) {
+            final String id = endPoint.getId();
+            Log.i(TAG, "RECORDING FOR: " + id);
+            final ParcelFileDescriptor[] payloadPipe;
+            try {
+                payloadPipe = ParcelFileDescriptor.createPipe();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e(TAG, "Failed to create ParcelFileDescriptor.createPipe()", e);
+                continue;
+            }
+            // Send the first half of the payload (the read side) to Nearby Connections.
+            pS.startSendingVoice(payloadPipe[0]);
+            //Create output stream
+            final OutputStream mOutputStream =  new ParcelFileDescriptor.AutoCloseOutputStream(payloadPipe[1]);
+            outputStreamList.add(mOutputStream);
         }
-        // Send the first half of the payload (the read side) to Nearby Connections.
-        ConnectionManager.getInstance().getPayloadSender().
-                startSendingVoice(Payload.fromStream(payloadPipe[0]));
-        //Create output stream
-        final OutputStream mOutputStream =  new ParcelFileDescriptor.AutoCloseOutputStream(payloadPipe[1]);
         //Create Thread and start recording
-        mThread =
-                new Thread() {
-                    @Override
-                    public void run() {
-                        Log.w(TAG, "startRecordingVoice()");
-                        setThreadPriority(THREAD_PRIORITY_AUDIO);
-
-                        MinimalAudioBuffer buffer = new MinimalAudioBuffer();
-                        AudioRecord record =
-                                new AudioRecord(
-                                        MediaRecorder.AudioSource.DEFAULT,
-                                        buffer.sampleRate,
-                                        AudioFormat.CHANNEL_IN_MONO,
-                                        AudioFormat.ENCODING_PCM_16BIT,
-                                        buffer.size);
-
-                        if (record.getState() != AudioRecord.STATE_INITIALIZED) {
-                            Log.w(TAG, "Failed starting recording");
-                            return;
-                        }
-                        record.startRecording();
-                        // Read the bytes from the AudioRecord and write them
-                        // to our output stream while recording.
-                        try {
-                            while (isRecording) {
-                                Log.i(TAG,"Recording...");
-                                int len = record.read(buffer.data, 0, buffer.size);
-                                if (len >= 0 && len <= buffer.size) {
-                                    mOutputStream.write(buffer.data, 0, len);
-                                    mOutputStream.flush();
-                                } else {
-                                    Log.w(TAG, "Unexpected length returned: " + len);
-                                }
+        mThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Log.w(TAG, "startRecordingVoice()");
+                setThreadPriority(THREAD_PRIORITY_AUDIO);
+                record.startRecording();
+                if (record.getState() != AudioRecord.STATE_INITIALIZED) {
+                    Log.w(TAG, "Failed starting recording");
+                    return;
+                }
+                // Read the bytes from the AudioRecord and write them
+                // to our output stream while recording.
+                try {
+                    while (isRecording) {
+                        int len = record.read(buffer.data, 0, buffer.size);
+                        if (len >= 0 && len <= buffer.size) {
+                            for (OutputStream mOutputStream : outputStreamList) {
+                                mOutputStream.write(buffer.data, 0, len);
+                                mOutputStream.flush();
                             }
-                        } catch (IOException e) {
-                            Log.e(TAG, "Exception with recording stream", e);
-                        } finally {
-                            Log.i(TAG,"Executing finally");
-                            try {
-                                mOutputStream.close();
-                            } catch (IOException e) {
-                                Log.e(TAG, "Failed to close output stream", e);
-                            }
-                            try {
-                                record.stop();
-                            } catch (IllegalStateException e) {
-                                Log.e(TAG, "Failed to stop AudioRecord", e);
-                            }
-                            record.release();
+                        } else {
+                            Log.w(TAG, "Unexpected length returned: " + len);
                         }
                     }
-                };
+                } catch (IOException e) {
+                    Log.e(TAG, "Exception with recording stream", e);
+                } finally {
+                    Log.i(TAG, "Executing finally");
+                    try {
+                        for (OutputStream mOutputStream : outputStreamList) {
+                            mOutputStream.close();
+                        }
+                    } catch (IOException e) {
+                        Log.e(TAG, "Failed to close output stream", e);
+                    }
+                    finally {
+                        try {
+                            record.stop();
+                        } catch (IllegalStateException e) {
+                            Log.e(TAG, "Failed to stop AudioRecord", e);
+                        }
+                        finally {
+                            stopThread(mThread);
+                        }
+                    }
+                }
+            }
+        });
         mThread.start();
     }
 
@@ -110,7 +126,6 @@ public final class VoiceTransmission implements IVoice {
     public void stopRecordingVoice() {
         Log.i(TAG, "stopRecordingVoice()");
         isRecording = false;
-        stopThread();
     }
 
     @Override
@@ -137,29 +152,29 @@ public final class VoiceTransmission implements IVoice {
                         int length;
                         try {
                             while ((length = inputStream.read(buffer.data)) > 0) {
-                                Log.i(TAG,length + "");
+                                Log.i(TAG, length + "");
                                 audioTrack.write(buffer.data, 0, length);
                             }
                         } catch (IOException e) {
-                            Log.e(TAG, "Error while trying to play stream",e);
+                            Log.e(TAG, "Error while trying to play stream", e);
                         } finally {
-                            Log.i(TAG,"Executing finally");
+                            Log.i(TAG, "Executing finally");
                             try {
                                 inputStream.close();
                             } catch (IOException e) {
                                 Log.e(TAG, "Failed to close input stream", e);
                             }
                             audioTrack.release();
-                            stopThread();
+                            stopThread(this);
                         }
                     }
                 };
         mThread.start();
     }
 
-    private void stopThread(){
+    private void stopThread(Thread thread) {
         try {
-            mThread.join();
+            thread.join();
         } catch (InterruptedException e) {
             Log.e(TAG, "Interrupted while joining AudioRecorder thread", e);
             Thread.currentThread().interrupt();

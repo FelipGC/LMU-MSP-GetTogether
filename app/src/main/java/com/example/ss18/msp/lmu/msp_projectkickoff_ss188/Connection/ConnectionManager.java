@@ -39,7 +39,6 @@ import java.util.HashMap;
 public class ConnectionManager {
 
     private final String TAG = "ConnectionManager";
-    private static final ConnectionManager CONNECTION_MANAGER = new ConnectionManager();
     /**
      * The connection strategy as defined in https://developers.google.com/nearby/connections/strategies
      */
@@ -50,10 +49,6 @@ public class ConnectionManager {
     private final String serviceID = "SERVICE_ID_NEARBY_CONNECTIONS";
 
     PayloadSender payloadSender;
-
-    public static ConnectionManager getInstance() {
-        return CONNECTION_MANAGER;
-    }
 
     /**
      * A reference to the corresponding activity
@@ -157,11 +152,18 @@ public class ConnectionManager {
                                 //TODO: IMAGE IS TOO BIG?
                                 ParcelFileDescriptor file = appLogicActivity.getContentResolver().openFileDescriptor(uri, "r");
                                 Payload payload = Payload.fromFile(file);
+                                Log.i(TAG,"Sending prof image: " + payload);
                                 payloadSender.sendPayloadFile(endpointId, payload, payload.getId() + (SPECTATOR ? ":PROF_PIC_V:" : ":PROF_PIC:"));
-                                //Send all the other viewers to the viewer
                                 if(!SPECTATOR){
                                     for (ConnectionEndpoint otherEndpoint : establishedConnections.values()) {
+                                        //Do not send info to the same endpoint
+                                        if(otherEndpoint.getId().equals(endpointId))
+                                            continue;
+                                        //Send all the other viewers to the viewer
                                         sendConnectionEndpointTo(endpointId, otherEndpoint);
+                                        //Send this endpoint to all others
+                                        sendConnectionEndpointTo(otherEndpoint.getId(),endpoint);
+
                                     }
                                 }
 
@@ -201,10 +203,10 @@ public class ConnectionManager {
                 }
             };
 
-    private void sendConnectionEndpointTo(String id, ConnectionEndpoint otherEndpoint) {
+    private void sendConnectionEndpointTo(String endpoint, ConnectionEndpoint otherEndpoint) {
         String stringToSend = String.format("C_ENDPOINT:%s:%s",otherEndpoint.getId(),otherEndpoint.getName());
         Payload payload = Payload.fromBytes(stringToSend.getBytes());
-        payloadSender.sendPayloadFile(payload,id);
+        payloadSender.sendPayloadBytesToSpecific(endpoint,payload);
     }
 
     /**

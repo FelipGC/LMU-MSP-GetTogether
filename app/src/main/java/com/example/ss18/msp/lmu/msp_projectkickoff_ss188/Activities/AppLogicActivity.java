@@ -1,17 +1,20 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.text.GetChars;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.AbstractConnectionService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.NearbyAdvertiseService;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.NearbyDiscoveryService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.SelectPresenterFragment;
@@ -33,11 +36,6 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     private static final String TAG = "SECONDARY_ACTIVITY";
 
     /**
-     * A reference to the nearby connection manager object
-     */
-    private static ConnectionManager connectionManager;
-
-    /**
      * The role of the user (Presenter/Spectator)
      */
     private static User userRole;
@@ -49,19 +47,73 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     private ChatFragment chatFragment;
     private TabPageAdapter tabPageAdapter;
     private final static VoiceTransmission voiceTransmission = new VoiceTransmission();
+
+    private boolean mBound = false;
+    private NearbyAdvertiseService mAdvertiseService;
+    private NearbyDiscoveryService mDiscoveryService;
+    private AbstractConnectionService mService;
+    private static AppLogicActivity appLogicActivity;
+
+    /**
+     * Defines callbacks for service binding, passed to bindService()
+     */
+    private ServiceConnection mAdvertiseConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            NearbyAdvertiseService.NearbyAdvertiseBinder binder = (NearbyAdvertiseService.NearbyAdvertiseBinder) service;
+            mService = mAdvertiseService = (NearbyAdvertiseService) binder.getService();
+            mDiscoveryService = null;
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+            mAdvertiseService = null;
+            mDiscoveryService = null;
+            mService = null;
+        }
+    };
+    /**
+     * Defines callbacks for service binding, passed to bindService()
+     */
+    private ServiceConnection mDiscoveryConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            NearbyDiscoveryService.NearbyDiscoveryBinder binder = (NearbyDiscoveryService.NearbyDiscoveryBinder) service;
+            mService = mDiscoveryService = (NearbyDiscoveryService) binder.getService();
+            mAdvertiseService = null;
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+            mAdvertiseService = null;
+            mDiscoveryService = null;
+            mService = null;
+        }
+    };
+
+    public static AppLogicActivity getInstance() {
+        return appLogicActivity;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.onCreate(R.layout.activity_app_logic);
 
+        appLogicActivity = this;
         getSupportActionBar().setTitle(LocalDataBase.getUserName()); //TODO
 
         //Get object from intent
         setUserRole((User) getIntent().getSerializableExtra("UserRole"));
         Log.i(TAG, "Secondary activity created as: " + getUserRole().getRoleType());
-        //Connection
-        connectionManager = ConnectionManager.getInstance(); //Singleton
-        connectionManager.setUpConnectionsClient(this);
 
         //Set up tabs
         tabPageAdapter = new TabPageAdapter(getSupportFragmentManager());
@@ -74,6 +126,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
                 tabPageAdapter.addFragment(inboxFragment = new InboxFragment(), "Inbox");
                 tabPageAdapter.addFragment(new LiveViewFragment(), "Live");
                 tabPageAdapter.addFragment(chatFragment = new ChatFragment(), "Chat");
+                selectPresenterFragment.reset();
                 break;
             case PRESENTER:
                 startAdvertising();
@@ -82,6 +135,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
                 tabPageAdapter.addFragment(new PresentationFragment(), getString(R.string.presentation_tabName));
                 tabPageAdapter.addFragment(shareFragment = new ShareFragment(), "Share");
                 tabPageAdapter.addFragment(chatFragment = new ChatFragment(), "Chat");
+                selectParticipantsFragment.reset();
                 break;
             default:
                 Log.e(TAG, "Role type missing!");
@@ -113,9 +167,10 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
 
     /**
      * Starts a Nearby service with a given serviceID
+     *
      * @param serviceID the ID of theservice to start
      */
-    private void startNearbyService(String serviceID){
+    private void startNearbyService(String serviceID) {
         stopNearbyService();
         Intent serviceIntent = new Intent();
         serviceIntent.setAction(serviceID);
@@ -125,7 +180,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     /**
      * Stops all potential Nearby-Services
      */
-    private void stopNearbyService(){
+    private void stopNearbyService() {
         Intent serviceIntent = new Intent();
         serviceIntent.setAction(".Connection.NearbyAdvertiseService");
         stopService(serviceIntent);
@@ -139,6 +194,9 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     private void startAdvertising() {
         Toast.makeText(this, R.string.startDiscovering, Toast.LENGTH_LONG).show();
         startNearbyService(".Connection.NearbyAdvertiseService");
+        //Bind to NearbyAdvertiseService
+        Intent intent = new Intent(this, NearbyAdvertiseService.class);
+        bindService(intent, mAdvertiseConnection, BIND_AUTO_CREATE);
     }
 
     /**
@@ -147,6 +205,9 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     private void startDiscovering() {
         Toast.makeText(this, R.string.startAdvertising, Toast.LENGTH_LONG).show();
         startNearbyService(".Connection.NearbyDiscoveryService");
+        //Bind to NearbyDiscoveryService
+        Intent intent = new Intent(this, NearbyDiscoveryService.class);
+        bindService(intent, mDiscoveryConnection, BIND_AUTO_CREATE);
     }
 
     //Getters & Setters
@@ -181,17 +242,13 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     @Override
     protected void onDestroy() {
         Log.i(TAG, "onDestroy() -> terminating nearby connection");
-        connectionManager.terminateConnection();
+        stopNearbyService();
         if (chatFragment != null) {
             chatFragment.clearContent();
         }
         super.onDestroy();
     }
     //Getters and Setters
-
-    public static ConnectionManager getConnectionManager() {
-        return connectionManager;
-    }
 
     public InboxFragment getInboxFragment() {
         return inboxFragment;
@@ -217,4 +274,17 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     public void displayShortMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
+
+    public NearbyAdvertiseService getmAdvertiseService() {
+        return mAdvertiseService;
+    }
+
+    public NearbyDiscoveryService getmDiscoveryService() {
+        return mDiscoveryService;
+    }
+
+    public AbstractConnectionService getmService() {
+        return mService;
+    }
+
 }
