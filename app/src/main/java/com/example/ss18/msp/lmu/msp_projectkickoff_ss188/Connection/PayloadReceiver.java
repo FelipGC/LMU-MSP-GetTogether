@@ -74,7 +74,7 @@ public final class PayloadReceiver extends PayloadCallback {
                         String newEndpointID = fileContent.substring(0, substringDividerIndex);
                         String newEndpointName = fileContent.substring(substringDividerIndex + 1);
                         //TODO how to discover if it is presenter
-                        cM.getDiscoveredEndpoints().put(newEndpointID, new ConnectionEndpoint(endpointId, newEndpointName));
+                        //cM.getDiscoveredEndpoints().put(newEndpointID, new ConnectionEndpoint(endpointId, newEndpointName));
                         break;
                     case "CHAT":
                         //If we already received it quit

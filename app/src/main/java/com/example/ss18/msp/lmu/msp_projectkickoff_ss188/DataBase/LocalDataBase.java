@@ -56,6 +56,7 @@ public final class LocalDataBase {
         return profilePicture;
     }
     public static Uri getProfilePictureUri(String id) {
+        Log.i(TAG,"RETREIVED ID: " + id + " " + idToUri.values());
         if(!idToUri.containsKey(id)) return null;
         return idToUri.get(id);
     }
@@ -63,6 +64,7 @@ public final class LocalDataBase {
     public static void addUriToID(Uri uri, String id){
         Log.i(TAG,"Added uri: " + uri + " to id: " + id);
         idToUri.put(id, uri);
+        Log.i(TAG,"ADDED ID: " + id + " " + idToUri.values());
         AppLogicActivity appLogicActivity = ConnectionManager.getAppLogicActivity();
         if(AppLogicActivity.getUserRole().getRoleType() == User.UserRole.PRESENTER)
             appLogicActivity.getSelectParticipantsFragment().updateParticipantsAvatar();
