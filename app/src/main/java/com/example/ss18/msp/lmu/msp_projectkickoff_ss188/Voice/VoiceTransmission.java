@@ -1,11 +1,15 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice;
 
 
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
+import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.widget.Toast;
@@ -13,24 +17,25 @@ import android.widget.Toast;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
-import com.google.android.gms.nearby.connection.Payload;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.NearbyAdvertiseService;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.ServiceBinder;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 
+import static android.content.Context.BIND_AUTO_CREATE;
 import static android.os.Process.THREAD_PRIORITY_AUDIO;
 import static android.os.Process.setThreadPriority;
 
 
-public final class VoiceTransmission implements IVoice {
+public final class VoiceTransmission implements IVoice, ServiceBinder {
 
     private boolean isRecording = false;
     private static final String TAG = "VoiceTransmission";
-    private static final PayloadSender pS = new PayloadSender();
+
     /**
      * The background thread recording audio for us.
      */
@@ -65,7 +70,7 @@ public final class VoiceTransmission implements IVoice {
                 continue;
             }
             // Send the first half of the payload (the read side) to Nearby Connections.
-            pS.startSendingVoice(payloadPipe[0]);
+            mService.broadcastStream(payloadPipe[0]);
             //Create output stream
             final OutputStream mOutputStream =  new ParcelFileDescriptor.AutoCloseOutputStream(payloadPipe[1]);
             outputStreamList.add(mOutputStream);
@@ -181,5 +186,31 @@ public final class VoiceTransmission implements IVoice {
         }
         //Track finished playing
         Toast.makeText(ConnectionManager.getAppLogicActivity(), "Ende der Sprachnachricht.", Toast.LENGTH_SHORT).show();
+    }
+
+    private NearbyAdvertiseService mService;
+
+    /**
+     * Defines callbacks for service binding, passed to bindService()
+     */
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            NearbyAdvertiseService.NearbyAdvertiseBinder binder = (NearbyAdvertiseService.NearbyAdvertiseBinder) service;
+            mService = (NearbyAdvertiseService) binder.getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mService = null;
+        }
+    };
+    @Override
+    public void bindToService() {
+        //Bind toService
+        Intent intent = new Intent(AppLogicActivity.getInstance(), NearbyAdvertiseService.class);
+        Objects.requireNonNull(AppLogicActivity.getInstance()).bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
     }
 }

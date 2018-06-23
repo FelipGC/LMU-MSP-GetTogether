@@ -1,21 +1,32 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl;
 
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.NearbyDiscoveryService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.MessageFactory;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.NotificationUtility;
-import com.google.android.gms.nearby.connection.Payload;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.ServiceBinder;
+
 
 import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.Constants.MAX_GPS_DISTANCE;
 
-public class CheckDistanceService extends AbstractLocationService implements MessageFactory {
+public class CheckDistanceService extends AbstractLocationService implements MessageFactory,ServiceBinder {
 
     private static String TAG = "CheckDistanceService";
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        bindToService();
+    }
 
     @Override
     protected void setUpdateDistance() {
@@ -68,14 +79,39 @@ public class CheckDistanceService extends AbstractLocationService implements Mes
     }
 
     @Override
-    public String fabricateMessage(String message) {
+    public String fabricateMessage(String... message) {
         String fabricatedMessage = "DISTANCE:" + message;
         return fabricatedMessage;
     }
 
+    private NearbyDiscoveryService mService;
+
     @Override
     public void transferFabricatedMessage(String message) {
         String fabricatedMessage = fabricateMessage(message);
-        AppLogicActivity.getInstance().getmService().broadcastMessage(fabricatedMessage);
+        mService.broadcastMessage(fabricatedMessage);
+    }
+    /**
+     * Defines callbacks for service binding, passed to bindService()
+     */
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            NearbyDiscoveryService.NearbyDiscoveryBinder binder = (NearbyDiscoveryService.NearbyDiscoveryBinder) service;
+            mService = (NearbyDiscoveryService) binder.getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mService = null;
+        }
+    };
+    @Override
+    public void bindToService() {
+        //Bind toService
+        Intent intent = new Intent(this, NearbyDiscoveryService.class);
+        this.bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
     }
 }

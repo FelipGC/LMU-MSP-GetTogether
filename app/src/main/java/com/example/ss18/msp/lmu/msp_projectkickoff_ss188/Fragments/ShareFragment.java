@@ -1,10 +1,13 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,12 +22,18 @@ import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.NearbyAdvertiseService;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.NearbyDiscoveryService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.MessageFactory;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.ServiceBinder;
 import com.google.android.gms.nearby.connection.Payload;
 
 import java.io.FileNotFoundException;
+import java.util.Objects;
 
+import static android.content.Context.BIND_AUTO_CREATE;
 import static android.content.Context.INPUT_METHOD_SERVICE;
 
 /**
@@ -32,9 +41,8 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
  * Read @see <a https://developer.android.com/guide/topics/providers/document-provider>this</a>
  * to see how it works in detail
  */
-public class ShareFragment extends Fragment {
+public class ShareFragment extends Fragment implements MessageFactory,ServiceBinder {
     private static final String TAG = "ShareFragment";
-    private PayloadSender payloadSender;
     /**
      * Code id for reading
      */
@@ -44,7 +52,7 @@ public class ShareFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_share, container, false);
-        payloadSender = new PayloadSender();
+        bindToService();
         return view;
     }
 
@@ -127,8 +135,9 @@ public class ShareFragment extends Fragment {
     private void sendDataToEndpoint(Uri uri) throws FileNotFoundException {
         Payload payload = dataToPayload(uri);
         // Mapping the ID of the file payload to the filename
-        String payloadStoringName = payload.getId() + ":IMAGE_PIC:" + uri.getLastPathSegment();
-        payloadSender.sendPayloadFile(payload, payloadStoringName);
+        String fabricateMessage = fabricateMessage(String.valueOf(payload.getId()),uri.getLastPathSegment());
+        transferFabricatedMessage(fabricateMessage);
+        mService.broadcastFile(payload.asFile().asParcelFileDescriptor());
         //Display Toast
         Toast.makeText(getContext(),"File sent!",Toast.LENGTH_SHORT).show();
     }
@@ -145,4 +154,38 @@ public class ShareFragment extends Fragment {
         return Payload.fromFile(file);
     }
 
+    private NearbyAdvertiseService mService;
+
+    @Override
+    public String fabricateMessage(String... message) {
+        return String.format("%s:IMAGE_PIC:%s",message[0],message[1]);
+    }
+
+    @Override
+    public void transferFabricatedMessage(String fabricatedMessage) {
+        mService.broadcastMessage(fabricatedMessage);
+    }
+    /**
+     * Defines callbacks for service binding, passed to bindService()
+     */
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            NearbyAdvertiseService.NearbyAdvertiseBinder binder = (NearbyAdvertiseService.NearbyAdvertiseBinder) service;
+            mService = (NearbyAdvertiseService) binder.getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mService = null;
+        }
+    };
+    @Override
+    public void bindToService() {
+        //Bind toService
+        Intent intent = new Intent(getContext(), NearbyAdvertiseService.class);
+        Objects.requireNonNull(getContext()).bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
+    }
 }

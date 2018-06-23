@@ -1,20 +1,32 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl;
 
 
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
 
+import android.os.IBinder;
 import android.util.Log;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.NearbyAdvertiseService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.MessageFactory;
-import com.google.android.gms.nearby.connection.Payload;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.ServiceBinder;
+
+import java.util.Objects;
 
 
-public class FrequentLocationService extends AbstractLocationService implements MessageFactory{
+public class FrequentLocationService extends AbstractLocationService implements MessageFactory,ServiceBinder {
 
     private final String TAG = "FrequentLocationService";
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        bindToService();
+    }
 
     @Override
     protected void setUpdateDistance() {
@@ -54,14 +66,39 @@ public class FrequentLocationService extends AbstractLocationService implements 
     }
 
     @Override
-    public String fabricateMessage(String message) {
+    public String fabricateMessage(String... message) {
         String fabricatedMessage = "LOCATION:" + message;
         return fabricatedMessage;
         }
 
+    private NearbyAdvertiseService mService;
+
     @Override
     public void transferFabricatedMessage(String message) {
         String fabricatedMessage = fabricateMessage(message);
-        AppLogicActivity.getInstance().getmService().broadcastMessage(fabricatedMessage);
+        mService.broadcastMessage(fabricatedMessage);
+    }
+    /**
+     * Defines callbacks for service binding, passed to bindService()
+     */
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            NearbyAdvertiseService.NearbyAdvertiseBinder binder = (NearbyAdvertiseService.NearbyAdvertiseBinder) service;
+            mService = (NearbyAdvertiseService) binder.getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mService = null;
+        }
+    };
+    @Override
+    public void bindToService() {
+        //Bind toService
+        Intent intent = new Intent(this, NearbyAdvertiseService.class);
+        Objects.requireNonNull(this).bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
     }
 }

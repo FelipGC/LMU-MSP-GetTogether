@@ -1,7 +1,5 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments;
 
-import android.arch.lifecycle.LifecycleOwner;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,26 +16,24 @@ import android.widget.ListView;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.Message;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.MessageAdapter;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.AbstractConnectionService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.MessageFactory;
-import com.google.android.gms.nearby.connection.Payload;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.ServiceBinder;
 
-import java.io.UnsupportedEncodingException;
-
-import static android.content.Context.INPUT_METHOD_SERVICE;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 
-public class ChatFragment extends Fragment implements View.OnClickListener, MessageFactory {
+
+public class ChatFragment extends Fragment implements View.OnClickListener, MessageFactory, ServiceBinder {
     private static final String TAG = "ChatFragment";
 
     private EditText editText;
     private static MessageAdapter messageAdapter;
     private static ListView messagesView;
     private ImageButton buttonSend;
-    private PayloadSender payloadSender;
+    private AbstractConnectionService mService;
 
     @Nullable
     @Override
@@ -50,7 +46,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener, Mess
         buttonSend = (ImageButton) view.findViewById(R.id.button_send);
         buttonSend.setOnClickListener(this);
         messagesView.setAdapter(messageAdapter);
-        payloadSender = new PayloadSender();
+        bindToService();
         return view;
     }
 
@@ -129,7 +125,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener, Mess
     }
 
     @Override
-    public String fabricateMessage(String message) {
+    public String fabricateMessage(String... message) {
         // Adding the CHAT tag to identify chat messages on receive.
         String messageToSend = "CHAT" + ":" + LocalDataBase.getUserName() + ":" + message;
         Log.i(TAG, "fabricateMessage(): " + messageToSend);
@@ -139,6 +135,11 @@ public class ChatFragment extends Fragment implements View.OnClickListener, Mess
     @Override
     public void transferFabricatedMessage(String message) {
         String fabricatedMessage = fabricateMessage(message);
-        AppLogicActivity.getInstance().getmService().broadcastMessage(fabricatedMessage);
+        mService.broadcastMessage(fabricatedMessage);
+    }
+
+    @Override
+    public void bindToService() {
+        mService = AppLogicActivity.getInstance().getmService();
     }
 }

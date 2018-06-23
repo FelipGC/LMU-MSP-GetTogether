@@ -1,8 +1,12 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments;
 
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.internal.BottomNavigationItemView;
@@ -21,22 +25,21 @@ import android.widget.Toast;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.NearbyAdvertiseService;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters.ViewerAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.MessageFactory;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.ServiceBinder;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission;
-import com.google.android.gms.nearby.connection.Payload;
 
-import java.io.UnsupportedEncodingException;
+import java.util.Objects;
 
-public class SelectParticipantsFragment extends Fragment implements MessageFactory{
+import static android.content.Context.BIND_AUTO_CREATE;
+
+public class SelectParticipantsFragment extends Fragment implements MessageFactory,ServiceBinder {
     private static final String TAG = "SelectParticipants";
     private View mainView;
     private ViewerAdapter viewerAdapter;
     private VoiceTransmission voiceTransmission;
-    private NearbyAdvertiseService mService;
-    private PayloadSender payloadSender = new PayloadSender();
     private ProgressBar progressBar;
     @SuppressLint("ClickableViewAccessibility")
     @Nullable
@@ -51,7 +54,7 @@ public class SelectParticipantsFragment extends Fragment implements MessageFacto
         else if(viewerAdapter.getCount() > 0)
             progressBar.setVisibility(View.GONE);
         listView.setAdapter(viewerAdapter);
-        mService = AppLogicActivity.getInstance().getmAdvertiseService();
+        bindToService();
         updateParticipantsGUI(null,mService.getConnectedEndpointsSize(),
                 mService.getPendingEndpointsSize());
         //Define pokeItem
@@ -277,7 +280,7 @@ public class SelectParticipantsFragment extends Fragment implements MessageFacto
     }
 
     @Override
-    public String fabricateMessage(String message) {
+    public String fabricateMessage(String... message) {
         Log.i(TAG, "sendPokeMessage()");
         // Adding the POKE_S tag to identify start vibration messages on receive.
         String fabricatedMessage = "POKE:" + message;
@@ -285,9 +288,34 @@ public class SelectParticipantsFragment extends Fragment implements MessageFacto
         return  fabricatedMessage;
     }
 
+    private NearbyAdvertiseService mService;
+
     @Override
     public void transferFabricatedMessage(String message) {
         String fabricatedMessage = fabricateMessage(message);
-        AppLogicActivity.getInstance().getmService().broadcastMessage(fabricatedMessage);
+        mService.broadcastMessage(fabricatedMessage);
+    }
+    /**
+     * Defines callbacks for service binding, passed to bindService()
+     */
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            NearbyAdvertiseService.NearbyAdvertiseBinder binder = (NearbyAdvertiseService.NearbyAdvertiseBinder) service;
+            mService = (NearbyAdvertiseService) binder.getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mService = null;
+        }
+    };
+    @Override
+    public void bindToService() {
+        //Bind toService
+        Intent intent = new Intent(getContext(), NearbyAdvertiseService.class);
+        Objects.requireNonNull(getContext()).bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
     }
 }
