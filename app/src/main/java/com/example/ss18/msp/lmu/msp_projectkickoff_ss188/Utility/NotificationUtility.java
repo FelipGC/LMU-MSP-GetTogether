@@ -3,6 +3,7 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -11,12 +12,19 @@ import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
 
 public class NotificationUtility {
 
     private static final String TAG = "Notification";
     private static final String CHANNEL_ID = "CHANNEL_ID_42";
+    private static final String PROGRESS_ID = "CHANNEL_ID_12";
 
     /**
      * Displays a notification message.
@@ -38,8 +46,38 @@ public class NotificationUtility {
                 .setPriority(priority);
         mBuilder.build();
         NotificationManager mNotificationManager = (NotificationManager) getAppLogicActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-        // notificationID allows you to update the notification later on.
+
+        //notificationID allows you to update the notification later on.
         mNotificationManager.notify(42, mBuilder.build());
+    }
+
+    public static void displayProgressNotifications(int progress, int total) {
+        //Notify the progress of the sent document
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getAppLogicActivity(), PROGRESS_ID)
+                .setSmallIcon(R.drawable.file_icon)
+                .setContentTitle("File im Senden")
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setPriority(Notification.PRIORITY_MAX);
+        mBuilder.build();
+        NotificationManager mNotificationManager = (NotificationManager) getAppLogicActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Issue the initial notification with zero progress
+        int PROGRESS_MAX = 100;
+        mBuilder.setProgress(PROGRESS_MAX, 0, false);
+        mNotificationManager.notify(12, mBuilder.build());
+
+        //Track progress
+        mBuilder.setProgress(PROGRESS_MAX, (int)(progress*100/total), false);
+        mNotificationManager.notify(12, mBuilder.build());
+
+        //IF done, update the notification to remove the progress bar
+        if (progress == total) {
+            mBuilder.setContentText("Complete")
+                    .setProgress(0,0,false);
+            mNotificationManager.notify(12, mBuilder.build());
+            mNotificationManager.cancel(12);
+        }
+
     }
 
     /**

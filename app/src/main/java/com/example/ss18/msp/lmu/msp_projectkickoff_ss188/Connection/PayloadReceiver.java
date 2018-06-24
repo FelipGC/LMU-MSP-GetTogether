@@ -1,9 +1,14 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.ParcelFileDescriptor;
+import android.renderscript.RenderScript;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.SimpleArrayMap;
@@ -13,6 +18,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActi
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.CheckDistanceService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.FixedSizeList;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.NotificationUtility;
@@ -20,7 +26,11 @@ import com.google.android.gms.nearby.connection.Payload;
 import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
@@ -134,11 +144,12 @@ public final class PayloadReceiver extends PayloadCallback {
     }
 
     @Override
-    public void onPayloadTransferUpdate(String endpointId, PayloadTransferUpdate update) {
+    public void onPayloadTransferUpdate(String endpointId, final PayloadTransferUpdate update) {
+        NotificationUtility.displayProgressNotifications((int)update.getBytesTransferred(), (int)update.getTotalBytes());
+
         if (update.getStatus() == PayloadTransferUpdate.Status.SUCCESS) {
             //Data fully received.
             Log.i(TAG, "Payload data fully received! ID=" + endpointId);
-            //Display a notification.
             //Checks to see if the message is a chat message or a document
             Payload payload = incomingPayloads.remove(update.getPayloadId());
             Log.i(TAG, "onPayloadTransferUpdate() Incoming payload: " + payload);
