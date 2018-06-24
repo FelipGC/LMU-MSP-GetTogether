@@ -15,6 +15,7 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.AppPreferences;
@@ -50,19 +51,13 @@ public class SplashActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.M)
     protected void setRequiredPermissions() {
         Log.i(TAG, "AsetRequiredPermissions()");
-        boolean waitingForPermission = false;
         //Check if we have all permissions, if not, then add!
         for (String permission : REQUIRED_PERMISSIONS) {
             if (ContextCompat.checkSelfPermission(this, permission)
                     != PackageManager.PERMISSION_GRANTED) {
-                waitingForPermission = true;
                 Log.i(TAG, "Requesting permission: " + permission);
                 requestPermissions(REQUIRED_PERMISSIONS, 1);
-                return;
             }
-        }
-        if(!waitingForPermission){
-            onAllPermissionsGranted();
         }
     }
 
@@ -85,7 +80,6 @@ public class SplashActivity extends AppCompatActivity {
             }
             recreate();
         }
-        onAllPermissionsGranted();
     }
     //endregion
 
@@ -121,6 +115,8 @@ public class SplashActivity extends AppCompatActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_splash_screen);
         //Disable rotation
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 
@@ -131,8 +127,6 @@ public class SplashActivity extends AppCompatActivity {
         }else{
             onAllPermissionsGranted();
         }
-        super.onCreate(savedInstanceState);
-
         createNotificationChannel();
 
     }
@@ -158,5 +152,7 @@ public class SplashActivity extends AppCompatActivity {
     }
 
 
-
+    public void startApp(View view) {
+        onAllPermissionsGranted();
+    }
 }

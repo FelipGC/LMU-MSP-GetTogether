@@ -10,7 +10,7 @@
     <item>
 
         <bitmap
-            android:src="@drawable/viewer_icon"
+            android:src="@drawable/presenter_icon"
             android:gravity="center"/>
     </item>
 </layer-list>
