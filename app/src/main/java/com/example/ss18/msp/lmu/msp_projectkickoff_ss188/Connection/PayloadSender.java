@@ -1,6 +1,11 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.location.Location;
+import android.os.IBinder;
 import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
@@ -10,15 +15,31 @@ import com.google.android.gms.nearby.connection.Payload;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 
+import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
+
 public class PayloadSender {
 
-    private final ConnectionManager cM;
     private final String TAG = "PayloadSender";
+    private ConnectionManager cM;
+
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            ConnectionManager.ConnectionManagerBinder myBinder = (ConnectionManager.ConnectionManagerBinder) service;
+            cM = myBinder.getService();
+        }
+    };
 
     public PayloadSender() {
         Log.i(TAG, "new PayloadSender()");
-        cM = ConnectionManager.getInstance();
-        Log.i(TAG, "cM: " + cM);
+        Intent intent = new Intent(getAppLogicActivity(), ConnectionManager.class);
+        getAppLogicActivity().bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+        getAppLogicActivity().serviceConnections.add(mServiceConnection);
     }
 
     public void sendChatMessage(String chatMessage) throws UnsupportedEncodingException {

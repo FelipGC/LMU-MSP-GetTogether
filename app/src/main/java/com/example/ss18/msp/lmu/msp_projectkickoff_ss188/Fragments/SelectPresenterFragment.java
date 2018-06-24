@@ -1,7 +1,11 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments;
 
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -26,6 +30,8 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters.PresenterAdapt
 import java.util.Arrays;
 import java.util.HashSet;
 
+import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
+
 public class SelectPresenterFragment extends Fragment {
     private static final String TAG = "SelectPresenter";
     private ListView availablePresenters;
@@ -37,6 +43,7 @@ public class SelectPresenterFragment extends Fragment {
     private TextView availableTitle;
     private ConnectionManager cM;
     private ProgressBar progressBar;
+
     /**
      * Views to display when at least on endpoint is found
      */
@@ -45,15 +52,31 @@ public class SelectPresenterFragment extends Fragment {
      * Views to display when no endpoint is found
      */
     private HashSet<View> viewNoDevices = new HashSet<>();
+    private boolean connected = false;
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            connected = false;
+        }
 
-    public SelectPresenterFragment() {
-    }
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            ConnectionManager.ConnectionManagerBinder myBinder = (ConnectionManager.ConnectionManagerBinder) service;
+            cM = myBinder.getService();
+            connected = true;
+        }
+    };
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_available_presenters, container, false);
-        cM = AppLogicActivity.getConnectionManager();
+
+        if (!connected) {
+            Intent intent = new Intent(getAppLogicActivity(), ConnectionManager.class);
+            getAppLogicActivity().bindService(intent, mServiceConnection, getAppLogicActivity().BIND_AUTO_CREATE);
+            getAppLogicActivity().serviceConnections.add(mServiceConnection);
+        }
 
         viewDevicesFound.addAll(Arrays.asList(
                 availablePresenters = view.findViewById(R.id.presentersListView_available),
@@ -67,11 +90,11 @@ public class SelectPresenterFragment extends Fragment {
 
 
         //Set adapters
-        if(availAdapter == null)
-            availAdapter = new PresenterAdapter(getContext(),false);
-        if(estAdapter == null)
-            estAdapter = new PresenterAdapter(getContext(),true);
-        else if(estAdapter.getCount() > 0)
+        if (availAdapter == null)
+            availAdapter = new PresenterAdapter(getContext(), false);
+        if (estAdapter == null)
+            estAdapter = new PresenterAdapter(getContext(), true);
+        else if (estAdapter.getCount() > 0)
             progressBar.setVisibility(View.GONE);
         availablePresenters.setAdapter(availAdapter);
         establishedPresenters.setAdapter(estAdapter);
@@ -83,25 +106,39 @@ public class SelectPresenterFragment extends Fragment {
             public void onClick(View v) {
                 Log.i(TAG, "setOnClickListener() " + cM.getPendingConnections().toString());
                 final ConnectionEndpoint[] endps = cM.getPendingConnections().values().toArray(new ConnectionEndpoint[0]);
-                if(endps.length == 0)
+                if (endps.length == 0)
                     return;
                 final String[] deviceNicknames = new String[endps.length];
                 //Assign nicknames
-                for (int i = 0; i <deviceNicknames.length; i++) {
+                for (int i = 0; i < deviceNicknames.length; i++) {
                     deviceNicknames[i] = endps[i].getName();
                 }
                 final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(R.string.pending_devices);
-                builder.setItems(deviceNicknames,null);
+                builder.setItems(deviceNicknames, null);
                 builder.create().show();
             }
         });
 
         //Hide GUI we do not want
-        for (View view_it : viewNoDevices)
-            view_it.setVisibility(View.VISIBLE);
+        if(estAdapter.getCount()+estAdapter.getCount() == 0) {
+            for (View view_it : viewNoDevices)
+                view_it.setVisibility(View.VISIBLE);
+        }
         for (View view_it : viewDevicesFound)
             view_it.setVisibility(View.GONE);
+        if (availAdapter.getCount() > 0) {
+            availableTitle.setVisibility(View.VISIBLE);
+            availablePresenters.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.GONE);
+        }
+        if (estAdapter.getCount() > 0) {
+            joinedTitle.setVisibility(View.VISIBLE);
+            establishedPresenters.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.GONE);
+        }
+
+        updateJoinedPresentersAvatar();
 
         return view;
     }
@@ -109,14 +146,14 @@ public class SelectPresenterFragment extends Fragment {
     /**
      * Removes an endPoint from the adapters (for example when he disconnects)
      */
-    public void removeEndpointFromAdapters(ConnectionEndpoint connectionEndpoint){
-        Log.i(TAG,"REMOVE ENDPOINT FROM ADAPTERS");
+    public void removeEndpointFromAdapters(ConnectionEndpoint connectionEndpoint) {
+        Log.i(TAG, "REMOVE ENDPOINT FROM ADAPTERS");
         ((PresenterAdapter) availablePresenters.getAdapter()).remove(connectionEndpoint);
         ((PresenterAdapter) establishedPresenters.getAdapter()).remove(connectionEndpoint);
-        if(cM == null || cM.getPendingConnections().size() == 0) {
+        if (cM == null || cM.getPendingConnections().size() == 0) {
             pendingButton.setVisibility(View.GONE);
-        }
-        else pendingButton.setText(String.format("Pending Connection(s): %d", cM.getPendingConnections().size()));
+        } else
+            pendingButton.setText(String.format("Pending Connection(s): %d", cM.getPendingConnections().size()));
     }
 
     /**
@@ -124,7 +161,7 @@ public class SelectPresenterFragment extends Fragment {
      * or has already connected to
      */
     public synchronized void updateDeviceList(ConnectionEndpoint endpoint) {
-        Log.i(TAG, "updateDeviceList( "+endpoint+" )");
+        Log.i(TAG, "updateDeviceList( " + endpoint + " )");
         //We found no device
         if (cM == null || cM.getDiscoveredEndpoints().size() == 0) {
             for (View view : viewDevicesFound)
@@ -133,7 +170,7 @@ public class SelectPresenterFragment extends Fragment {
                 viewNoDevice.setVisibility(View.VISIBLE);
             progressBar.setVisibility(View.VISIBLE);
             progressBar.getIndeterminateDrawable()
-                    .setColorFilter(ContextCompat.getColor(getContext(), R.color.colorAccent), PorterDuff.Mode.SRC_IN );
+                    .setColorFilter(ContextCompat.getColor(getContext(), R.color.colorAccent), PorterDuff.Mode.SRC_IN);
         }//We found devices
         else {
             //Hide GUI we do not want
@@ -144,14 +181,14 @@ public class SelectPresenterFragment extends Fragment {
             //Update lists
             updateListViews(endpoint);
             //Progress bar
-            if(estAdapter.getCount() > 0)
+            if (estAdapter.getCount() > 0)
                 progressBar.setVisibility(View.GONE);
-            else if(availAdapter.getCount() > 0){
+            else if (availAdapter.getCount() > 0) {
                 progressBar.getIndeterminateDrawable()
-                        .setColorFilter(ContextCompat.getColor(getContext(), R.color.greenAccent), PorterDuff.Mode.SRC_IN );
-            }else{
+                        .setColorFilter(ContextCompat.getColor(getContext(), R.color.greenAccent), PorterDuff.Mode.SRC_IN);
+            } else {
                 progressBar.getIndeterminateDrawable()
-                        .setColorFilter(ContextCompat.getColor(getContext(), R.color.colorAccent), PorterDuff.Mode.SRC_IN );
+                        .setColorFilter(ContextCompat.getColor(getContext(), R.color.colorAccent), PorterDuff.Mode.SRC_IN);
             }
         }
     }
@@ -167,17 +204,17 @@ public class SelectPresenterFragment extends Fragment {
         else if (!cM.getPendingConnections().containsKey(endpoint.getId()))
             targetListView = availablePresenters;
         //Add or replace element form listView
-        HashSet<ListView> listViews = new HashSet<>(Arrays.asList(establishedPresenters, availablePresenters,null));
+        HashSet<ListView> listViews = new HashSet<>(Arrays.asList(establishedPresenters, availablePresenters, null));
         for (ListView listView : listViews) {
             PresenterAdapter presenterAdapter = null;
-            if(listView != null)
+            if (listView != null)
                 presenterAdapter = (PresenterAdapter) listView.getAdapter();
             //Rename is necessary
             final String displayName = endpoint.getName();
             //Update listView
             if (listView == targetListView) {
                 //Add endpoint to list
-                if(presenterAdapter != null) {
+                if (presenterAdapter != null) {
                     presenterAdapter.add(endpoint);
                     Log.i(TAG, "Added to list: " + displayName);
                 }
@@ -193,9 +230,9 @@ public class SelectPresenterFragment extends Fragment {
                         joinedTitle.setVisibility(View.GONE);
                 }
             }
-            if(cM.getPendingConnections().size() == 0)
+            if (cM.getPendingConnections().size() == 0)
                 pendingButton.setVisibility(View.GONE);
-            else{
+            else {
 
                 pendingButton.setText(String.format("Pending Connection(s): %d", cM.getPendingConnections().size()));
             }

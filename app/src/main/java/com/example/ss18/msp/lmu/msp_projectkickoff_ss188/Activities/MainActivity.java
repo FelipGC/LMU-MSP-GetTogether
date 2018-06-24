@@ -1,8 +1,11 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -21,7 +24,9 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.Presenter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.Spectator;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 
-public class  MainActivity extends BaseActivity {
+import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
+
+public class MainActivity extends BaseActivity {
 
     private static final String TAG = "MAIN_ACTIVITY";
 
@@ -61,34 +66,34 @@ public class  MainActivity extends BaseActivity {
 
     /**
      * Gets executed when the user selects "Settings" on the activity menu
+     *
      * @param item the clicked Menuitem
      */
-    public void onClickSettings(MenuItem item){
-        Log.i(TAG,"Settings option clicked");
-        Intent myIntent = new Intent(MainActivity.this,SettingsActivity.class);
+    public void onClickSettings(MenuItem item) {
+        Log.i(TAG, "Settings option clicked");
+        Intent myIntent = new Intent(MainActivity.this, SettingsActivity.class);
         MainActivity.this.startActivity(myIntent);
     }
 
     /**
-     *Gets executen when the user presses the endApplication button and ends the application
+     * Gets executen when the user presses the endApplication button and ends the application
+     *
      * @param item The clicked Menuitem
      */
-    public void endApplication(MenuItem item){
-       Log.i(TAG,"User closed the app!");
-       ConnectionManager c = AppLogicActivity.getConnectionManager();
-       if(c == null)
-           return;
-       c.terminateConnection();
-       finish();
+    public void endApplication(MenuItem item) {
+        Log.i(TAG, "User closed the app!");
+        Intent intent = new Intent(this, ConnectionManager.class);
+        finish();
     }
 
     /**
      * Gets executed when the user selects "About" on the activity menu
+     *
      * @param item The clicked Menuitem
      */
-    public void onClickAbout(MenuItem item){
+    public void onClickAbout(MenuItem item) {
 
-        Log.i(TAG,"About option clicked");
+        Log.i(TAG, "About option clicked");
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("About");
         dialog.setMessage(R.string.aboutTextCredits);
@@ -104,10 +109,11 @@ public class  MainActivity extends BaseActivity {
 
     /**
      * Gets executed when the user selects "Help" on the activity menu
+     *
      * @param item The clicked Menuitem
      */
-    public void onClickHelp(MenuItem item){
-        Log.i(TAG,"Help option clicked");
+    public void onClickHelp(MenuItem item) {
+        Log.i(TAG, "Help option clicked");
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Help & Feedback");
         dialog.setMessage(R.string.help_feedback);
@@ -145,9 +151,10 @@ public class  MainActivity extends BaseActivity {
 
     /**
      * Creates a new (secondary) activity
+     *
      * @param userRole Implementation of User with specific role
      */
-    private void createSecondaryActivity(User userRole){
+    private void createSecondaryActivity(User userRole) {
         Intent intent = new Intent(this, AppLogicActivity.class);
         intent.putExtra("UserRole", userRole);
         startActivity(intent);

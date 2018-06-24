@@ -47,7 +47,11 @@
         <service
             android:name=".DistanceControl.CheckDistanceService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+        <service
+            android:name=".Connection.ConnectionManager"
+            android:enabled="true"
+            android:exported="true" />
     </application>
 
 </manifest>

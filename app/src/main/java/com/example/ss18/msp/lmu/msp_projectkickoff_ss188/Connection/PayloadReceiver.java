@@ -1,11 +1,14 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
+import android.content.ComponentName;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.location.Location;
 import android.net.Uri;
+import android.os.IBinder;
 import android.os.AsyncTask;
 import android.os.ParcelFileDescriptor;
 import android.renderscript.RenderScript;
@@ -40,16 +43,31 @@ import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.Constant
 public final class PayloadReceiver extends PayloadCallback {
 
     private final String TAG = "PayloadReceiver";
-    private ConnectionManager cM;
     private static final FixedSizeList fixedSizeList = new FixedSizeList();
     //SimpleArrayMap is a more efficient data structure when lots of changes occur (in comparision to hash map)
     private final SimpleArrayMap<Long, Payload> incomingPayloads = new SimpleArrayMap<>();
     private final SimpleArrayMap<Long, String> filePayloadFilenames = new SimpleArrayMap<>();
 
+    private ConnectionManager cM;
+
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            ConnectionManager.ConnectionManagerBinder myBinder = (ConnectionManager.ConnectionManagerBinder) service;
+            cM = myBinder.getService();
+        }
+    };
+
     PayloadReceiver() {
         Log.i(TAG, "new PayloadReceiver()");
-        cM = ConnectionManager.getInstance();
-        Log.i(TAG, "CM: " + cM);
+        Intent intent = new Intent(getAppLogicActivity(), ConnectionManager.class);
+        getAppLogicActivity().bindService(intent, mServiceConnection, getAppLogicActivity().BIND_AUTO_CREATE);
+        getAppLogicActivity().serviceConnections.add(mServiceConnection);
     }
 
     //Note: onPayloadReceived() is called when the first byte of a Payload is received;

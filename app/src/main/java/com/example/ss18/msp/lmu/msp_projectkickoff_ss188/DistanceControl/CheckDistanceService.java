@@ -27,7 +27,7 @@ public class CheckDistanceService extends AbstractLocationService {
     @Override
     protected void setLocationListener() {
         listener = new LocationListener() {
-            private float lastDistance = -1;
+            private float lastDistance = 99999;
             @Override
             public void onLocationChanged(Location location) {
                 locationManager.removeUpdates(CheckDistanceService.this.listener);
@@ -35,7 +35,7 @@ public class CheckDistanceService extends AbstractLocationService {
                 if(locationTo == null)
                     return;
                 float distance = LocationUtility.getDistanceBetween(location,locationTo);
-                Log.i(TAG,"DISTANCE: " + distance);
+                Log.i(TAG,"DISTANCE: " + distance + " Last Distance: " + lastDistance);
                 if(distance > MAX_GPS_DISTANCE){
                     //TODO: DISPLAY NOTIFICATION
                     NotificationUtility.displayNotification("ACHTUNG",

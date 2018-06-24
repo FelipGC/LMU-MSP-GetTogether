@@ -1,9 +1,14 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments;
 
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.internal.BottomNavigationItemView;
@@ -27,19 +32,49 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters.ViewerAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission;
 
+import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
+
 public class SelectParticipantsFragment extends Fragment {
     private static final String TAG = "SelectParticipants";
     private static View mainView;
-    private static ConnectionManager connectionManager;
     private static ViewerAdapter viewerAdapter = null;
     private VoiceTransmission voiceTransmission;
     private ProgressBar progressBar;
+    private boolean connected = false;
+    private ConnectionManager connectionManager;
+
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            connected = false;
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            ConnectionManager.ConnectionManagerBinder myBinder = (ConnectionManager.ConnectionManagerBinder) service;
+            connectionManager = myBinder.getService();
+            voiceTransmission = AppLogicActivity.getVoiceTransmission();
+            updateParticipantsGUI(null,connectionManager.getEstablishedConnections().size(),
+                    connectionManager.getDiscoveredEndpoints().size());
+            connected = true;
+        }
+    };
+
     @SuppressLint("ClickableViewAccessibility")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mainView = inflater.inflate(R.layout.fragment_participants,container,false);
-        connectionManager = AppLogicActivity.getConnectionManager();
+        if(!connected) {
+            Intent intent = new Intent(getAppLogicActivity(), ConnectionManager.class);
+            getAppLogicActivity().bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+            getAppLogicActivity().serviceConnections.add(mServiceConnection);
+        }
+        else {
+            updateParticipantsGUI(null, connectionManager.getEstablishedConnections().size(),
+                    connectionManager.getDiscoveredEndpoints().size());
+        }
         progressBar = mainView.findViewById(R.id.progressBar);
         if(viewerAdapter == null)
             viewerAdapter = new ViewerAdapter(getContext());
@@ -47,8 +82,7 @@ public class SelectParticipantsFragment extends Fragment {
             progressBar.setVisibility(View.GONE);
         ListView listView = mainView.findViewById(R.id.viewerList);
         listView.setAdapter(viewerAdapter);
-        updateParticipantsGUI(null,connectionManager.getEstablishedConnections().size(),
-                connectionManager.getDiscoveredEndpoints().size());
+
         //Define pokeItem
         BottomNavigationItemView pokeItem = mainView.findViewById(R.id.vibrieren);
         pokeItem.setOnTouchListener(new View.OnTouchListener() {
@@ -75,7 +109,6 @@ public class SelectParticipantsFragment extends Fragment {
                 return true;
             }
         });
-        voiceTransmission = AppLogicActivity.getVoiceTransmission();
 
         BottomNavigationItemView gpsButton = mainView.findViewById(R.id.gps);
         gpsButton.setOnTouchListener(new View.OnTouchListener() {
@@ -262,7 +295,6 @@ public class SelectParticipantsFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        endPoking();
         super.onDestroy();
     }
 

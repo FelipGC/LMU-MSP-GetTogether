@@ -1,9 +1,14 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
+import android.app.Service;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.net.Uri;
+import android.os.Binder;
+import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
@@ -31,15 +36,16 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * Stores everything we need related to the NearbyConnection process.
  */
-public class ConnectionManager {
+public class ConnectionManager extends Service {
 
     private final String TAG = "ConnectionManager";
-    private static final ConnectionManager CONNECTION_MANAGER = new ConnectionManager();
     /**
      * The connection strategy as defined in https://developers.google.com/nearby/connections/strategies
      */
@@ -51,19 +57,24 @@ public class ConnectionManager {
 
     PayloadSender payloadSender;
 
-    public static ConnectionManager getInstance() {
-        return CONNECTION_MANAGER;
-    }
 
     /**
      * A reference to the corresponding activity
      */
     private static AppLogicActivity appLogicActivity;
 
-    private ConnectionManager() {
-        Log.i(TAG,"new ConnectionManager");
-    } //( Due to Singleton)
+    private final IBinder binder = new ConnectionManagerBinder();
 
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
+    }
+    public class ConnectionManagerBinder extends Binder {
+        public ConnectionManager getService() {
+            return ConnectionManager.this;
+        }
+    }
     /**
      * Callbacks for connections to other devices.
      */
@@ -251,16 +262,24 @@ public class ConnectionManager {
     /**
      * Currently discovered devices near us.
      */
-    private final HashMap<String, ConnectionEndpoint> discoveredEndpoints = new HashMap<>();
+    private HashMap<String, ConnectionEndpoint> discoveredEndpoints;
 
     /**
      * All devices we are currently connected to.
      */
-    private final HashMap<String, ConnectionEndpoint> establishedConnections = new HashMap<>();
+    private HashMap<String, ConnectionEndpoint> establishedConnections;
     /**
      * All devices we want to connect with (for the discoverer)
      */
-    private final HashMap<String, ConnectionEndpoint> pendingConnections = new HashMap<>();
+    private HashMap<String, ConnectionEndpoint> pendingConnections;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        discoveredEndpoints = new HashMap<>();
+        establishedConnections = new HashMap<>();
+        pendingConnections = new HashMap<>();
+    }
 
     /**
      * Starts advertising to be spotted by discoverers (= viewers)
@@ -338,9 +357,6 @@ public class ConnectionManager {
         discoveredEndpoints.clear();
         pendingConnections.clear();
         establishedConnections.clear();
-        //Define Sender & Receiver
-        payloadSender = new PayloadSender();
-        payloadCallback = new PayloadReceiver();
     }
 
     /**
@@ -440,6 +456,9 @@ public class ConnectionManager {
         Log.i(TAG,"Setting up connection client");
         this.appLogicActivity = appLogicActivity;
         this.connectionsClient = Nearby.getConnectionsClient(appLogicActivity);
+        //Define Sender & Receiver
+        payloadSender = new PayloadSender();
+        payloadCallback = new PayloadReceiver();
     }
 
     public void disconnectFromEndpoint(String endpointID) {
@@ -513,4 +532,5 @@ public class ConnectionManager {
     public PayloadSender getPayloadSender() {
         return payloadSender;
     }
+
 }

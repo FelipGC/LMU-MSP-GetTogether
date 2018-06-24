@@ -1,8 +1,12 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,9 +21,12 @@ import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
 import java.util.ArrayList;
+
+import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
 
 /**
  * Adapter for storing/handling (available) presenters for the "SelectPresenterFragment"
@@ -31,9 +38,28 @@ public class PresenterAdapter extends BaseAdapter {
     private final ArrayList<ConnectionEndpoint> endpointList = new ArrayList<ConnectionEndpoint>();
     private Context context;
 
+    private ConnectionManager cM;
+
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            ConnectionManager.ConnectionManagerBinder myBinder = (ConnectionManager.ConnectionManagerBinder) service;
+            cM = myBinder.getService();
+        }
+    };
+
+
     public PresenterAdapter(Context context, boolean enableSwitch) {
         this.context = context;
         this.enableSwitch = enableSwitch;
+        Intent intent = new Intent(getAppLogicActivity(), ConnectionManager.class);
+        getAppLogicActivity().bindService(intent, mServiceConnection, getAppLogicActivity().BIND_AUTO_CREATE);
+        getAppLogicActivity().serviceConnections.add(mServiceConnection);
     }
 
     public boolean contains(String id) {
@@ -127,9 +153,9 @@ public class PresenterAdapter extends BaseAdapter {
                 //OnClick: Add to pending list
                 Toast.makeText(context, String.format(String.format("Requested to join: %s",
                         endpoint.getName())), Toast.LENGTH_SHORT).show();
-                AppLogicActivity.getConnectionManager().getPendingConnections().put(endpoint.getId(), endpoint);
-                AppLogicActivity.getConnectionManager().requestConnection(endpoint);
-                AppLogicActivity.getConnectionManager().updatePresenters(endpoint);
+                cM.getPendingConnections().put(endpoint.getId(), endpoint);
+                cM.requestConnection(endpoint);
+                cM.updatePresenters(endpoint);
             }
         });
         alertDialog.show();
@@ -162,8 +188,8 @@ public class PresenterAdapter extends BaseAdapter {
                 Toast.makeText(context, String.format(String.format("Unsubscribed from: %s",
                         connectionEndpoint.getName())), Toast.LENGTH_SHORT).show();
                 //Disconnect from endpoint
-                AppLogicActivity.getConnectionManager().disconnectFromEndpoint(connectionEndpoint.getId());
-                AppLogicActivity.getConnectionManager().updatePresenters(connectionEndpoint);
+                cM.disconnectFromEndpoint(connectionEndpoint.getId());
+                cM.updatePresenters(connectionEndpoint);
             }
         });
 

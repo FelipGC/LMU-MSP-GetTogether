@@ -1,14 +1,14 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
-import android.content.Context;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.text.GetChars;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
@@ -27,16 +27,20 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.AppContext;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission;
 
+import java.util.ArrayList;
+
+import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
+
+
 public class AppLogicActivity extends BaseActivity implements AppContext {
+
+    public final ArrayList<ServiceConnection> serviceConnections = new ArrayList<>();
+
     /**
      * Tag for Logging/Debugging
      */
     private static final String TAG = "SECONDARY_ACTIVITY";
 
-    /**
-     * A reference to the nearby connection manager object
-     */
-    private static ConnectionManager connectionManager;
 
     /**
      * The role of the user (Presenter/Spectator)
@@ -49,11 +53,67 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     private InboxFragment inboxFragment;
     private ChatFragment chatFragment;
     private TabPageAdapter tabPageAdapter;
-    private final static VoiceTransmission voiceTransmission = new VoiceTransmission();
+    private static VoiceTransmission voiceTransmission;
+
+    private ConnectionManager connectionManager;
+    private AppLogicActivity appLogicActivity;
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.i(TAG,"onServiceConnected()");
+            ConnectionManager.ConnectionManagerBinder myBinder = (ConnectionManager.ConnectionManagerBinder) service;
+            connectionManager = myBinder.getService();
+            connectionManager.setUpConnectionsClient(appLogicActivity);
+
+
+            //Set up tabs
+            tabPageAdapter = new TabPageAdapter(getSupportFragmentManager());
+            switch (getUserRole().getRoleType()) {
+
+                case SPECTATOR:
+                    startDiscovering();
+                    //Add tabs for spectator
+                    tabPageAdapter.addFragment(selectPresenterFragment = new SelectPresenterFragment(), "Presenters");
+                    tabPageAdapter.addFragment(inboxFragment = new InboxFragment(), "Inbox");
+                    tabPageAdapter.addFragment(new LiveViewFragment(), "Live");
+                    tabPageAdapter.addFragment(chatFragment = new ChatFragment(), "Chat");
+                    selectPresenterFragment.reset();
+                    break;
+                case PRESENTER:
+                    startAdvertising();
+                    //Add tabs for presenter
+                    tabPageAdapter.addFragment(selectParticipantsFragment = new SelectParticipantsFragment(), "Participants");
+                    tabPageAdapter.addFragment(new PresentationFragment(), getString(R.string.presentation_tabName));
+                    tabPageAdapter.addFragment(shareFragment = new ShareFragment(), "Share");
+                    tabPageAdapter.addFragment(chatFragment = new ChatFragment(), "Chat");
+                    selectParticipantsFragment.reset();
+                    break;
+                default:
+                    Log.e(TAG, "Role type missing!");
+                    return;
+
+            }
+            ViewPager viewPager = findViewById(R.id.pager);
+            viewPager.setAdapter(tabPageAdapter);
+
+            TabLayout tabLayout = findViewById(R.id.tabs);
+            tabLayout.setupWithViewPager(viewPager);
+
+            voiceTransmission = new VoiceTransmission();
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.onCreate(R.layout.activity_app_logic);
+
+        appLogicActivity = this;
 
         getSupportActionBar().setTitle(LocalDataBase.getUserName()); //TODO
 
@@ -61,41 +121,15 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
         setUserRole((User) getIntent().getSerializableExtra("UserRole"));
         Log.i(TAG, "Secondary activity created as: " + getUserRole().getRoleType());
         //Connection
-        connectionManager = ConnectionManager.getInstance(); //Singleton
-        connectionManager.setUpConnectionsClient(this);
-
-        //Set up tabs
-        tabPageAdapter = new TabPageAdapter(getSupportFragmentManager());
-        switch (getUserRole().getRoleType()) {
-
-            case SPECTATOR:
-                startDiscovering();
-                //Add tabs for spectator
-                tabPageAdapter.addFragment(selectPresenterFragment = new SelectPresenterFragment(), "Presenters");
-                tabPageAdapter.addFragment(inboxFragment = new InboxFragment(), "Inbox");
-                tabPageAdapter.addFragment(new LiveViewFragment(), "Live");
-                tabPageAdapter.addFragment(chatFragment = new ChatFragment(), "Chat");
-                selectPresenterFragment.reset();
-                break;
-            case PRESENTER:
-                startAdvertising();
-                //Add tabs for presenter
-                tabPageAdapter.addFragment(selectParticipantsFragment = new SelectParticipantsFragment(), "Participants");
-                tabPageAdapter.addFragment(new PresentationFragment(), getString(R.string.presentation_tabName));
-                tabPageAdapter.addFragment(shareFragment = new ShareFragment(), "Share");
-                tabPageAdapter.addFragment(chatFragment = new ChatFragment(), "Chat");
-                selectParticipantsFragment.reset();
-                break;
-            default:
-                Log.e(TAG, "Role type missing!");
-                return;
-
-        }
-        ViewPager viewPager = findViewById(R.id.pager);
-        viewPager.setAdapter(tabPageAdapter);
-
-        TabLayout tabLayout = findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(viewPager);
+        final Intent intent = new Intent(this, ConnectionManager.class);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                startService(intent);
+            }
+        }).start();
+        bindService(intent, mServiceConnection, this.BIND_AUTO_CREATE);
+        serviceConnections.add(mServiceConnection);
     }
 
     /**
@@ -177,6 +211,10 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     @Override
     protected void onDestroy() {
         Log.i(TAG, "onDestroy() -> terminating nearby connection");
+        for (ServiceConnection s: serviceConnections) {
+            unbindService(s);
+        }
+        serviceConnections.clear();
         connectionManager.terminateConnection();
         if (chatFragment != null) {
             chatFragment.clearContent();
@@ -184,10 +222,6 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
         super.onDestroy();
     }
     //Getters and Setters
-
-    public static ConnectionManager getConnectionManager() {
-        return connectionManager;
-    }
 
     public InboxFragment getInboxFragment() {
         return inboxFragment;

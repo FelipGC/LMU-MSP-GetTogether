@@ -1,11 +1,16 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice;
 
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
+import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.widget.Toast;
@@ -18,16 +23,38 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 import static android.os.Process.THREAD_PRIORITY_AUDIO;
 import static android.os.Process.setThreadPriority;
+import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
 
 
 public final class VoiceTransmission implements IVoice {
 
     private boolean isRecording = false;
     private static final String TAG = "VoiceTransmission";
+
+    private ConnectionManager cM;
+
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            ConnectionManager.ConnectionManagerBinder myBinder = (ConnectionManager.ConnectionManagerBinder) service;
+            cM = myBinder.getService();
+        }
+    };
+
+    public VoiceTransmission(){
+        Intent intent = new Intent(getAppLogicActivity(), ConnectionManager.class);
+        getAppLogicActivity().bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+        getAppLogicActivity().serviceConnections.add(mServiceConnection);
+    }
+
     /**
      * The background thread recording audio for us.
      */
@@ -50,7 +77,7 @@ public final class VoiceTransmission implements IVoice {
                         buffer.size);
 
         final ArrayList<OutputStream> outputStreamList = new ArrayList<>();
-        for (final String id : AppLogicActivity.getConnectionManager().getEstablishedConnections().keySet()) {
+        for (final String id : cM.getEstablishedConnections().keySet()) {
             Log.i(TAG, "RECORDING FOR: " + id);
             final ParcelFileDescriptor[] payloadPipe;
             try {
@@ -61,7 +88,7 @@ public final class VoiceTransmission implements IVoice {
                 break;
             }
             // Send the first half of the payload (the read side) to Nearby Connections.
-            ConnectionManager.getInstance().getPayloadSender().
+            cM.getPayloadSender().
                     startSendingVoice(id, Payload.fromStream(payloadPipe[0]));
             //Create output stream
             final OutputStream mOutputStream = new ParcelFileDescriptor.AutoCloseOutputStream(payloadPipe[1]);
