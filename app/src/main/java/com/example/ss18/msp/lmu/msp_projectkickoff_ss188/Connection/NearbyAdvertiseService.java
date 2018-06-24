@@ -65,7 +65,7 @@ public class NearbyAdvertiseService extends AbstractConnectionService implements
         if (alreadyConnected(endpointId)) {
             return;
         }
-        if (!isPending(endpointId)) {
+        if (isNotPending(endpointId)) {
             return;
         }
         connectionsClient.acceptConnection(endpointId, payloadCallback);
@@ -76,7 +76,7 @@ public class NearbyAdvertiseService extends AbstractConnectionService implements
         if (alreadyConnected(endpointId)) {
             return;
         }
-        if (!isPending(endpointId)) {
+        if (isNotPending(endpointId)) {
             return;
         }
         connectionsClient.rejectConnection(endpointId);

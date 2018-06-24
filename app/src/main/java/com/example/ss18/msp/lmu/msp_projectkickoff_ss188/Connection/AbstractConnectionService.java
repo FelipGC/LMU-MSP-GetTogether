@@ -16,6 +16,7 @@ import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.nearby.connection.Strategy;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +27,8 @@ public abstract class AbstractConnectionService extends Service implements IServ
     private final Map<String, ConnectionEndpoint> pendingEndpoints = new HashMap<>();
     private final Map<String, ConnectionEndpoint> connectedEndpoints = new HashMap<>();
     private final List<ConnectionLifecycleCallback> lifecycleCallbacks = new ArrayList<>();
+    private final List<OnMessageListener> messageListeners = new ArrayList<>();
+    private final IConnectionMessageFactory messageFactory = new JsonConnectionMessageFactory();
 
     protected ConnectionsClient connectionsClient;
     /**
@@ -37,16 +40,25 @@ public abstract class AbstractConnectionService extends Service implements IServ
      */
     protected final Strategy STRATEGY = Strategy.P2P_CLUSTER;
     protected PayloadCallback payloadCallback = new PayloadCallback() {
+
+        private PayloadCallback fileReceiver = new FileReceiver(messageListeners);
+        private PayloadCallback messageReceiver = new MessageReceiver(messageListeners);
+        private PayloadCallback streamReceiver = new StreamReceiver(messageListeners);
+
         @Override
         public void onPayloadReceived(@NonNull String endpointId,
                                       @NonNull Payload payload) {
-            // TODO
+            fileReceiver.onPayloadReceived(endpointId, payload);
+            messageReceiver.onPayloadReceived(endpointId, payload);
+            streamReceiver.onPayloadReceived(endpointId, payload);
         }
 
         @Override
         public void onPayloadTransferUpdate(@NonNull String endpointId,
                                             @NonNull PayloadTransferUpdate payloadTransferUpdate) {
-            // TODO
+            fileReceiver.onPayloadTransferUpdate(endpointId, payloadTransferUpdate);
+            messageReceiver.onPayloadTransferUpdate(endpointId, payloadTransferUpdate);
+            streamReceiver.onPayloadTransferUpdate(endpointId, payloadTransferUpdate);
         }
     };
     protected ConnectionLifecycleCallback serviceSpecificLifecycleCallback;
@@ -132,39 +144,62 @@ public abstract class AbstractConnectionService extends Service implements IServ
         lifecycleCallbacks.add(connectionLifecycleCallback);
     }
 
+    @Override
+    public void listenMessage(OnMessageListener messageListener) {
+        messageListeners.add(messageListener);
+    }
+
     /**
      * Sends an arbitrary text message to all connected devices.
      * @param message The text message. Preferably an Json string for a clean API.
      */
     @Override
     public void broadcastMessage(String message) {
-        Payload payload = Payload.fromBytes(message.getBytes()); // One message per send or one for all?
-        sendPayload(payload);
+        for (ConnectionEndpoint endpoint :
+                connectedEndpoints.values()) {
+            sendMessage(endpoint.getId(), message);
+        }
     }
 
     @Override
     public void broadcastStream(ParcelFileDescriptor fileDescriptor) {
         Payload payload = Payload.fromStream(fileDescriptor);
-        sendPayload(payload);
-    }
-
-    @Override
-    public void broadcastFile(ParcelFileDescriptor fileDescriptor) {
-        Payload payload = Payload.fromFile(fileDescriptor);
-        sendPayload(payload);
-    }
-
-    @Override
-    public void sendFile(String endpointId, ParcelFileDescriptor fileDescriptor) {
-        Payload payload = Payload.fromFile(fileDescriptor);
-        connectionsClient.sendPayload(endpointId, payload);
-    }
-
-    private void sendPayload(Payload payload) {
         for (ConnectionEndpoint endpoint :
                 connectedEndpoints.values()) {
             connectionsClient.sendPayload(endpoint.getId(), payload);
         }
+    }
+
+    @Override
+    public void broadcastFile(ParcelFileDescriptor fileDescriptor, String fileName) {
+        for (ConnectionEndpoint endpoint :
+                connectedEndpoints.values()) {
+            sendFile(endpoint.getId(), fileDescriptor, fileName);
+        }
+    }
+
+    @Override
+    public void sendMessage(String endpointId, String message) {
+        try {
+            byte[] messageData = message.getBytes("UTF-8");
+            Payload payload = Payload.fromBytes(messageData);
+            connectionsClient.sendPayload(endpointId, payload);
+        } catch (UnsupportedEncodingException e) {
+            Log.w(TAG, e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void sendFile(String endpointId, ParcelFileDescriptor fileDescriptor, String fileName) {
+        Payload filePayload = Payload.fromFile(fileDescriptor);
+        long id = filePayload.getId();
+        String fileData = messageFactory.buildFileData(id, fileName);
+        if (fileData == null) {
+            return;
+        }
+        sendMessage(endpointId, fileData);
+        connectionsClient.sendPayload(endpointId, filePayload);
     }
 
     @Override
@@ -186,7 +221,7 @@ public abstract class AbstractConnectionService extends Service implements IServ
         return connectedEndpoints.containsKey(endpointId);
     }
 
-    protected boolean isPending(String endpointId) {
-        return pendingEndpoints.containsKey((endpointId));
+    protected boolean isNotPending(String endpointId) {
+        return !pendingEndpoints.containsKey((endpointId));
     }
 }
