@@ -1,5 +1,6 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
 
@@ -23,6 +24,7 @@ public final class LocalDataBase {
     private static final String TAG = "LocalDataBase";
     private static String userName = "Unknown user";
     private static Uri profilePicture = null;
+    private static Bitmap userImage;
 
     /**
      * Stores payloads we sent during an active session (gets cleared after app exits/closes)
@@ -51,10 +53,21 @@ public final class LocalDataBase {
         LocalDataBase.profilePicture = profilePicture;
     }
 
+    public static void setProfilePictureBitmap (Bitmap image) {
+        Log.i(TAG,"SETTING OWN USER PROFILE AS BITMAP: " + profilePicture);
+        LocalDataBase.userImage = image;
+    }
+
     public static Uri getProfilePictureUri() {
         Log.i(TAG,"Own profPic: " + profilePicture);
         return profilePicture;
     }
+
+    public static Bitmap getProfilePictureBitmap() {
+        Log.i(TAG,"Own profPic as Bitmap: " + userImage);
+        return userImage;
+    }
+
     public static Uri getProfilePictureUri(String id) {
         Log.i(TAG,"RETREIVED ID: " + id + " " + idToUri.values());
         if(!idToUri.containsKey(id)) return null;

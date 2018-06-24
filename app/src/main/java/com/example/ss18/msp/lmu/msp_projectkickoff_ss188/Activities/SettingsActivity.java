@@ -83,7 +83,7 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
             signUpButton.setText("Speichern");
             getSupportActionBar().setTitle(R.string.settings_user);
             enteredUsername.setText(preferences.getUsername());
-            userImage.setImageURI(preferences.getUserImage());
+            userImage.setImageBitmap(preferences.getUserImageBitmap());
         }
     }
 
@@ -134,6 +134,7 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
 
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+                preferences.setUserImageBitmap(bitmap);
                 compressImage(bitmap);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -145,6 +146,7 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
 
             Bitmap image = (Bitmap) resultData.getExtras().get("data");
             userImage.setImageBitmap(image);
+            preferences.setUserImageBitmap(image);
             compressImage(image);
         }
         //Calling super is mandatory!
@@ -166,7 +168,7 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length, options);
         //Calculate the compression
-        options.inSampleSize = calculateInSampleSize(options, 300, 300);
+        options.inSampleSize = calculateInSampleSize(options, 34, 34);
         //Compress the image
         options.inJustDecodeBounds = false;
         Bitmap compressedBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length, options);
@@ -260,7 +262,7 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
             Log.i(TAG, "Add default image in case the user didn't choose one.");
             userImage.setImageResource(R.drawable.user_image);
         }
-        userImage.setImageURI(uri);
+        //userImage.setImageURI(uri);
         preferences.setUserImage(uri.toString());
     }
 

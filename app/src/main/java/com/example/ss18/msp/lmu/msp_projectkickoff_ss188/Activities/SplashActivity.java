@@ -91,6 +91,7 @@ public class SplashActivity extends AppCompatActivity {
 
     //region Setting up Notifications
     private final String CHANNEL_ID = "CHANNEL_ID_42";
+    private final String PROGRESS_ID = "CHANNEL_ID_12";
     /**
      * Called when the Activity starts to create a notification channel
      * This is only needed for newer devices
@@ -105,10 +106,13 @@ public class SplashActivity extends AppCompatActivity {
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
             channel.setDescription(description);
+            NotificationChannel progreeChannel = new NotificationChannel(PROGRESS_ID, name, importance);
+            progreeChannel.setDescription(description);
             // Register the channel with the system; you can't change the importance
             // or other notification behaviors after this
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
+            notificationManager.createNotificationChannel(progreeChannel);
         }
     }
     //endregion
