@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Get Together</string>
-    <string name="introInfo">Möchtest du MODERATOR oder ZUSCHAUER sein?</string>
+    <string name="introInfo">Wähle deine Rolle!</string>
     <string name="presenter">Moderator</string>
     <string name="spectator">Zuschauer</string>
     <string name="missingPermission">Ungenügende Erlaubnisse</string>
@@ -74,4 +74,7 @@ Get Together "ist eine App, die eine einfache und komfortable Übertragung von D
     <string name="sprechen">SPRECHEN</string>
     <string name="stupsen">STUPSEN</string>
     <string name="presentation_imageContent">Die geladene Präsentation</string>
+    <string name="tippe_um_zu_starten">...Tippe um zu starten...</string>
+    <string name="keine_zuschauer_verbunden">Derzeit sind keine Zuschauer verbunden...</string>
+    <string name="gps_entfernung">GPS Entfernungen:</string>
 </resources>

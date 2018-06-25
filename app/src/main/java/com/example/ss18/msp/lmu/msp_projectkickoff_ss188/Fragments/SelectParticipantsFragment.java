@@ -116,11 +116,17 @@ public class SelectParticipantsFragment extends Fragment {
             public boolean onTouch(View v, MotionEvent event) {
                 if(event.getAction() == MotionEvent.ACTION_DOWN){
                     final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle("GPS Entfernungen:");
-                    String[] list = new String[connectionManager.getEstablishedConnections().size()];
+                    builder.setTitle(R.string.gps_entfernung);
+                    String[] list;
                     int index = 0;
-                    for (ConnectionEndpoint e : connectionManager.getEstablishedConnections().values()) {
-                        list[index] = e.getName() + ": " + e.getLastKnownDistance();
+                    if(connectionManager.getEstablishedConnections().size() == 0){
+                        list = new String[1];
+                        list[0] = getString(R.string.keine_zuschauer_verbunden);
+                    }else {
+                        list = new String[connectionManager.getEstablishedConnections().size()];
+                        for (ConnectionEndpoint e : connectionManager.getEstablishedConnections().values()) {
+                            list[index] = e.getName() + ": " + e.getLastKnownDistance();
+                        }
                     }
                     builder.setItems(list,null);
                     builder.create();

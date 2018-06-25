@@ -46,11 +46,11 @@
         </RelativeLayout>
 
         <TextView
-            android:id="@+id/title2"
+            android:id="@+id/touchToStart"
             android:layout_width="match_parent"
             android:layout_height="101dp"
             android:fontFamily="sans-serif-smallcaps"
-            android:text="...Tippe um zu starten..."
+            android:text="@string/tippe_um_zu_starten"
             android:textAlignment="center"
             android:textSize="30sp" />
 

@@ -16,6 +16,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.AppPreferences;
@@ -129,6 +132,13 @@ public class SplashActivity extends AppCompatActivity {
         }
         createNotificationChannel();
 
+        //Animate text hint
+        TextView textView = findViewById(R.id.touchToStart);
+        textView.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in_out));
+        //Animate Image
+        ImageView imageView = findViewById(R.id.user_image);
+        imageView.startAnimation(AnimationUtils.loadAnimation(this,R.anim.pop_up_animation));
+
     }
 
     private void onAllPermissionsGranted(){
@@ -148,6 +158,7 @@ public class SplashActivity extends AppCompatActivity {
                     String.format("Welcome back %s!", preferences.getUsername()),
                     Toast.LENGTH_LONG).show();
         }
+        overridePendingTransition(R.anim.fade_in,R.anim.fade_out);
         finish();
     }
 

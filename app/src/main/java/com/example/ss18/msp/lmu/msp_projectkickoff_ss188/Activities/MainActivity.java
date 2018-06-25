@@ -83,6 +83,7 @@ public class MainActivity extends BaseActivity {
     public void endApplication(MenuItem item) {
         Log.i(TAG, "User closed the app!");
         Intent intent = new Intent(this, ConnectionManager.class);
+        stopService(intent);
         finish();
     }
 
@@ -158,5 +159,6 @@ public class MainActivity extends BaseActivity {
         Intent intent = new Intent(this, AppLogicActivity.class);
         intent.putExtra("UserRole", userRole);
         startActivity(intent);
+        overridePendingTransition(R.anim.fade_in,R.anim.fade_out);
     }
 }

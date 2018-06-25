@@ -1,61 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/backgroundColor"
     android:fitsSystemWindows="true">
 
-    <LinearLayout
-        android:orientation="vertical"
+    <android.support.constraint.ConstraintLayout
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <include layout="@layout/view_toolbar"/>
-
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/view_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
             android:id="@+id/buttonPresenter"
-            android:layout_width="190dp"
-            android:layout_height="190dp"
-            android:layout_marginEnd="97dp"
-            android:layout_marginLeft="97dp"
-            android:layout_marginRight="97dp"
-            android:layout_marginStart="97dp"
-            android:layout_marginTop="30dp"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
             android:background="@drawable/button_presentor"
             android:contentDescription="@string/presenter"
             android:elevation="10dp"
             android:onClick="presenterButtonClicked"
             android:scaleType="fitCenter"
-            android:src="@drawable/presenter_icon" />
+            android:src="@drawable/presenter_icon"
+            app:layout_constraintEnd_toEndOf="@+id/title3"
+            app:layout_constraintHorizontal_bias="0.425"
+            app:layout_constraintStart_toStartOf="@+id/title3"
+            app:layout_constraintTop_toBottomOf="@+id/title4" />
 
         <TextView
-            android:id="@+id/textViewTitle3"
-            android:layout_width="match_parent"
-            android:layout_height="73dp"
+            android:id="@+id/title2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="129dp"
+            android:layout_marginStart="136dp"
+            android:layout_marginTop="1dp"
+            android:fontFamily="sans-serif-smallcaps"
+            android:gravity="center"
+            android:text="Zuschauer"
+            android:textAlignment="center"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buttonSpectator" />
+
+        <TextView
+            android:id="@+id/title4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="129dp"
+            android:layout_marginStart="130dp"
+            android:layout_marginTop="12dp"
+            android:fontFamily="sans-serif-smallcaps"
+            android:gravity="center"
+            android:text="Moderator"
+            android:textAlignment="center"
+            android:textSize="24sp"
+            app:layout_constraintEnd_toEndOf="@+id/buttonPresenter"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@+id/buttonPresenter"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+        <TextView
+            android:id="@+id/title3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="9dp"
+            android:layout_marginTop="12dp"
             android:fontFamily="sans-serif-smallcaps"
             android:gravity="center"
             android:text="@string/introInfo"
             android:textAlignment="center"
-            android:textSize="24sp" />
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/buttonSpectator"
+            app:layout_constraintEnd_toEndOf="@+id/buttonSpectator"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@+id/buttonSpectator"
+            app:layout_constraintTop_toBottomOf="@+id/buttonPresenter" />
 
         <ImageButton
             android:id="@+id/buttonSpectator"
-            android:layout_width="190dp"
-            android:layout_height="190dp"
-            android:layout_marginEnd="97dp"
-            android:layout_marginLeft="97dp"
-            android:layout_marginRight="97dp"
-            android:layout_marginStart="97dp"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="92dp"
+            android:layout_marginStart="92dp"
+            android:layout_marginTop="3dp"
             android:background="@drawable/button_viewer"
             android:contentDescription="@string/spectator"
             android:elevation="10dp"
             android:onClick="spectatorButtonClicked"
             android:scaleType="fitCenter"
-            android:src="@drawable/viewer_icon"/>
+            android:src="@drawable/viewer_icon"
+            app:layout_constraintBottom_toTopOf="@+id/title2"
+            app:layout_constraintEnd_toEndOf="@+id/title2"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@+id/title2"
+            app:layout_constraintTop_toBottomOf="@+id/title3" />
 
-    </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
     <include layout="@layout/view_navigation_drawer"/>
 </android.support.v4.widget.DrawerLayout>
