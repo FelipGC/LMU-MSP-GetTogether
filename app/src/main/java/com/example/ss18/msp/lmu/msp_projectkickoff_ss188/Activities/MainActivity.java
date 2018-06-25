@@ -24,6 +24,8 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.Presenter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.Spectator;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 
+import java.io.FileNotFoundException;
+
 import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
 
 public class MainActivity extends BaseActivity {
@@ -81,10 +83,20 @@ public class MainActivity extends BaseActivity {
      * @param item The clicked Menuitem
      */
     public void endApplication(MenuItem item) {
-        Log.i(TAG, "User closed the app!");
-        Intent intent = new Intent(this, ConnectionManager.class);
-        stopService(intent);
-        finish();
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("App beenden?");
+        builder.setMessage("Wollen sie die App wirklich beenden?");
+        builder.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Log.i(TAG, "User closed the app!");
+                Intent intent = new Intent(getApplicationContext(), ConnectionManager.class);
+                stopService(intent);
+                finishAffinity();
+            }
+        });
+        builder.setNegativeButton(getString(R.string.cancel), null);
+        builder.create().show();
     }
 
     /**

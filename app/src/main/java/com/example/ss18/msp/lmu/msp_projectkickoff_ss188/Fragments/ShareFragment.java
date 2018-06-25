@@ -100,8 +100,8 @@ public class ShareFragment extends Fragment {
         String filename = uri.getLastPathSegment().toString();
         int divider = filename.lastIndexOf("/");
         filename = "\""+filename.substring(divider+1)+"\"";
-        builder.setTitle(String.format("Send %s?",filename));
-        builder.setMessage("Are you sure you want to send this file to all your viewers?");
+        builder.setTitle(String.format("Sende %s?",filename));
+        builder.setMessage("Bist du sicher, dass du diese Datei an all deine Zuschauer versenden willst?");
         builder.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
