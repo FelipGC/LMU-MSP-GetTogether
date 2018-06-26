@@ -32,7 +32,7 @@ public final class ConnectionEndpoint {
 
     private String lastKnownDistance = "Derzeit unbekannt.";
 
-    private ConnectionManager cM;
+    private static ConnectionManager cM;
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
 

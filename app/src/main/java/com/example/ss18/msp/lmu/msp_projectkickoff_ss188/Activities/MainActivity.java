@@ -41,6 +41,9 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         super.onCreate(R.layout.activity_main);
 
+        Intent intent = new Intent(getApplicationContext(), ConnectionManager.class);
+        stopService(intent);
+
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24px);

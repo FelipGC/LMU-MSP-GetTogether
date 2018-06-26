@@ -34,7 +34,7 @@ public final class VoiceTransmission implements IVoice {
     private boolean isRecording = false;
     private static final String TAG = "VoiceTransmission";
 
-    private ConnectionManager cM;
+    private static ConnectionManager cM;
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
 

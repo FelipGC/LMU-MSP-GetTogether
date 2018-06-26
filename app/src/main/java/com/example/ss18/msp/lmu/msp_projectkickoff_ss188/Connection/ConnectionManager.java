@@ -163,11 +163,12 @@ public class ConnectionManager extends Service {
                             }
                             try {
                                 Uri uri = LocalDataBase.getProfilePictureUri();
-                                if (uri == null)
-                                    break;
-                                //TODO: IMAGE IS TOO BIG?
-                                ParcelFileDescriptor file = appLogicActivity.getContentResolver().openFileDescriptor(uri, "r");
-                                Payload payload = Payload.fromFile(file);
+                                Payload payload = null;
+                                if (uri != null) {
+                                    //TODO: IMAGE IS TOO BIG?
+                                    ParcelFileDescriptor file = appLogicActivity.getContentResolver().openFileDescriptor(uri, "r");
+                                    payload = Payload.fromFile(file);
+                                }
                                 Log.i(TAG,"Sending prof image: " + payload);
                                 payloadSender.sendPayloadFile(endpointId, payload, payload.getId() + (SPECTATOR ? ":PROF_PIC_V:" : ":PROF_PIC:"));
                                 if(!SPECTATOR){

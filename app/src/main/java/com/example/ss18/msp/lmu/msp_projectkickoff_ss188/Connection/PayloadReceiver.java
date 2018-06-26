@@ -274,7 +274,7 @@ public final class PayloadReceiver extends PayloadCallback {
                             break;
                         ParcelFileDescriptor file = getAppLogicActivity().getContentResolver().openFileDescriptor(uri, "r");
                         Payload profilePic = Payload.fromFile(file);
-                        cM.payloadSender.sendPayloadFile(endpointId, profilePic, payload.getId() + ":PROF_PIC:" + id + ":");
+                        cM.payloadSender.sendPayloadFile(endpointId, profilePic, profilePic.getId() + ":PROF_PIC:" + id + ":");
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

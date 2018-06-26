@@ -41,7 +41,7 @@ public class SelectPresenterFragment extends Fragment {
     private Button pendingButton;
     private TextView joinedTitle;
     private TextView availableTitle;
-    private ConnectionManager cM;
+    private static ConnectionManager cM;
     private ProgressBar progressBar;
 
     /**
@@ -199,7 +199,9 @@ public class SelectPresenterFragment extends Fragment {
      */
     private void updateListViews(ConnectionEndpoint endpoint) {
         ListView targetListView = null;
-        if (cM.getEstablishedConnections().containsKey(endpoint.getId()))
+        if(cM == null || endpoint == null)
+            return;
+        else if (cM.getEstablishedConnections().containsKey(endpoint.getId()))
             targetListView = establishedPresenters;
         else if (!cM.getPendingConnections().containsKey(endpoint.getId()))
             targetListView = availablePresenters;

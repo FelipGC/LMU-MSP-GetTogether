@@ -41,7 +41,7 @@ public class SelectParticipantsFragment extends Fragment {
     private VoiceTransmission voiceTransmission;
     private ProgressBar progressBar;
     private boolean connected = false;
-    private ConnectionManager connectionManager;
+    private static ConnectionManager connectionManager;
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
 
@@ -125,7 +125,7 @@ public class SelectParticipantsFragment extends Fragment {
                     }else {
                         list = new String[connectionManager.getEstablishedConnections().size()];
                         for (ConnectionEndpoint e : connectionManager.getEstablishedConnections().values()) {
-                            list[index] = e.getName() + ": " + e.getLastKnownDistance();
+                            list[index++] = e.getName() + ": " + e.getLastKnownDistance();
                         }
                     }
                     builder.setItems(list,null);

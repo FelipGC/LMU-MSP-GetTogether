@@ -83,7 +83,9 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
             signUpButton.setText("Speichern");
             getSupportActionBar().setTitle(R.string.settings_user);
             enteredUsername.setText(preferences.getUsername());
-            userImage.setImageBitmap(preferences.getUserImageBitmap());
+            Bitmap bitmap = preferences.getUserImageBitmap();
+            if(bitmap != null)
+                userImage.setImageBitmap(bitmap);
         }
     }
 

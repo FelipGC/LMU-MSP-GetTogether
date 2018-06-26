@@ -55,7 +55,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     private TabPageAdapter tabPageAdapter;
     private static VoiceTransmission voiceTransmission;
 
-    private ConnectionManager connectionManager;
+    private static ConnectionManager connectionManager;
     private AppLogicActivity appLogicActivity;
     private ServiceConnection mServiceConnection = new ServiceConnection() {
 
@@ -122,12 +122,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
         Log.i(TAG, "Secondary activity created as: " + getUserRole().getRoleType());
         //Connection
         final Intent intent = new Intent(this, ConnectionManager.class);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                startService(intent);
-            }
-        }).start();
+        startService(intent);
         bindService(intent, mServiceConnection, this.BIND_AUTO_CREATE);
         serviceConnections.add(mServiceConnection);
     }

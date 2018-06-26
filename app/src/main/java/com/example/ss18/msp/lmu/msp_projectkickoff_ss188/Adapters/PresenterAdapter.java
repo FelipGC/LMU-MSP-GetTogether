@@ -38,7 +38,7 @@ public class PresenterAdapter extends BaseAdapter {
     private final ArrayList<ConnectionEndpoint> endpointList = new ArrayList<ConnectionEndpoint>();
     private Context context;
 
-    private ConnectionManager cM;
+    private static ConnectionManager cM;
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
 
