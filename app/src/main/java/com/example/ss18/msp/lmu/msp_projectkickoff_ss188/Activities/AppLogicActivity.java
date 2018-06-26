@@ -122,8 +122,8 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
      * Updates the amount of presenters on the GUI
      */
     public void updatePresentersGUI(ConnectionEndpoint endpoint) {
-        if (selectPresenterFragment != null)
-            selectPresenterFragment.updateDeviceList(endpoint);
+        //if (selectPresenterFragment != null)
+          //  selectPresenterFragment.updateDeviceList(endpoint);
     }
 
 
@@ -135,6 +135,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
         stopNearbyService();
         Intent serviceIntent = new Intent(this, serviceClass);
         serviceIntent.setPackage(this.getPackageName());
+        startService(serviceIntent);
         bindService(serviceIntent, connection, BIND_AUTO_CREATE);
     }
 
@@ -241,7 +242,6 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
             Log.i(TAG, "DISCOVERY SERVICE CONNECTED");
             NearbyDiscoveryService.NearbyDiscoveryBinder binder = (NearbyDiscoveryService.NearbyDiscoveryBinder)service;
             discoveryService = binder.getService();
-            discoveryService.startService();
             discoveryService.listenDiscovery(new EndpointDiscoveryCallback() {
                 @Override
                 public void onEndpointFound(@NonNull String s, @NonNull DiscoveredEndpointInfo discoveredEndpointInfo) {
@@ -267,7 +267,6 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
             Log.i(TAG, "ADVERTISE SERVICE CONNECTED");
             NearbyAdvertiseService.NearbyAdvertiseBinder binder = (NearbyAdvertiseService.NearbyAdvertiseBinder)service;
             advertiseService = binder.getService();
-            advertiseService.startService();
         }
 
         @Override
