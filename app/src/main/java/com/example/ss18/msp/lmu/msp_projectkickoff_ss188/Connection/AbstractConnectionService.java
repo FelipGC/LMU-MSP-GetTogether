@@ -1,6 +1,7 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
 import android.app.Service;
+import android.content.Intent;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -29,6 +30,13 @@ public abstract class AbstractConnectionService extends Service implements IServ
     private final List<ConnectionLifecycleCallback> lifecycleCallbacks = new ArrayList<>();
     private final List<OnMessageListener> messageListeners = new ArrayList<>();
     private final IConnectionMessageFactory messageFactory = new JsonConnectionMessageFactory();
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        int result = super.onStartCommand(intent, flags, startId);
+        this.startService();
+        return result;
+    }
 
     protected ConnectionsClient connectionsClient;
     /**
