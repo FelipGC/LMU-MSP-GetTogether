@@ -88,10 +88,13 @@ public class NearbyDiscoveryService extends AbstractConnectionService implements
             @Override
             public void onConnectionResult(@NonNull String s,
                                            @NonNull ConnectionResolution connectionResolution) {
+                Log.i(TAG,"onConnectionResult");
             }
 
             @Override
             public void onDisconnected(@NonNull String s) {
+                Log.i(TAG, "onDisconnected");
+
             }
         };
     }

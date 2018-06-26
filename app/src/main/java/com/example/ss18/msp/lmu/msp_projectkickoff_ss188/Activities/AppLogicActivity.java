@@ -1,7 +1,11 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -11,6 +15,8 @@ import android.widget.Toast;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.AbstractConnectionService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.IAdvertiseService;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.IDiscoveryService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.NearbyAdvertiseService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.NearbyDiscoveryService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
@@ -26,6 +32,8 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.AppContext;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission;
+import com.google.android.gms.nearby.connection.DiscoveredEndpointInfo;
+import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback;
 
 public class AppLogicActivity extends BaseActivity implements AppContext {
     /**
@@ -37,6 +45,13 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
      * A reference to the nearby connection manager object
      */
     private static ConnectionManager connectionManager;
+
+    private IDiscoveryService discoveryService;
+    private IAdvertiseService advertiseService;
+
+    public IDiscoveryService getDiscoveryService() {
+        return discoveryService;
+    }
 
     /**
      * The role of the user (Presenter/Spectator)
@@ -116,11 +131,11 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
      * Starts a Nearby service with a given serviceID
      * @param serviceClass Class of the service that should be started
      */
-    private void startNearbyService(Class<? extends AbstractConnectionService> serviceClass){
+    private void startNearbyService(Class<? extends AbstractConnectionService> serviceClass, ServiceConnection connection){
         stopNearbyService();
         Intent serviceIntent = new Intent(this, serviceClass);
         serviceIntent.setPackage(this.getPackageName());
-        this.startService(serviceIntent);
+        bindService(serviceIntent, connection, BIND_AUTO_CREATE);
     }
 
     /**
@@ -138,15 +153,15 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
      */
     private void startAdvertising() {
         Toast.makeText(this, R.string.startDiscovering, Toast.LENGTH_LONG).show();
-        startNearbyService(NearbyAdvertiseService.class);
+        startNearbyService(NearbyAdvertiseService.class, advertiseConnection);
     }
 
     /**
      * Calls startDiscovering() on the connectionManager
      */
     private void startDiscovering() {
-        Toast.makeText(this, R.string.startAdvertising, Toast.LENGTH_LONG).show();
-        startNearbyService(NearbyDiscoveryService.class);
+        Toast.makeText(this, R.string.startDiscovering, Toast.LENGTH_LONG).show();
+        startNearbyService(NearbyDiscoveryService.class,discoveryConnection);
     }
 
     //Getters & Setters
@@ -217,4 +232,47 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     public void displayShortMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
+
+
+
+    ServiceConnection discoveryConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.i(TAG, "DISCOVERY SERVICE CONNECTED");
+            NearbyDiscoveryService.NearbyDiscoveryBinder binder = (NearbyDiscoveryService.NearbyDiscoveryBinder)service;
+            discoveryService = binder.getService();
+            discoveryService.startService();
+            discoveryService.listenDiscovery(new EndpointDiscoveryCallback() {
+                @Override
+                public void onEndpointFound(@NonNull String s, @NonNull DiscoveredEndpointInfo discoveredEndpointInfo) {
+                    Log.i(TAG, "Endpunkt gefunden");
+                    selectPresenterFragment.updateAvailablePresenter();
+                }
+
+                @Override
+                public void onEndpointLost(@NonNull String s) {
+
+                }
+            });
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.i(TAG, "DISCOVERY SERVICE DISCONNECTED");
+        }
+    };
+    ServiceConnection advertiseConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.i(TAG, "ADVERTISE SERVICE CONNECTED");
+            NearbyAdvertiseService.NearbyAdvertiseBinder binder = (NearbyAdvertiseService.NearbyAdvertiseBinder)service;
+            advertiseService = binder.getService();
+            advertiseService.startService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.i(TAG, "ADVERTISE SERVICE DISCONNECTED");
+        }
+    };
 }

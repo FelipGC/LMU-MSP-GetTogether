@@ -258,7 +258,7 @@ public class ConnectionManager {
     /**
      * Starts advertising to be spotted by discoverers (= viewers)
      */
-    public void startAdvertising() {
+    /*public void startAdvertising() {
         Log.i(TAG, "Starting advertising:" + " Name: " + AppLogicActivity.getUserRole().getUserName() + " ServiceID: "+ serviceID);
         //Clear list every time we try to re-discover
         reset();
@@ -292,7 +292,7 @@ public class ConnectionManager {
     /**
      * Start the process of detecting nearby devices (connectors)
      */
-    public void startDiscovering() {
+   /* public void startDiscovering() {
         Log.i(TAG, "Starting discovering as: " + AppLogicActivity.getUserRole().getUserName() + "  " + serviceID);
         reset();
         new Thread(new Runnable() {

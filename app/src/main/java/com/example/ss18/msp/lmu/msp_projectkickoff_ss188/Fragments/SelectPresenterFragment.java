@@ -115,7 +115,7 @@ public class SelectPresenterFragment extends Fragment {
             for (View viewNoDevice : viewNoDevices)
                 viewNoDevice.setVisibility(View.VISIBLE);
         }//We found devices
-        else {
+        else{
             //Hide GUI we do not want
             for (View view : viewNoDevices)
                 view.setVisibility(View.GONE);
@@ -123,6 +123,19 @@ public class SelectPresenterFragment extends Fragment {
                 view.setVisibility(View.VISIBLE);
             //Update lists
             updateListViews(endpoint);
+        }
+    }
+
+    public void updateAvailablePresenter(){
+        PresenterAdapter adapter = ((PresenterAdapter)availablePresenters.getAdapter());
+        availablePresenters.setVisibility(View.VISIBLE);
+        for (View viewNoDevice : viewNoDevices)
+            viewNoDevice.setVisibility(View.GONE);
+        for(ConnectionEndpoint endpoint : ((AppLogicActivity)getActivity()).getDiscoveryService().getDiscoveredEndpoints()){
+
+            if(!adapter.contains(endpoint.getId())){
+                adapter.add(endpoint);
+            }
         }
     }
 

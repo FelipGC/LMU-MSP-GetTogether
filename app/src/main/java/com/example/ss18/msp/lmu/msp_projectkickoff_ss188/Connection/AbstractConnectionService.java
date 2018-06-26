@@ -31,13 +31,13 @@ public abstract class AbstractConnectionService extends Service implements IServ
     private final List<OnMessageListener> messageListeners = new ArrayList<>();
     private final IConnectionMessageFactory messageFactory = new JsonConnectionMessageFactory();
 
-    @Override
+    /*@Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         int result = super.onStartCommand(intent, flags, startId);
         this.startService();
         return result;
     }
-
+*/
     protected ConnectionsClient connectionsClient;
     /**
      * The id of the NearbyConnection service. (package name of the main activity)
