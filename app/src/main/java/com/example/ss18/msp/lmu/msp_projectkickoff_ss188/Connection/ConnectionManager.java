@@ -70,11 +70,13 @@ public class ConnectionManager extends Service {
     public IBinder onBind(Intent intent) {
         return binder;
     }
+
     public class ConnectionManagerBinder extends Binder {
         public ConnectionManager getService() {
             return ConnectionManager.this;
         }
     }
+
     /**
      * Callbacks for connections to other devices.
      */
@@ -158,28 +160,33 @@ public class ConnectionManager extends Service {
                                 pendingConnections.remove(endpointId);
 
                             final boolean SPECTATOR = appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR;
-                            if(!SPECTATOR){
+                            if (!SPECTATOR) {
                                 appLogicActivity.startService(new Intent(appLogicActivity, FrequentLocationService.class));
                             }
                             try {
                                 Uri uri = LocalDataBase.getProfilePictureUri();
-                                Payload payload = null;
-                                if (uri != null) {
-                                    //TODO: IMAGE IS TOO BIG?
-                                    ParcelFileDescriptor file = appLogicActivity.getContentResolver().openFileDescriptor(uri, "r");
-                                    payload = Payload.fromFile(file);
+
+                                if (uri == null){
+                                    Log.i(TAG, "URI NULL...");
+                                    String message ="012" + (SPECTATOR ? ":PROF_PIC_V:" : ":PROF_PIC:");
+                                    payloadSender.sendPayloadBytesToSpecific(endpointId, Payload.fromBytes(message.getBytes("UTF-8")));
+                                    break;
                                 }
-                                Log.i(TAG,"Sending prof image: " + payload);
+                                //TODO: IMAGE IS TOO BIG?
+                                ParcelFileDescriptor file = appLogicActivity.getContentResolver().openFileDescriptor(uri, "r");
+                                Payload payload = Payload.fromFile(file);
+
+                                Log.i(TAG, "Sending prof image: " + payload);
                                 payloadSender.sendPayloadFile(endpointId, payload, payload.getId() + (SPECTATOR ? ":PROF_PIC_V:" : ":PROF_PIC:"));
-                                if(!SPECTATOR){
+                                if (!SPECTATOR) {
                                     for (ConnectionEndpoint otherEndpoint : establishedConnections.values()) {
                                         //Do not send info to the same endpoint
-                                        if(otherEndpoint.getId().equals(endpointId))
+                                        if (otherEndpoint.getId().equals(endpointId))
                                             continue;
                                         //Send all the other viewers to the viewer
                                         sendConnectionEndpointTo(endpointId, otherEndpoint);
                                         //Send this endpoint to all others
-                                        sendConnectionEndpointTo(otherEndpoint.getId(),endpoint);
+                                        sendConnectionEndpointTo(otherEndpoint.getId(), endpoint);
 
                                     }
                                 }
@@ -221,9 +228,9 @@ public class ConnectionManager extends Service {
             };
 
     private void sendConnectionEndpointTo(String endpoint, ConnectionEndpoint otherEndpoint) {
-        String stringToSend = String.format("C_ENDPOINT:%s:%s",otherEndpoint.getId(),otherEndpoint.getName());
+        String stringToSend = String.format("C_ENDPOINT:%s:%s", otherEndpoint.getId(), otherEndpoint.getName());
         Payload payload = Payload.fromBytes(stringToSend.getBytes());
-        payloadSender.sendPayloadBytesToSpecific(endpoint,payload);
+        payloadSender.sendPayloadBytesToSpecific(endpoint, payload);
     }
 
     /**
@@ -286,7 +293,7 @@ public class ConnectionManager extends Service {
      * Starts advertising to be spotted by discoverers (= viewers)
      */
     public void startAdvertising() {
-        Log.i(TAG, "Starting advertising:" + " Name: " + AppLogicActivity.getUserRole().getUserName() + " ServiceID: "+ serviceID);
+        Log.i(TAG, "Starting advertising:" + " Name: " + AppLogicActivity.getUserRole().getUserName() + " ServiceID: " + serviceID);
         //Clear list every time we try to re-discover
         reset();
         // Note: Advertising may fail
@@ -454,7 +461,7 @@ public class ConnectionManager extends Service {
      * Defines the connectionClient for the NearbyConnection
      **/
     public void setUpConnectionsClient(AppLogicActivity appLogicActivity) {
-        Log.i(TAG,"Setting up connection client");
+        Log.i(TAG, "Setting up connection client");
         this.appLogicActivity = appLogicActivity;
         this.connectionsClient = Nearby.getConnectionsClient(appLogicActivity);
         //Define Sender & Receiver
@@ -475,7 +482,6 @@ public class ConnectionManager extends Service {
     private void updateParticipantsCount(ConnectionEndpoint e) {
         appLogicActivity.updateParticipantsGUI(e, establishedConnections.size(), discoveredEndpoints.size());
     }
-
 
 
     /**

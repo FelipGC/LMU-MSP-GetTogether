@@ -162,8 +162,7 @@ public final class PayloadReceiver extends PayloadCallback {
     }
 
     @Override
-    public void onPayloadTransferUpdate(String endpointId, final PayloadTransferUpdate update) {
-        NotificationUtility.displayProgressNotifications((int)update.getBytesTransferred(), (int)update.getTotalBytes());
+    public void onPayloadTransferUpdate(@NonNull String endpointId, final PayloadTransferUpdate update) {
 
         if (update.getStatus() == PayloadTransferUpdate.Status.SUCCESS) {
             //Data fully received.
@@ -179,6 +178,10 @@ public final class PayloadReceiver extends PayloadCallback {
             }
         }else  if (update.getStatus() == PayloadTransferUpdate.Status.FAILURE) {
             Log.i(TAG, "Payload status: PayloadTransferUpdate.Status.FAILURE");
+        }else{
+            Payload p = incomingPayloads.get(update.getPayloadId());
+            if(p != null && p.getType() == Payload.Type.FILE)
+                NotificationUtility.displayProgressNotifications((int)update.getBytesTransferred(), (int)update.getTotalBytes());
         }
     }
     /*

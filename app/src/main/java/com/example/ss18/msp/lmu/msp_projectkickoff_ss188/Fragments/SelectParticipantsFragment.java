@@ -142,6 +142,8 @@ public class SelectParticipantsFragment extends Fragment {
      * Updates the amount of participants on the GUI
      */
     public void updateParticipantsGUI(ConnectionEndpoint e,int newSize, int maxSize){
+        if(progressBar ==  null)
+            return;
         TextView textView = mainView.findViewById(R.id.numberOfParticipants);
         if(maxSize == 0) {
             textView.setText(R.string.leer);

@@ -69,8 +69,6 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
             ConnectionManager.ConnectionManagerBinder myBinder = (ConnectionManager.ConnectionManagerBinder) service;
             connectionManager = myBinder.getService();
             connectionManager.setUpConnectionsClient(appLogicActivity);
-
-
             //Set up tabs
             tabPageAdapter = new TabPageAdapter(getSupportFragmentManager());
             switch (getUserRole().getRoleType()) {

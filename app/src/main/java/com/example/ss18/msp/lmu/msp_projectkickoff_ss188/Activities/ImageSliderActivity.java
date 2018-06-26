@@ -22,7 +22,7 @@ public class ImageSliderActivity extends AppCompatActivity {
         setContentView(R.layout.activity_image_slider);
 
         viewPager = (ViewPager) findViewById(R.id.pager);
-        viewPager.setAdapter(new ImageSlideAdapter(this,images));
+        viewPager.setAdapter(new ImageSlideAdapter(this, (ArrayList<Uri>) images.clone()));
         CircleIndicator indicator = (CircleIndicator) findViewById(R.id.indicator);
         indicator.setViewPager(viewPager);
     }

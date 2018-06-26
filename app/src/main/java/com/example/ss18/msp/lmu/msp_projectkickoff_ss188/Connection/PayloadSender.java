@@ -92,14 +92,19 @@ public class PayloadSender {
      */
     public void sendPayloadFile(final Payload payload, final String payloadStoringName) {
         for (final String endpointId : cM.getEstablishedConnections().keySet()) {
-            try {
-                Log.i(TAG, "sendPayloadFile to: " + endpointId);
-                sendPayloadFile(endpointId, payload, payloadStoringName);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Log.i(TAG, "sendPayloadFile :"+ payloadStoringName +" + to: " + endpointId);
+                        sendPayloadFile(endpointId, payload, payloadStoringName);
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
         }
     }
 
@@ -114,15 +119,8 @@ public class PayloadSender {
         if (payload != null) {
             Log.i(TAG, "Sent: " + payload.getId() + " with type: " + payload.getType() + " to: " + endpointId);
             //Send the payload data afterwards!
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Log.i(TAG,"SENDING FILE");
-                    cM.getConnectionsClient().sendPayload(endpointId, payload);
-                }
-            }).start();
-            //Add to receivedPayLoadData in our data
-            LocalDataBase.sentPayLoadData.put(payload.getId(), payload);
+            Log.i(TAG,"SENDING FILE");
+            cM.getConnectionsClient().sendPayload(endpointId, payload);
         } else throw new Exception("Payload to send must not be null!");
     }
 

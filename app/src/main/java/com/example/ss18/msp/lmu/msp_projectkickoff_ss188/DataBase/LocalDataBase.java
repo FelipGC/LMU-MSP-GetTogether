@@ -26,10 +26,6 @@ public final class LocalDataBase {
     private static Uri profilePicture = null;
     private static Bitmap userImage;
 
-    /**
-     * Stores payloads we sent during an active session (gets cleared after app exits/closes)
-     */
-    public final static HashMap<Long, Payload> sentPayLoadData = new HashMap<Long, Payload>();
 
     /**
      * Stores other viewers inside the specific presentation

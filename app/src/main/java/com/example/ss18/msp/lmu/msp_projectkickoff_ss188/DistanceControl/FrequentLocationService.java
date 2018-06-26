@@ -17,7 +17,7 @@ public class FrequentLocationService extends AbstractLocationService {
 
     @Override
     protected void setUpdateTime() {
-        updateTime = 5 * 1000; //TODO
+        updateTime = 15 * 1000; //TODO
     }
 
     @Override

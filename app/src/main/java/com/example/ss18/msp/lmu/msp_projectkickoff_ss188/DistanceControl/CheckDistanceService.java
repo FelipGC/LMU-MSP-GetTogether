@@ -21,7 +21,7 @@ public class CheckDistanceService extends AbstractLocationService {
 
     @Override
     protected void setUpdateTime() {
-        updateTime = 0;
+        updateTime = 1000;
     }
 
     @Override
