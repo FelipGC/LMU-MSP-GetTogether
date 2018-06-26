@@ -4,14 +4,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.text.GetChars;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.AbstractConnectionService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.NearbyAdvertiseService;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.NearbyDiscoveryService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.SelectPresenterFragment;
@@ -113,23 +114,22 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
 
     /**
      * Starts a Nearby service with a given serviceID
-     * @param serviceID the ID of theservice to start
+     * @param serviceClass Class of the service that should be started
      */
-    private void startNearbyService(String serviceID){
+    private void startNearbyService(Class<? extends AbstractConnectionService> serviceClass){
         stopNearbyService();
-        Intent serviceIntent = new Intent();
-        serviceIntent.setAction(serviceID);
-        startService(serviceIntent);
+        Intent serviceIntent = new Intent(this, serviceClass);
+        serviceIntent.setPackage(this.getPackageName());
+        this.startService(serviceIntent);
     }
 
     /**
      * Stops all potential Nearby-Services
      */
     private void stopNearbyService(){
-        Intent serviceIntent = new Intent();
-        serviceIntent.setAction(".Connection.NearbyAdvertiseService");
+        Intent serviceIntent = new Intent(this, NearbyAdvertiseService.class);
         stopService(serviceIntent);
-        serviceIntent.setAction(".Connection.NearbyDiscoveryService");
+        serviceIntent = new Intent(this, NearbyDiscoveryService.class);
         stopService(serviceIntent);
     }
 
@@ -138,7 +138,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
      */
     private void startAdvertising() {
         Toast.makeText(this, R.string.startDiscovering, Toast.LENGTH_LONG).show();
-        startNearbyService(".Connection.NearbyAdvertiseService");
+        startNearbyService(NearbyAdvertiseService.class);
     }
 
     /**
@@ -146,7 +146,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
      */
     private void startDiscovering() {
         Toast.makeText(this, R.string.startAdvertising, Toast.LENGTH_LONG).show();
-        startNearbyService(".Connection.NearbyDiscoveryService");
+        startNearbyService(NearbyDiscoveryService.class);
     }
 
     //Getters & Setters
