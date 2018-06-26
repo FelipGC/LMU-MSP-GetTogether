@@ -71,7 +71,6 @@ public class NearbyDiscoveryService extends AbstractConnectionService implements
     @Override
     public void onCreate() {
         super.onCreate();
-        startDiscovery();
     }
 
     @Override
@@ -97,7 +96,8 @@ public class NearbyDiscoveryService extends AbstractConnectionService implements
         };
     }
 
-    private void startDiscovery() {
+    @Override
+    public void startService() {
         DiscoveryOptions.Builder builder = new DiscoveryOptions.Builder();
         builder.setStrategy(STRATEGY);
         connectionsClient.startDiscovery(serviceID, endpointDiscoveryCallback, builder.build())
@@ -121,10 +121,10 @@ public class NearbyDiscoveryService extends AbstractConnectionService implements
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void stopService() {
         connectionsClient.stopDiscovery();
     }
+
 
     @Override
     public void listenDiscovery(EndpointDiscoveryCallback callback) {

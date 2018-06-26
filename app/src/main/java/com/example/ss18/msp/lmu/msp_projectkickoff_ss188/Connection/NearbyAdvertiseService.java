@@ -26,6 +26,10 @@ public class NearbyAdvertiseService extends AbstractConnectionService implements
     @Override
     public void onCreate() {
         super.onCreate();
+    }
+
+    @Override
+    public void startService() {
         AdvertisingOptions.Builder builder = new AdvertisingOptions.Builder();
         builder.setStrategy(STRATEGY);
         connectionsClient.startAdvertising(AppLogicActivity.getUserRole().getUserName(),
@@ -55,8 +59,7 @@ public class NearbyAdvertiseService extends AbstractConnectionService implements
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void stopService() {
         connectionsClient.stopAdvertising();
     }
 

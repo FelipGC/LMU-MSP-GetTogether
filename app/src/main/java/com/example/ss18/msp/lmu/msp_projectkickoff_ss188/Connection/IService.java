@@ -22,4 +22,7 @@ interface IService {
     Iterable<ConnectionEndpoint> getConnectedEndpoints();
 
     Iterable<ConnectionEndpoint> getPendingEndpoints();
+
+    void startService();
+    void stopService();
 }
