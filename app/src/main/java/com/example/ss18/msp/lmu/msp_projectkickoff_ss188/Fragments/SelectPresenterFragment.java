@@ -106,7 +106,7 @@ public class SelectPresenterFragment extends Fragment {
      * Updates the list view displaying all devices an advertiser can connect/
      * or has already connected to
      */
-    public synchronized void updateDeviceList(ConnectionEndpoint endpoint) {
+   /* public synchronized void updateDeviceList(ConnectionEndpoint endpoint) {
         Log.i(TAG, "updateDeviceList( "+endpoint+" )");
         //We found no device
         if (cM == null || cM.getDiscoveredEndpoints().size() == 0) {
@@ -124,7 +124,7 @@ public class SelectPresenterFragment extends Fragment {
             //Update lists
             updateListViews(endpoint);
         }
-    }
+    }*/
 
     public void updateAvailablePresenter(){
         PresenterAdapter adapter = ((PresenterAdapter)availablePresenters.getAdapter());
@@ -143,7 +143,7 @@ public class SelectPresenterFragment extends Fragment {
      * Removes and endpoint from all listviews but in our specified one, where the endpoint will
      * be added
      */
-    private void updateListViews(ConnectionEndpoint endpoint) {
+  /*  private void updateListViews(ConnectionEndpoint endpoint) {
         ListView targetListView = null;
         if (cM.getEstablishedConnections().containsKey(endpoint.getId()))
             targetListView = establishedPresenters;
@@ -180,7 +180,7 @@ public class SelectPresenterFragment extends Fragment {
                 pendingButton.setVisibility(View.GONE);
             else pendingButton.setText(String.format("Pending Connection(s): %d", cM.getPendingConnections().size()));
         }
-    }
+    }*/
 
     public void updateJoinedPresentersAvatar() {
         ((PresenterAdapter) establishedPresenters.getAdapter()).notifyDataSetChanged();
