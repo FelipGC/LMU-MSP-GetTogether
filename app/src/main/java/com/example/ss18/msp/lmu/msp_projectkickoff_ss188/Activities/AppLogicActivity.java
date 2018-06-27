@@ -257,7 +257,8 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
 
                 @Override
                 public void onEndpointLost(@NonNull String s) {
-
+                    Log.i(TAG, "EndpointLost");
+                    selectPresenterFragment.updatePresenterLists();
                 }
             });
             discoveryService.listenLifecycle(new ConnectionLifecycleCallback() {

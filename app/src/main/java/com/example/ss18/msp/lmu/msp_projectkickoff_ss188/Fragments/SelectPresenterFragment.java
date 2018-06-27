@@ -135,6 +135,9 @@ public class SelectPresenterFragment extends Fragment {
 
         // Displaying available presenters
         PresenterAdapter availableAdapter = ((PresenterAdapter)availablePresenters.getAdapter());
+        availableAdapter.removeAll();
+        availablePresenters.setVisibility(View.GONE);
+        availableTitle.setVisibility(View.GONE);
         for(ConnectionEndpoint discoveredEndpoints : discoveryService.getDiscoveredEndpoints()){
             availablePresenters.setVisibility(View.VISIBLE);
             availableTitle.setVisibility(View.VISIBLE);
@@ -156,10 +159,9 @@ public class SelectPresenterFragment extends Fragment {
             pendingButton.setText(String.format("Pending Connection(s): %d", pendingCount));
         }
 
-        if(devicesFound) {
-            for (View viewNoDevice : viewNoDevices)
-                viewNoDevice.setVisibility(View.GONE);
-        }
+        for (View viewNoDevice : viewNoDevices)
+            viewNoDevice.setVisibility(devicesFound ? View.GONE : View.VISIBLE);
+
     }
 
     /**

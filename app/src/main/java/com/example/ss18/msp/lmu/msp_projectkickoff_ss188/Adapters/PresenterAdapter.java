@@ -78,6 +78,10 @@ public class PresenterAdapter extends BaseAdapter {
         notifyDataSetChanged(); // to render the list we need to notify
     }
 
+    public void removeAll(){
+        endpointList.clear();
+    }
+
     @Override
     public int getCount() {
         return endpointList.size();

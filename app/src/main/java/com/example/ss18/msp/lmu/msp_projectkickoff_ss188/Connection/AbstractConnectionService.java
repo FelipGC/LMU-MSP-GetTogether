@@ -103,6 +103,7 @@ public abstract class AbstractConnectionService extends Service implements IServ
                             pendingEndpoints.remove(endpointId);
                             break;
                         case ConnectionsStatusCodes.STATUS_ERROR:
+                            //TODO wird aufgerufen, wenn Connection angefragt und Presenter App schließt
                             Log.d(TAG, String.format(
                                     "Got ConnectionResolution status Error: %s",
                                     resolution.getStatus().getStatusMessage()));
