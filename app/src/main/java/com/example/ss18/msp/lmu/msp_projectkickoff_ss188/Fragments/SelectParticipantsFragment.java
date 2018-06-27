@@ -25,6 +25,8 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters.ViewerAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission;
 
+import java.util.List;
+
 public class SelectParticipantsFragment extends Fragment {
     private static final String TAG = "SelectParticipants";
     private static View mainView;
@@ -79,13 +81,13 @@ public class SelectParticipantsFragment extends Fragment {
         IAdvertiseService advertiseService = ((AppLogicActivity)getActivity()).getAdvertiseService();
 
         int connectedCount = advertiseService.getConnectedEndpoints().size();
-        int pendingCount = advertiseService.getPendingEndpoints().size();
+        int allCount = advertiseService.getPendingEndpoints().size() + connectedCount;
 
         TextView textView = mainView.findViewById(R.id.numberOfParticipants);
-        if(connectedCount==0 && pendingCount==0){
+        if(connectedCount==0 && allCount==0){
             textView.setText(R.string.leer);
         }else{
-            textView.setText(connectedCount + "|" + pendingCount);
+            textView.setText(connectedCount + "|" + allCount);
         }
 
     }
@@ -123,11 +125,13 @@ public class SelectParticipantsFragment extends Fragment {
 
         final IAdvertiseService advertiseService = ((AppLogicActivity)getActivity()).getAdvertiseService();
 
-        final ConnectionEndpoint[] discoveredDevices = advertiseService.getPendingEndpoints().toArray(new ConnectionEndpoint[0]);
-        final boolean[] selectedDevices = new boolean[discoveredDevices.length]; //Default to be true(selected)
+        List<ConnectionEndpoint> pending = advertiseService.getPendingEndpoints();
+        pending.addAll(advertiseService.getConnectedEndpoints());
+        final ConnectionEndpoint[] possibleParticipants = pending.toArray(new ConnectionEndpoint[0]);
+        final boolean[] selectedDevices = new boolean[possibleParticipants.length]; //Default to be true(selected)
 
         //We found no device
-        if(discoveredDevices.length == 0){
+        if(possibleParticipants.length == 0){
             builder.setMessage(R.string.noDevicesFound);
             builder.setNeutralButton(R.string.okay, new DialogInterface.OnClickListener() {
                 @Override
@@ -137,11 +141,11 @@ public class SelectParticipantsFragment extends Fragment {
             });
         }//We found devices
         else {
-            final String[] deviceNicknames = new String[discoveredDevices.length];
+            final String[] deviceNicknames = new String[possibleParticipants.length];
             //Assign nicknames
-            for (int i = 0; i < discoveredDevices.length; i++) {
-                deviceNicknames[i] = discoveredDevices[i].getName();
-                if(advertiseService.getConnectedEndpoints().contains(discoveredDevices[i]))
+            for (int i = 0; i < possibleParticipants.length; i++) {
+                deviceNicknames[i] = possibleParticipants[i].getName();
+                if(advertiseService.getConnectedEndpoints().contains(possibleParticipants[i]))
                     selectedDevices[i] = true;
             }
 
@@ -149,7 +153,7 @@ public class SelectParticipantsFragment extends Fragment {
                 @Override
                 public void onClick(DialogInterface dialog, int device,
                                     boolean isChecked) {
-                    Log.i(TAG,"Device checked: " + isChecked + " | " + discoveredDevices[device].getName());
+                    Log.i(TAG,"Device checked: " + isChecked + " | " + possibleParticipants[device].getName());
                     selectedDevices[device] = isChecked;
                 }
             };
@@ -168,7 +172,7 @@ public class SelectParticipantsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //Select all
-                for (int i = 0; i < discoveredDevices.length; i++) {
+                for (int i = 0; i < possibleParticipants.length; i++) {
                     dialog.getListView().setItemChecked(i, true);
                     selectedDevices[i] = true;
                 }
@@ -178,7 +182,7 @@ public class SelectParticipantsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //Deselect all
-                for (int i = 0; i < discoveredDevices.length; i++) {
+                for (int i = 0; i < possibleParticipants.length; i++) {
                     dialog.getListView().setItemChecked(i, false);
                     selectedDevices[i] = false;
                 }
@@ -189,7 +193,7 @@ public class SelectParticipantsFragment extends Fragment {
             public void onDismiss(DialogInterface dialog) {
                 Log.i(TAG,"Presenter window onDismiss()");
                 for (int device = 0; device < selectedDevices.length; device++) {
-                    ConnectionEndpoint endpoint = discoveredDevices[device];
+                    ConnectionEndpoint endpoint = possibleParticipants[device];
                     boolean isChecked = selectedDevices[device];
                     boolean newEndpoint = !advertiseService.getConnectedEndpoints().contains(endpoint)
                             && advertiseService.getPendingEndpoints().contains(endpoint);
@@ -197,10 +201,8 @@ public class SelectParticipantsFragment extends Fragment {
                             Log.i(TAG,"Accepting connection for " + endpoint.getName());
                         // If the user checked the item, add it to the selected items, if not already connected
                         advertiseService.acceptRequest(endpoint.getId());
-                           // connectionManager.getPendingConnections().put(endpoint.getId(), endpoint);
-                        // connectionManager.acceptConnectionIfPending(endpoint);
                     } else if(!isChecked && !newEndpoint) {
-                        //connectionManager.disconnectFromEndpoint(endpoint.getId());
+                        advertiseService.rejectRequest(endpoint.getId());
                     }
                 }
             }

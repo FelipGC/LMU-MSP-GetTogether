@@ -38,6 +38,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
 import com.google.android.gms.nearby.connection.ConnectionResolution;
+import com.google.android.gms.nearby.connection.ConnectionsStatusCodes;
 import com.google.android.gms.nearby.connection.DiscoveredEndpointInfo;
 import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback;
 
@@ -303,12 +304,14 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
 
                 @Override
                 public void onConnectionResult(@NonNull String s, @NonNull ConnectionResolution connectionResolution) {
-
+                    switch (connectionResolution.getStatus().getStatusCode()){
+                        case ConnectionsStatusCodes.STATUS_OK:
+                            selectParticipantsFragment.updateParticipants();
+                    }
                 }
 
                 @Override
                 public void onDisconnected(@NonNull String s) {
-
                 }
             });
         }
