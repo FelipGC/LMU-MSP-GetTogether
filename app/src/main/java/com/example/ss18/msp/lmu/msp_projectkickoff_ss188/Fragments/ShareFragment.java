@@ -1,10 +1,14 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,14 +20,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.google.android.gms.nearby.connection.Payload;
 
 import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
+import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
 
 /**
  * Class for selecting data/files and sharing them.
@@ -38,11 +45,36 @@ public class ShareFragment extends Fragment {
      */
     private static final int READ_REQUEST_CODE = 42;
 
+    private static ConnectionManager cM;
+    private boolean connected = false;
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.i(TAG,name +"SERVICE DISCCONECTED");
+            if(getAppLogicActivity() != null)
+                getAppLogicActivity().serviceConnections.remove(this);
+            connected = false;
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            ConnectionManager.ConnectionManagerBinder myBinder = (ConnectionManager.ConnectionManagerBinder) service;
+            cM = myBinder.getService();
+            connected = true;
+        }
+    };
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_share, container, false);
         payloadSender = new PayloadSender();
+        if(!connected) {
+            Intent intent = new Intent(getAppLogicActivity(), ConnectionManager.class);
+            getAppLogicActivity().bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+            getAppLogicActivity().serviceConnections.add(mServiceConnection);
+        }
         return view;
     }
 
@@ -123,10 +155,20 @@ public class ShareFragment extends Fragment {
      * @param uri
      */
     private void sendDataToEndpoint(Uri uri) throws FileNotFoundException {
-        Payload payload = dataToPayload(uri);
-        // Mapping the ID of the file payload to the filename
-        String payloadStoringName = payload.getId() + ":IMAGE_PIC:" + uri.getLastPathSegment();
-        payloadSender.sendPayloadFile(payload, payloadStoringName);
+        Log.i(TAG,"START PALOAD SENDING");
+        for (final String endpointId : cM.getEstablishedConnections().keySet()) {
+            Payload payload = dataToPayload(uri);
+            // Mapping the ID of the file payload to the filename
+            String payloadStoringName = payload.getId() + ":IMAGE_PIC:" + uri.getLastPathSegment();
+            try {
+                Log.i(TAG, "sendPayloadFile :"+ payloadStoringName +" + to: " + endpointId);
+                payloadSender.sendPayloadFile(endpointId, payload, payloadStoringName);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         //Display Toast
         Toast.makeText(getContext(),"File sent!",Toast.LENGTH_SHORT).show();
     }

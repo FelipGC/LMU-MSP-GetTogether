@@ -166,9 +166,9 @@ public class ConnectionManager extends Service {
                             try {
                                 Uri uri = LocalDataBase.getProfilePictureUri();
 
-                                if (uri == null){
+                                if (uri == null) {
                                     Log.i(TAG, "URI NULL...");
-                                    String message ="012" + (SPECTATOR ? ":PROF_PIC_V:" : ":PROF_PIC:");
+                                    String message = "012" + (SPECTATOR ? ":PROF_PIC_V:" : ":PROF_PIC:");
                                     payloadSender.sendPayloadBytesToSpecific(endpointId, Payload.fromBytes(message.getBytes("UTF-8")));
                                     break;
                                 }
@@ -297,26 +297,32 @@ public class ConnectionManager extends Service {
         //Clear list every time we try to re-discover
         reset();
         // Note: Advertising may fail
-        // a potentially  time consuming task
-        connectionsClient.startAdvertising(
-                AppLogicActivity.getUserRole().getUserName(), serviceID, connectionLifecycleCallback,
-                new AdvertisingOptions(STRATEGY)).addOnSuccessListener(
-                new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unusedResult) {
-                        // We're advertising!
-                        Log.i(TAG, "We are advertising...");
-                    }
-                })
-                .addOnFailureListener(
-                        new OnFailureListener() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // a potentially  time consuming task
+                connectionsClient.startAdvertising(
+                        AppLogicActivity.getUserRole().getUserName(), serviceID, connectionLifecycleCallback,
+                        new AdvertisingOptions(STRATEGY)).addOnSuccessListener(
+                        new OnSuccessListener<Void>() {
                             @Override
-                            public void onFailure(@NonNull Exception e) {
-                                // We were unable to start advertising.
-                                Log.i(TAG, "Something went wrong!");
-                                e.printStackTrace();
+                            public void onSuccess(Void unusedResult) {
+                                // We're advertising!
+                                Log.i(TAG, "We are advertising...");
                             }
-                        });
+                        })
+                        .addOnFailureListener(
+                                new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        // We were unable to start advertising.
+                                        Log.i(TAG, "Something went wrong!");
+                                        e.printStackTrace();
+                                    }
+                                });
+            }
+        }).start();
+
     }
 
     /**
@@ -326,23 +332,29 @@ public class ConnectionManager extends Service {
         Log.i(TAG, "Starting discovering as: " + AppLogicActivity.getUserRole().getUserName() + "  " + serviceID);
         reset();
         //Start discovering
-        connectionsClient.startDiscovery(serviceID, endpointDiscoveryCallback, new DiscoveryOptions(STRATEGY)).addOnSuccessListener(
-                new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unusedResult) {
-                        // We're discovering!
-                        Log.i(TAG, "We are discovering...");
-                    }
-                })
-                .addOnFailureListener(
-                        new OnFailureListener() {
+        // Note: Advertising may fail
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                connectionsClient.startDiscovery(serviceID, endpointDiscoveryCallback, new DiscoveryOptions(STRATEGY)).addOnSuccessListener(
+                        new OnSuccessListener<Void>() {
                             @Override
-                            public void onFailure(@NonNull Exception e) {
-                                // We were unable to start discovering.
-                                Log.i(TAG, "Something went wrong!");
-                                e.printStackTrace();
+                            public void onSuccess(Void unusedResult) {
+                                // We're discovering!
+                                Log.i(TAG, "We are discovering...");
                             }
-                        });
+                        })
+                        .addOnFailureListener(
+                                new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        // We were unable to start discovering.
+                                        Log.i(TAG, "Something went wrong!");
+                                        e.printStackTrace();
+                                    }
+                                });
+            }
+        }).start();
     }
 
     /**
@@ -534,9 +546,9 @@ public class ConnectionManager extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i(TAG,"ConnectionManager-Service DESTROYED!!!!");
+        Log.i(TAG, "ConnectionManager-Service DESTROYED!!!!");
         terminateConnection();
-        if(appLogicActivity != null) {
+        if (appLogicActivity != null) {
             for (ServiceConnection s : appLogicActivity.serviceConnections) {
                 unbindService(s);
             }
