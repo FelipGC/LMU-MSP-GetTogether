@@ -54,7 +54,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     private BroadcastReceiver updatePresenterReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            selectPresenterFragment.updateAvailablePresenter();
+            selectPresenterFragment.updatePresenterLists();
         }
     };
 
@@ -257,7 +257,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
                 @Override
                 public void onEndpointFound(@NonNull String s, @NonNull DiscoveredEndpointInfo discoveredEndpointInfo) {
                     Log.i(TAG, "Endpunkt gefunden");
-                    selectPresenterFragment.updateAvailablePresenter();
+                    selectPresenterFragment.updatePresenterLists();
                 }
 
                 @Override

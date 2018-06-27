@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.IDiscoveryService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters.PresenterAdapter;
 
@@ -65,18 +66,18 @@ public class SelectPresenterFragment extends Fragment {
         pendingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(TAG, "setOnClickListener() " + cM.getPendingConnections().toString());
-                final ConnectionEndpoint[] endps = cM.getPendingConnections().values().toArray(new ConnectionEndpoint[0]);
-                if(endps.length == 0)
-                    return;
-                final String[] deviceNicknames = new String[endps.length];
-                //Assign nicknames
-                for (int i = 0; i <deviceNicknames.length; i++) {
-                    deviceNicknames[i] = endps[i].getName();
+                Log.i(TAG, "setOnClickListener() ");
+
+                IDiscoveryService discoveryService = ((AppLogicActivity)getActivity()).getDiscoveryService();
+
+                String pendingNames = "";
+                for(ConnectionEndpoint pending : discoveryService.getPendingEndpoints()){
+                    pendingNames += pending.getName() + "\n";
                 }
+                if(pendingNames.isEmpty()) return;
                 final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(R.string.pending_devices);
-                builder.setItems(deviceNicknames,null);
+                builder.setMessage(pendingNames);
                 builder.create().show();
             }
         });
@@ -126,16 +127,38 @@ public class SelectPresenterFragment extends Fragment {
         }
     }*/
 
-    public void updateAvailablePresenter(){
-        PresenterAdapter adapter = ((PresenterAdapter)availablePresenters.getAdapter());
-        availablePresenters.setVisibility(View.VISIBLE);
-        for (View viewNoDevice : viewNoDevices)
-            viewNoDevice.setVisibility(View.GONE);
-        for(ConnectionEndpoint endpoint : ((AppLogicActivity)getActivity()).getDiscoveryService().getDiscoveredEndpoints()){
+    public void updatePresenterLists(){
 
-            if(!adapter.contains(endpoint.getId())){
-                adapter.add(endpoint);
+        IDiscoveryService discoveryService = ((AppLogicActivity)getActivity()).getDiscoveryService();
+
+        boolean devicesFound = false;
+
+        // Displaying available presenters
+        PresenterAdapter availableAdapter = ((PresenterAdapter)availablePresenters.getAdapter());
+        for(ConnectionEndpoint discoveredEndpoints : discoveryService.getDiscoveredEndpoints()){
+            availablePresenters.setVisibility(View.VISIBLE);
+            availableTitle.setVisibility(View.VISIBLE);
+            devicesFound = true;
+            if(!availableAdapter.contains(discoveredEndpoints.getId())){
+                availableAdapter.add(discoveredEndpoints);
             }
+        }
+
+        // Displaying Pending button
+        pendingButton.setVisibility(View.GONE);
+        int pendingCount = 0;
+        for(ConnectionEndpoint pendingEndpoints : discoveryService.getPendingEndpoints()){
+            pendingCount++;
+        }
+        if(pendingCount>0){
+            devicesFound = true;
+            pendingButton.setVisibility(View.VISIBLE);
+            pendingButton.setText(String.format("Pending Connection(s): %d", pendingCount));
+        }
+
+        if(devicesFound) {
+            for (View viewNoDevice : viewNoDevices)
+                viewNoDevice.setVisibility(View.GONE);
         }
     }
 
@@ -143,7 +166,7 @@ public class SelectPresenterFragment extends Fragment {
      * Removes and endpoint from all listviews but in our specified one, where the endpoint will
      * be added
      */
-  /*  private void updateListViews(ConnectionEndpoint endpoint) {
+    private void updateListViews(ConnectionEndpoint endpoint) {
         ListView targetListView = null;
         if (cM.getEstablishedConnections().containsKey(endpoint.getId()))
             targetListView = establishedPresenters;
@@ -180,7 +203,7 @@ public class SelectPresenterFragment extends Fragment {
                 pendingButton.setVisibility(View.GONE);
             else pendingButton.setText(String.format("Pending Connection(s): %d", cM.getPendingConnections().size()));
         }
-    }*/
+    }
 
     public void updateJoinedPresentersAvatar() {
         ((PresenterAdapter) establishedPresenters.getAdapter()).notifyDataSetChanged();

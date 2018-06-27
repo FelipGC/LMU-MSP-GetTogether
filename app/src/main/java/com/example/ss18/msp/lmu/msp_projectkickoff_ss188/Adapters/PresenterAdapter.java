@@ -138,10 +138,6 @@ public class PresenterAdapter extends BaseAdapter {
                 Toast.makeText(context, String.format(String.format("Requested to join: %s",
                         endpoint.getName())), Toast.LENGTH_SHORT).show();
                 discoveryService.requestConnection(endpoint);
-
-                /* ().getPendingConnections().put(endpoint.getId(), endpoint);
-                AppLogicActivity.getConnectionManager().requestConnection(endpoint);
-                AppLogicActivity.getConnectionManager().updatePresenters(endpoint);*/
             }
         });
         alertDialog.show();
