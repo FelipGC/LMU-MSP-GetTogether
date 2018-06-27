@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public abstract class AbstractConnectionService extends Service implements IService {
     private final String TAG = "AConnectionService";
@@ -212,13 +213,21 @@ public abstract class AbstractConnectionService extends Service implements IServ
     }
 
     @Override
-    public Iterable<ConnectionEndpoint> getConnectedEndpoints() {
-        return connectedEndpoints.values();
+    public List<ConnectionEndpoint> getConnectedEndpoints() {
+        List<ConnectionEndpoint> list = new ArrayList<>();
+        for(ConnectionEndpoint ce : connectedEndpoints.values()){
+            list.add(ce);
+        }
+        return list;
     }
 
     @Override
-    public Iterable<ConnectionEndpoint> getPendingEndpoints() {
-        return pendingEndpoints.values();
+    public List<ConnectionEndpoint> getPendingEndpoints() {
+        List<ConnectionEndpoint> list = new ArrayList<>();
+        for(ConnectionEndpoint ce : pendingEndpoints.values()){
+            list.add(ce);
+        }
+        return list;
     }
 
     @Override

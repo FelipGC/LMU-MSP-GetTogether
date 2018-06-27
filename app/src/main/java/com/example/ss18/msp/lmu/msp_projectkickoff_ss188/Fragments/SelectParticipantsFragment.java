@@ -78,14 +78,9 @@ public class SelectParticipantsFragment extends Fragment {
     public void updateParticipants(){
         IAdvertiseService advertiseService = ((AppLogicActivity)getActivity()).getAdvertiseService();
 
-        int connectedCount = 0;
-        for(ConnectionEndpoint ce : advertiseService.getConnectedEndpoints()){
-            connectedCount++;
-        }
-        int pendingCount = 0;
-        for(ConnectionEndpoint pe : advertiseService.getPendingEndpoints()){
-            pendingCount++;
-        }
+        int connectedCount = advertiseService.getConnectedEndpoints().size();
+        int pendingCount = advertiseService.getPendingEndpoints().size();
+
         TextView textView = mainView.findViewById(R.id.numberOfParticipants);
         if(connectedCount==0 && pendingCount==0){
             textView.setText(R.string.leer);
@@ -125,7 +120,10 @@ public class SelectParticipantsFragment extends Fragment {
         Log.i(TAG,"Participants button clicked");
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.selectDevices);
-        final ConnectionEndpoint[] discoveredDevices = connectionManager.getDiscoveredEndpoints().values().toArray(new ConnectionEndpoint[0]);
+
+        final IAdvertiseService advertiseService = ((AppLogicActivity)getActivity()).getAdvertiseService();
+
+        final ConnectionEndpoint[] discoveredDevices = advertiseService.getPendingEndpoints().toArray(new ConnectionEndpoint[0]);
         final boolean[] selectedDevices = new boolean[discoveredDevices.length]; //Default to be true(selected)
 
         //We found no device
@@ -143,7 +141,7 @@ public class SelectParticipantsFragment extends Fragment {
             //Assign nicknames
             for (int i = 0; i < discoveredDevices.length; i++) {
                 deviceNicknames[i] = discoveredDevices[i].getName();
-                if(connectionManager.getEstablishedConnections().containsKey(discoveredDevices[i].getId()))
+                if(advertiseService.getConnectedEndpoints().contains(discoveredDevices[i]))
                     selectedDevices[i] = true;
             }
 
@@ -193,15 +191,17 @@ public class SelectParticipantsFragment extends Fragment {
                 for (int device = 0; device < selectedDevices.length; device++) {
                     ConnectionEndpoint endpoint = discoveredDevices[device];
                     boolean isChecked = selectedDevices[device];
-                    boolean newEndpoint = !connectionManager.getEstablishedConnections().containsKey(endpoint.getId())
-                            && !connectionManager.getPendingConnections().containsKey(endpoint.getId());
+                    boolean newEndpoint = !advertiseService.getConnectedEndpoints().contains(endpoint)
+                            && advertiseService.getPendingEndpoints().contains(endpoint);
                     if (isChecked && newEndpoint) {
                             Log.i(TAG,"Accepting connection for " + endpoint.getName());
                         // If the user checked the item, add it to the selected items, if not already connected
-                            connectionManager.getPendingConnections().put(endpoint.getId(), endpoint);
-                            connectionManager.acceptConnectionIfPending(endpoint);
-                    } else if(!isChecked && !newEndpoint)
-                        connectionManager.disconnectFromEndpoint(endpoint.getId());
+                        advertiseService.acceptRequest(endpoint.getId());
+                           // connectionManager.getPendingConnections().put(endpoint.getId(), endpoint);
+                        // connectionManager.acceptConnectionIfPending(endpoint);
+                    } else if(!isChecked && !newEndpoint) {
+                        //connectionManager.disconnectFromEndpoint(endpoint.getId());
+                    }
                 }
             }
         });

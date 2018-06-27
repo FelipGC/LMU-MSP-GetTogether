@@ -4,6 +4,8 @@ import android.os.ParcelFileDescriptor;
 
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
 
+import java.util.List;
+
 interface IService {
     void listenLifecycle(ConnectionLifecycleCallback connectionLifecycleCallback);
 
@@ -19,9 +21,9 @@ interface IService {
 
     void sendFile(String endpointId, ParcelFileDescriptor fileDescriptor, String fileName);
 
-    Iterable<ConnectionEndpoint> getConnectedEndpoints();
+    List<ConnectionEndpoint> getConnectedEndpoints();
 
-    Iterable<ConnectionEndpoint> getPendingEndpoints();
+    List<ConnectionEndpoint> getPendingEndpoints();
 
     void startService();
     void stopService();
