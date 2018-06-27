@@ -47,7 +47,7 @@ public class InboxFragment extends Fragment {
      */
     public void updateInboxFragment(Uri uri) {
         Log.i(TAG, "updateInboxFragment()");
-        if (uri != null ? fileCounter++ == 0 : fileCounter == 0)
+        if (uri != null ? ++fileCounter == 0 : fileCounter == 0)
             title.setText(R.string.keine_bilder);
         else
             title.setText("<Images: " + fileCounter + ">");

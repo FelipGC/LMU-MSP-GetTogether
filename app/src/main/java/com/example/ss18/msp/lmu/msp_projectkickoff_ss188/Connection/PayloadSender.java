@@ -26,6 +26,8 @@ public class PayloadSender {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.i(TAG,name +"SERVICE DISCCONECTED");
+            if(getAppLogicActivity() != null)
+                getAppLogicActivity().serviceConnections.remove(this);
         }
 
         @Override
@@ -84,32 +86,23 @@ public class PayloadSender {
      */
     private void sendPayloadStream(final String endpointId, final Payload payload) {
         Log.i(TAG, "sendPayloadStream to: " + endpointId);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                cM.getConnectionsClient().sendPayload(endpointId, payload);
-            }}).start();
+        cM.getConnectionsClient().sendPayload(endpointId, payload);
     }
 
     /**
      * Sends a Payload object out to all endPoints
      */
     public void sendPayloadFile(final Payload payload, final String payloadStoringName) {
-        Log.i(TAG,"START PALOAD SENDING IN SEPERATE THREADS");
+        Log.i(TAG,"START PALOAD SENDING");
         for (final String endpointId : cM.getEstablishedConnections().keySet()) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Log.i(TAG, "sendPayloadFile :"+ payloadStoringName +" + to: " + endpointId);
-                        sendPayloadFile(endpointId, payload, payloadStoringName);
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
+            try {
+                Log.i(TAG, "sendPayloadFile :"+ payloadStoringName +" + to: " + endpointId);
+                sendPayloadFile(endpointId, payload, payloadStoringName);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

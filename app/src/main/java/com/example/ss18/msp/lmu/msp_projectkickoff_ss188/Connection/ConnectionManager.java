@@ -297,30 +297,26 @@ public class ConnectionManager extends Service {
         //Clear list every time we try to re-discover
         reset();
         // Note: Advertising may fail
-        new Thread(new Runnable() {
-            public void run() {
-                // a potentially  time consuming task
-                connectionsClient.startAdvertising(
-                        AppLogicActivity.getUserRole().getUserName(), serviceID, connectionLifecycleCallback,
-                        new AdvertisingOptions(STRATEGY)).addOnSuccessListener(
-                        new OnSuccessListener<Void>() {
+        // a potentially  time consuming task
+        connectionsClient.startAdvertising(
+                AppLogicActivity.getUserRole().getUserName(), serviceID, connectionLifecycleCallback,
+                new AdvertisingOptions(STRATEGY)).addOnSuccessListener(
+                new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unusedResult) {
+                        // We're advertising!
+                        Log.i(TAG, "We are advertising...");
+                    }
+                })
+                .addOnFailureListener(
+                        new OnFailureListener() {
                             @Override
-                            public void onSuccess(Void unusedResult) {
-                                // We're advertising!
-                                Log.i(TAG, "We are advertising...");
+                            public void onFailure(@NonNull Exception e) {
+                                // We were unable to start advertising.
+                                Log.i(TAG, "Something went wrong!");
+                                e.printStackTrace();
                             }
-                        })
-                        .addOnFailureListener(
-                                new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        // We were unable to start advertising.
-                                        Log.i(TAG, "Something went wrong!");
-                                        e.printStackTrace();
-                                    }
-                                });
-            }
-        }).start();
+                        });
     }
 
     /**
@@ -329,29 +325,24 @@ public class ConnectionManager extends Service {
     public void startDiscovering() {
         Log.i(TAG, "Starting discovering as: " + AppLogicActivity.getUserRole().getUserName() + "  " + serviceID);
         reset();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //Start discovering
-                connectionsClient.startDiscovery(serviceID, endpointDiscoveryCallback, new DiscoveryOptions(STRATEGY)).addOnSuccessListener(
-                        new OnSuccessListener<Void>() {
+        //Start discovering
+        connectionsClient.startDiscovery(serviceID, endpointDiscoveryCallback, new DiscoveryOptions(STRATEGY)).addOnSuccessListener(
+                new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unusedResult) {
+                        // We're discovering!
+                        Log.i(TAG, "We are discovering...");
+                    }
+                })
+                .addOnFailureListener(
+                        new OnFailureListener() {
                             @Override
-                            public void onSuccess(Void unusedResult) {
-                                // We're discovering!
-                                Log.i(TAG, "We are discovering...");
+                            public void onFailure(@NonNull Exception e) {
+                                // We were unable to start discovering.
+                                Log.i(TAG, "Something went wrong!");
+                                e.printStackTrace();
                             }
-                        })
-                        .addOnFailureListener(
-                                new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        // We were unable to start discovering.
-                                        Log.i(TAG, "Something went wrong!");
-                                        e.printStackTrace();
-                                    }
-                                });
-            }
-        }).run();
+                        });
     }
 
     /**

@@ -63,6 +63,8 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.i(TAG,name +"SERVICE DISCCONECTED");
+            if(getAppLogicActivity() != null)
+                getAppLogicActivity().serviceConnections.remove(this);
         }
 
         @Override
@@ -214,7 +216,12 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     protected void onDestroy() {
         Log.i(TAG, "onDestroy() -> terminating nearby connection");
         for (ServiceConnection s: serviceConnections) {
-            unbindService(s);
+            try {
+                unbindService(s);
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
         }
         serviceConnections.clear();
         connectionManager.terminateConnection();

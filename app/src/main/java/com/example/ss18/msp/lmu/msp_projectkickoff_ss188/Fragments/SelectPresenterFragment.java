@@ -58,6 +58,8 @@ public class SelectPresenterFragment extends Fragment {
         public void onServiceDisconnected(ComponentName name) {
             connected = false;
             Log.i(TAG,name +"SERVICE DISCCONECTED");
+            if(getAppLogicActivity() != null)
+                getAppLogicActivity().serviceConnections.remove(this);
         }
 
         @Override

@@ -55,6 +55,8 @@ public final class PayloadReceiver extends PayloadCallback {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            if(getAppLogicActivity() != null)
+                getAppLogicActivity().serviceConnections.remove(this);
         }
 
         @Override

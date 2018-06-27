@@ -45,6 +45,8 @@ public class PresenterAdapter extends BaseAdapter {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.i(TAG,name +"SERVICE DISCCONECTED");
+            if(getAppLogicActivity() != null)
+                getAppLogicActivity().serviceConnections.remove(this);
         }
 
         @Override
