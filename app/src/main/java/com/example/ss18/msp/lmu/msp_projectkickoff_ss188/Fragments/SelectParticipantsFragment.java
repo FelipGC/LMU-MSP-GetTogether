@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.IAdvertiseService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters.ViewerAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission;
@@ -73,6 +74,27 @@ public class SelectParticipantsFragment extends Fragment {
 
         return mainView;
     }
+
+    public void updateParticipants(){
+        IAdvertiseService advertiseService = ((AppLogicActivity)getActivity()).getAdvertiseService();
+
+        int connectedCount = 0;
+        for(ConnectionEndpoint ce : advertiseService.getConnectedEndpoints()){
+            connectedCount++;
+        }
+        int pendingCount = 0;
+        for(ConnectionEndpoint pe : advertiseService.getPendingEndpoints()){
+            pendingCount++;
+        }
+        TextView textView = mainView.findViewById(R.id.numberOfParticipants);
+        if(connectedCount==0 && pendingCount==0){
+            textView.setText(R.string.leer);
+        }else{
+            textView.setText(connectedCount + "|" + pendingCount);
+        }
+
+    }
+
     /**
      * Updates the amount of participants on the GUI
      */

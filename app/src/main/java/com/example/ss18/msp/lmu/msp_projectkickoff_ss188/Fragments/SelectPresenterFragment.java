@@ -47,7 +47,6 @@ public class SelectPresenterFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_available_presenters, container, false);
-        cM = AppLogicActivity.getConnectionManager();
 
         viewDevicesFound.addAll(Arrays.asList(
                 availablePresenters = view.findViewById(R.id.presentersListView_available),
@@ -168,7 +167,7 @@ public class SelectPresenterFragment extends Fragment {
      * Removes and endpoint from all listviews but in our specified one, where the endpoint will
      * be added
      */
-    private void updateListViews(ConnectionEndpoint endpoint) {
+    /*private void updateListViews(ConnectionEndpoint endpoint) {
         ListView targetListView = null;
         if (cM.getEstablishedConnections().containsKey(endpoint.getId()))
             targetListView = establishedPresenters;
@@ -205,7 +204,7 @@ public class SelectPresenterFragment extends Fragment {
                 pendingButton.setVisibility(View.GONE);
             else pendingButton.setText(String.format("Pending Connection(s): %d", cM.getPendingConnections().size()));
         }
-    }
+    }*/
 
     public void updateJoinedPresentersAvatar() {
         ((PresenterAdapter) establishedPresenters.getAdapter()).notifyDataSetChanged();

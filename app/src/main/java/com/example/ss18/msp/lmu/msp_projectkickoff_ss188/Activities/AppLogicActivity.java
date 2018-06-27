@@ -59,6 +59,10 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
         return discoveryService;
     }
 
+    public IAdvertiseService getAdvertiseService() {
+        return advertiseService;
+    }
+
     /**
      * The role of the user (Presenter/Spectator)
      */
@@ -290,6 +294,23 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
             Log.i(TAG, "ADVERTISE SERVICE CONNECTED");
             NearbyAdvertiseService.NearbyAdvertiseBinder binder = (NearbyAdvertiseService.NearbyAdvertiseBinder)service;
             advertiseService = binder.getService();
+            advertiseService.listenLifecycle(new ConnectionLifecycleCallback() {
+                @Override
+                public void onConnectionInitiated(@NonNull String s, @NonNull ConnectionInfo connectionInfo) {
+                    Log.i(TAG,"onConnectionInitiated");
+                    selectParticipantsFragment.updateParticipants();
+                }
+
+                @Override
+                public void onConnectionResult(@NonNull String s, @NonNull ConnectionResolution connectionResolution) {
+
+                }
+
+                @Override
+                public void onDisconnected(@NonNull String s) {
+
+                }
+            });
         }
 
         @Override
