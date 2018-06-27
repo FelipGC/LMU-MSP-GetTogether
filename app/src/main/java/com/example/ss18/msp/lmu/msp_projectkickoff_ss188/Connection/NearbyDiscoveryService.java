@@ -167,11 +167,6 @@ public class NearbyDiscoveryService extends AbstractConnectionService implements
         return discoveredEndpoints.values();
     }
 
-    @Override
-    public Iterable<ConnectionEndpoint> getPendingEndpoints() {
-        return pendingEndpoints.values();
-    }
-
     public class NearbyDiscoveryBinder extends Binder {
         public IDiscoveryService getService() {
             return NearbyDiscoveryService.this;
