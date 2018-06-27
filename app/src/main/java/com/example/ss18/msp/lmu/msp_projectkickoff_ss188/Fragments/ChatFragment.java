@@ -24,6 +24,8 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 
@@ -35,16 +37,26 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
     private static ListView messagesView;
     private ImageButton buttonSend;
     private PayloadSender payloadSender;
+    private ArrayList<Message> messages = new ArrayList<>();
 
+   public void setAdapter(){
+       Log.i(TAG,"SetAdapter()");
+   }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        Log.i(TAG,"onCreateView()");
         View view = inflater.inflate(R.layout.fragment_chat,container,false);
         editText = (EditText) view.findViewById(R.id.editText);
+        messageAdapter = new MessageAdapter(getContext());
+        if(messagesView == null) {
+            for (Message msg : messages) {
+                messageAdapter.addMessage(msg);
+            }
+        }
         messagesView = (ListView) view.findViewById(R.id.messages_view);
-        messageAdapter = new MessageAdapter(getActivity());
         buttonSend = (ImageButton) view.findViewById(R.id.button_send);
         buttonSend.setOnClickListener(this);
         messagesView.setAdapter(messageAdapter);
@@ -78,9 +90,11 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
 
             Message msg = new Message(messageText,null, name, true);
             messageAdapter.addMessage(msg);
-            messageAdapter.notifyDataSetChanged();
             // scroll the ListView to the last added element
-            messagesView.setSelection(messagesView.getCount() - 1);
+            if(messagesView != null) {
+                messageAdapter.notifyDataSetChanged();
+                messagesView.setSelection(messagesView.getCount() - 1);
+            }
 
             editText.getText().clear();
             sendDataToEndpoints(messageText);
@@ -113,23 +127,26 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         String message = receivedMessage.substring(substringDividerIndex + 1);
 
         Message received = new Message(message, id, payloadSender, false);
-        messageAdapter.addMessage(received);
-        messageAdapter.notifyDataSetChanged();
+        messages.add(received);
         // scroll the ListView to the last added element
-        messagesView.setSelection(messagesView.getCount() - 1);
+        if(messagesView != null) {
+            messageAdapter.addMessage(received);
+            messageAdapter.notifyDataSetChanged();
+            messagesView.setSelection(messagesView.getCount() - 1);
+        }
     }
     /**
      * Displays a neutral system chat message in the chat
      */
     public void displaySystemNotification(String message) {
-        if(messageAdapter == null)
-            return;
-
         Message received = new Message(message, null, "SYSTEM", false);
-        messageAdapter.addMessage(received);
-        messageAdapter.notifyDataSetChanged();
+        messages.add(received);
         // scroll the ListView to the last added element
-        messagesView.setSelection(messagesView.getCount() - 1);
+        if(messagesView != null) {
+            messageAdapter.addMessage(received);
+            messageAdapter.notifyDataSetChanged();
+            messagesView.setSelection(messagesView.getCount() - 1);
+        }
     }
 
     /*

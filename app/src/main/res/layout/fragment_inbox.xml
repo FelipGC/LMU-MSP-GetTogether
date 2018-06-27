@@ -10,15 +10,15 @@
     <TextView
         android:id="@+id/inboxTitle"
         android:layout_width="347dp"
-        android:layout_height="100dp"
+        android:layout_height="118dp"
         android:layout_centerInParent="true"
-        android:layout_marginBottom="44dp"
+        android:layout_marginBottom="32dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="21dp"
         android:fontFamily="sans-serif-smallcaps"
-        android:text="Leer"
+        android:text="@string/keine_bilder"
         android:textAlignment="center"
-        android:textSize="50sp"
+        android:textSize="40sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -40,6 +40,6 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.608" />
 
 </android.support.constraint.ConstraintLayout>

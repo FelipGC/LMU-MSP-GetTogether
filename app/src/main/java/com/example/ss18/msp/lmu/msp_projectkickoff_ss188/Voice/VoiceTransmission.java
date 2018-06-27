@@ -40,6 +40,7 @@ public final class VoiceTransmission implements IVoice {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            Log.i(TAG,name +"SERVICE DISCCONECTED");
         }
 
         @Override

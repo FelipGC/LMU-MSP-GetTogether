@@ -21,6 +21,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActi
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.CheckDistanceService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.InboxFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.FixedSizeList;
@@ -153,7 +154,6 @@ public final class PayloadReceiver extends PayloadCallback {
             Log.i(TAG, "Received FILE: ID=" + payload.getId());
             // Add this to our tracking map, so that we can retrieve the payload later.
             incomingPayloads.put(payload.getId(), payload);
-            //TODO: Sending files may take some time. Display progressbar or something
         }else if (payload.getType() == Payload.Type.STREAM) {
             Log.i(TAG, "Received STREAM: ID=" + payload.getId());
             //We received a stream. i.e Voice stream
@@ -221,14 +221,17 @@ public final class PayloadReceiver extends PayloadCallback {
         if (fileName != null) {
             //Did we receive a Profile Picture?
             if (fileName.contains("PROF_PIC")) {
+                Log.i(TAG,"Received PROF_PIC");
                 profilePictureReceived(fileName, payloadFile, endpointId, payload);
             }
             //Did we receive an Image?
             else if (fileName.contains("IMAGE_PIC:")) {
+                Log.i(TAG,"Received IMAGE_PIC");
                 receivedImageFully(payloadFile, endpointId);
             }
             //We received a document which is not an image nor an profile picture
             else {
+                Log.i(TAG,"Received document file");
                 receivedFileFully(payloadFile, endpointId);
             }
         } else {
@@ -291,6 +294,8 @@ public final class PayloadReceiver extends PayloadCallback {
     }
 
     private void receivedImageFully(File payloadFile, String endpointId) {
+        if(cM.getEstablishedConnections().get(endpointId) == null)
+            return;
         //TODO: RenameFile
         //Display a notification.
         NotificationUtility.displayNotification("Image received",
@@ -299,7 +304,9 @@ public final class PayloadReceiver extends PayloadCallback {
         Log.i(TAG, "Payload file name: " + payloadFile.getName());
         //ConnectionEndpoint connectionEndpoint = cM.getDiscoveredEndpoints().get(endpointId);
         //Update inbox-fragment.
-        getAppLogicActivity().getInboxFragment().updateInboxFragment(Uri.fromFile(payloadFile));
+        Uri uri = Uri.fromFile(payloadFile);
+        InboxFragment inboxFragment = getAppLogicActivity().getInboxFragment();
+        inboxFragment.updateInboxFragment(uri);
     }
 
     private void receivedFileFully(File payloadFile, String endpointId) {

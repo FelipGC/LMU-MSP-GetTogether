@@ -48,6 +48,7 @@ public class SelectParticipantsFragment extends Fragment {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             connected = false;
+            Log.i(TAG,name +"SERVICE DISCCONECTED");
         }
 
         @Override

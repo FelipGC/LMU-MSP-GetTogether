@@ -21,7 +21,7 @@ public class InboxFragment extends Fragment {
     private static final String TAG = "InboxFragment";
     private final int READ_REQUEST_CODE = 4242;
     private TextView title;
-    private int fileCounter = 0;
+    private static int fileCounter = 0;
 
     @Nullable
     @Override
@@ -38,24 +38,29 @@ public class InboxFragment extends Fragment {
                 startSlidePresentation();
             }
         });
+        updateInboxFragment(null);
         return view;
     }
 
     /**
-     *Renames and saves the payload to a specific location
+     * Renames and saves the payload to a specific location
      */
     public void updateInboxFragment(Uri uri) {
         Log.i(TAG, "updateInboxFragment()");
-        title.setText("<Images: " + ++fileCounter + ">");
-        //Add uri to image to the list
-        ImageSliderActivity.images.add(uri);
+        if (uri != null ? fileCounter++ == 0 : fileCounter == 0)
+            title.setText(R.string.keine_bilder);
+        else
+            title.setText("<Images: " + fileCounter + ">");
+        if (uri != null)
+            //Add uri to image to the list
+            ImageSliderActivity.images.add(uri);
     }
 
     /**
      * Displays all received pictures as a presentation in an extra activity
      */
     private void startSlidePresentation() {
-        Log.i(TAG,"startSlidePresentation()");
+        Log.i(TAG, "startSlidePresentation()");
         Intent intent = new Intent(getContext(), ImageSliderActivity.class);
         startActivity(intent);
 

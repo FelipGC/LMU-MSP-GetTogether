@@ -13,7 +13,6 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.Locatio
 import com.google.android.gms.nearby.connection.Payload;
 
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
 
 import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
 
@@ -26,6 +25,7 @@ public class PayloadSender {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            Log.i(TAG,name +"SERVICE DISCCONECTED");
         }
 
         @Override
@@ -84,13 +84,18 @@ public class PayloadSender {
      */
     private void sendPayloadStream(final String endpointId, final Payload payload) {
         Log.i(TAG, "sendPayloadStream to: " + endpointId);
-        cM.getConnectionsClient().sendPayload(endpointId, payload);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                cM.getConnectionsClient().sendPayload(endpointId, payload);
+            }}).start();
     }
 
     /**
      * Sends a Payload object out to all endPoints
      */
     public void sendPayloadFile(final Payload payload, final String payloadStoringName) {
+        Log.i(TAG,"START PALOAD SENDING IN SEPERATE THREADS");
         for (final String endpointId : cM.getEstablishedConnections().keySet()) {
             new Thread(new Runnable() {
                 @Override

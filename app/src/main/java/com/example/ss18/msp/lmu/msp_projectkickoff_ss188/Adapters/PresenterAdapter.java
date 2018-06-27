@@ -44,6 +44,7 @@ public class PresenterAdapter extends BaseAdapter {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            Log.i(TAG,name +"SERVICE DISCCONECTED");
         }
 
         @Override

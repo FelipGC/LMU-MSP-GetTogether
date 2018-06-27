@@ -37,10 +37,9 @@ public class MainActivity extends BaseActivity {
     private DrawerLayout mDrawerLayout;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        super.onCreate(R.layout.activity_main);
-
+    protected void onStart() {
+        Log.i(TAG,"onStart()");
+        super.onStart();
         Intent intent = new Intent(getApplicationContext(), ConnectionManager.class);
         stopService(intent);
 
@@ -57,6 +56,13 @@ public class MainActivity extends BaseActivity {
         Animation logoMoveAnimation = AnimationUtils.loadAnimation(this, R.anim.pop_up_animation);
         presenter.startAnimation(logoMoveAnimation);
         spectator.startAnimation(logoMoveAnimation);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        Log.i(TAG,"onCreate()");
+        super.onCreate(savedInstanceState);
+        super.onCreate(R.layout.activity_main);
     }
 
     @Override

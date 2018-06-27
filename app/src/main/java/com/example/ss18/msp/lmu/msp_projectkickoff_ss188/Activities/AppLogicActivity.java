@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.MessageAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
@@ -61,6 +62,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            Log.i(TAG,name +"SERVICE DISCCONECTED");
         }
 
         @Override
@@ -96,6 +98,8 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
                     return;
 
             }
+            chatFragment.setAdapter();
+
             ViewPager viewPager = findViewById(R.id.pager);
             viewPager.setAdapter(tabPageAdapter);
 
@@ -110,6 +114,11 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.onCreate(R.layout.activity_app_logic);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
 
         appLogicActivity = this;
 

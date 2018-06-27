@@ -540,4 +540,15 @@ public class ConnectionManager extends Service {
         return payloadSender;
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG,"ConnectionManager-Service DESTROYED!!!!");
+        terminateConnection();
+        if(appLogicActivity != null) {
+            for (ServiceConnection s : appLogicActivity.serviceConnections) {
+                unbindService(s);
+            }
+        }
+    }
 }
