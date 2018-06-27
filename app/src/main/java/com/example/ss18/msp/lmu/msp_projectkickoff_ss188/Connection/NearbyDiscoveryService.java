@@ -24,6 +24,7 @@ import java.util.Map;
 public class NearbyDiscoveryService extends AbstractConnectionService implements IDiscoveryService {
     private final String TAG = "DiscoveryService";
     private final Map<String, ConnectionEndpoint> discoveredEndpoints = new HashMap<>();
+    private final Map<String,ConnectionEndpoint> pendingEndpoints = new HashMap<>();
     private final IBinder binder = new NearbyDiscoveryBinder();
     private final List<EndpointDiscoveryCallback> discoveryCallbacks = new ArrayList<>();
 
@@ -135,13 +136,17 @@ public class NearbyDiscoveryService extends AbstractConnectionService implements
     }
 
     @Override
-    public void requestConnection(String endpointId, String name) {
-        connectionsClient.requestConnection(name, endpointId, connectionLifecycleCallback)
+    public void requestConnection(final ConnectionEndpoint endpoint) {
+        connectionsClient.requestConnection(endpoint.getName(), endpoint.getId(), connectionLifecycleCallback)
                 .addOnSuccessListener(
                         new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Log.i(TAG, "We have requested a connection!");
+                                discoveredEndpoints.remove(endpoint.getId());
+                                pendingEndpoints.put(endpoint.getId(),endpoint);
+                                sendBroadcast(new Intent("de.lmu.msp.nearbyproject.UPDATE_PRESENTER"));
+
                             }
                         }
 
@@ -160,6 +165,11 @@ public class NearbyDiscoveryService extends AbstractConnectionService implements
     @Override
     public Iterable<ConnectionEndpoint> getDiscoveredEndpoints() {
         return discoveredEndpoints.values();
+    }
+
+    @Override
+    public Iterable<ConnectionEndpoint> getPendingEndpoints() {
+        return pendingEndpoints.values();
     }
 
     public class NearbyDiscoveryBinder extends Binder {

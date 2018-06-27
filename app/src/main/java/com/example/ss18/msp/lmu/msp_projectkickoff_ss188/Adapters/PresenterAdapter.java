@@ -1,8 +1,13 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters;
 
 import android.app.Activity;
+import android.arch.lifecycle.ServiceLifecycleDispatcher;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +22,8 @@ import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.IDiscoveryService;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.NearbyDiscoveryService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
 import java.util.ArrayList;
@@ -30,10 +37,13 @@ public class PresenterAdapter extends BaseAdapter {
     private final String TAG = "PresenterAdapter";
     private final ArrayList<ConnectionEndpoint> endpointList = new ArrayList<ConnectionEndpoint>();
     private Context context;
+    private IDiscoveryService discoveryService;
 
     public PresenterAdapter(Context context, boolean enableSwitch) {
         this.context = context;
         this.enableSwitch = enableSwitch;
+        Intent serviceIntent = new Intent(context, NearbyDiscoveryService.class);
+        context.bindService(serviceIntent,discoveryConnection,Context.BIND_AUTO_CREATE);
     }
 
     public boolean contains(String id) {
@@ -127,9 +137,11 @@ public class PresenterAdapter extends BaseAdapter {
                 //OnClick: Add to pending list
                 Toast.makeText(context, String.format(String.format("Requested to join: %s",
                         endpoint.getName())), Toast.LENGTH_SHORT).show();
-                AppLogicActivity.getConnectionManager().getPendingConnections().put(endpoint.getId(), endpoint);
+                discoveryService.requestConnection(endpoint);
+
+                /* ().getPendingConnections().put(endpoint.getId(), endpoint);
                 AppLogicActivity.getConnectionManager().requestConnection(endpoint);
-                AppLogicActivity.getConnectionManager().updatePresenters(endpoint);
+                AppLogicActivity.getConnectionManager().updatePresenters(endpoint);*/
             }
         });
         alertDialog.show();
@@ -170,4 +182,15 @@ public class PresenterAdapter extends BaseAdapter {
         AlertDialog alertDialog = dialog.create();
         alertDialog.show();
     }
+
+    private ServiceConnection discoveryConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            NearbyDiscoveryService.NearbyDiscoveryBinder binder = (NearbyDiscoveryService.NearbyDiscoveryBinder)service;
+            discoveryService = binder.getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {}
+    };
 }

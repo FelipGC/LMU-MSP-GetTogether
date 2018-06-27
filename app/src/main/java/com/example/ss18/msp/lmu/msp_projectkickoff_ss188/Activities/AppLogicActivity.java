@@ -1,7 +1,10 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -48,6 +51,12 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
 
     private IDiscoveryService discoveryService;
     private IAdvertiseService advertiseService;
+    private BroadcastReceiver updatePresenterReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            selectPresenterFragment.updateAvailablePresenter();
+        }
+    };
 
     public IDiscoveryService getDiscoveryService() {
         return discoveryService;
@@ -78,6 +87,8 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
         //Connection
         connectionManager = ConnectionManager.getInstance(); //Singleton
         connectionManager.setUpConnectionsClient(this);
+
+        registerReceiver(updatePresenterReceiver,new IntentFilter("de.lmu.msp.nearbyproject.UPDATE_PRESENTER"));
 
         //Set up tabs
         tabPageAdapter = new TabPageAdapter(getSupportFragmentManager());
@@ -236,7 +247,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
 
 
 
-    ServiceConnection discoveryConnection = new ServiceConnection() {
+    private ServiceConnection discoveryConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.i(TAG, "DISCOVERY SERVICE CONNECTED");
@@ -261,7 +272,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
             Log.i(TAG, "DISCOVERY SERVICE DISCONNECTED");
         }
     };
-    ServiceConnection advertiseConnection = new ServiceConnection() {
+    private ServiceConnection advertiseConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.i(TAG, "ADVERTISE SERVICE CONNECTED");
