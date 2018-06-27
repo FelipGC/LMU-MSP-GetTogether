@@ -24,7 +24,6 @@ import java.util.Map;
 public class NearbyDiscoveryService extends AbstractConnectionService implements IDiscoveryService {
     private final String TAG = "DiscoveryService";
     private final Map<String, ConnectionEndpoint> discoveredEndpoints = new HashMap<>();
-    private final Map<String,ConnectionEndpoint> pendingEndpoints = new HashMap<>();
     private final IBinder binder = new NearbyDiscoveryBinder();
     private final List<EndpointDiscoveryCallback> discoveryCallbacks = new ArrayList<>();
 
