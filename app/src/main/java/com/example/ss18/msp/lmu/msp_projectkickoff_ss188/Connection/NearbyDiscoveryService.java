@@ -143,10 +143,6 @@ public class NearbyDiscoveryService extends AbstractConnectionService implements
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Log.i(TAG, "We have requested a connection!");
-                                discoveredEndpoints.remove(endpoint.getId());
-                                pendingEndpoints.put(endpoint.getId(),endpoint);
-                                sendBroadcast(new Intent("de.lmu.msp.nearbyproject.UPDATE_PRESENTER"));
-
                             }
                         }
 

@@ -35,6 +35,9 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.AppContext;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission;
+import com.google.android.gms.nearby.connection.ConnectionInfo;
+import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
+import com.google.android.gms.nearby.connection.ConnectionResolution;
 import com.google.android.gms.nearby.connection.DiscoveredEndpointInfo;
 import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback;
 
@@ -51,12 +54,6 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
 
     private IDiscoveryService discoveryService;
     private IAdvertiseService advertiseService;
-    private BroadcastReceiver updatePresenterReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            selectPresenterFragment.updatePresenterLists();
-        }
-    };
 
     public IDiscoveryService getDiscoveryService() {
         return discoveryService;
@@ -87,8 +84,6 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
         //Connection
         connectionManager = ConnectionManager.getInstance(); //Singleton
         connectionManager.setUpConnectionsClient(this);
-
-        registerReceiver(updatePresenterReceiver,new IntentFilter("de.lmu.msp.nearbyproject.UPDATE_PRESENTER"));
 
         //Set up tabs
         tabPageAdapter = new TabPageAdapter(getSupportFragmentManager());
@@ -262,6 +257,22 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
 
                 @Override
                 public void onEndpointLost(@NonNull String s) {
+
+                }
+            });
+            discoveryService.listenLifecycle(new ConnectionLifecycleCallback() {
+                @Override
+                public void onConnectionInitiated(@NonNull String s, @NonNull ConnectionInfo connectionInfo) {
+                    selectPresenterFragment.updatePresenterLists();
+                }
+
+                @Override
+                public void onConnectionResult(@NonNull String s, @NonNull ConnectionResolution connectionResolution) {
+
+                }
+
+                @Override
+                public void onDisconnected(@NonNull String s) {
 
                 }
             });
