@@ -70,11 +70,6 @@ public class NearbyDiscoveryService extends AbstractConnectionService implements
     }
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-    }
-
-    @Override
     protected ConnectionLifecycleCallback initLifecycle() {
         return new ConnectionLifecycleCallback() {
             @Override
