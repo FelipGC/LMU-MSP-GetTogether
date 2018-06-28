@@ -50,8 +50,8 @@ public final class PayloadReceiver extends PayloadCallback {
     private final SimpleArrayMap<Long, String> filePayloadFilenames = new SimpleArrayMap<>();
 
     private ConnectionManager cM;
-    String newEndpointID;
-    String newEndpointName;
+    private String newEndpointID;
+    private String newEndpointName;
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
 
