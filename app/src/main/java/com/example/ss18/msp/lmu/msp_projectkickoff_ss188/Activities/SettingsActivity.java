@@ -130,14 +130,18 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
         Log.i(TAG, "Received onActivityResult");
 
         if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK && resultData != null) {
-            Uri uri = resultData.getData();
+            final Uri uri = resultData.getData();
             Log.i(TAG, "Uri: " + uri.toString());
             userImage.setImageURI(uri);
 
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
-                preferences.setUserImageBitmap(bitmap);
-                compressImage(bitmap);
+                final Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+                new Thread(new Runnable() {
+                    public void run() {
+                        preferences.setUserImageBitmap(bitmap);
+                        compressImage(bitmap);
+                    }
+                }).start();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -146,17 +150,21 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
         if (requestCode == CAMERA_REQUEST_CODE && resultCode == Activity.RESULT_OK && resultData != null) {
             Log.i(TAG, "Image taken.");
 
-            Bitmap image = (Bitmap) resultData.getExtras().get("data");
+            final Bitmap image = (Bitmap) resultData.getExtras().get("data");
             userImage.setImageBitmap(image);
-            preferences.setUserImageBitmap(image);
-            compressImage(image);
+            new Thread(new Runnable() {
+                public void run() {
+                    preferences.setUserImageBitmap(image);
+                    compressImage(image);
+                }
+            }).start();
         }
         //Calling super is mandatory!
         super.onActivityResult(requestCode, resultCode, resultData);
     }
 
     /*
-    **Method to compress the bitmaps as they are too large to send
+     **Method to compress the bitmaps as they are too large to send
      */
     private void compressImage(Bitmap bitmap) {
         //Get Bitmap from the uri and turn it into byte array to be used by the BitmapFactory
@@ -180,7 +188,7 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
     }
 
     /*
-    **Saves the compressed bitmap and generates a new uri to be saved to the preferences
+     **Saves the compressed bitmap and generates a new uri to be saved to the preferences
      */
     private void saveImage(Bitmap finalBitmap, String imageName) {
 
@@ -275,7 +283,7 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
     private boolean saveUsername() {
         if (!enteredUsername.getText().toString().isEmpty()) {
             boolean r = preferences.setUsername(enteredUsername.getText().toString());
-           if (!firstStart) {
+            if (!firstStart) {
                 Toast.makeText(SettingsActivity.this, R.string.changedInfo,
                         Toast.LENGTH_LONG).show();
             } else {
@@ -283,7 +291,7 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
                         getString(R.string.welcomeUser, LocalDataBase.getUserName()),
                         Toast.LENGTH_LONG).show();
             }
-           // return true;
+            // return true;
             return r;
         }
         return false;
