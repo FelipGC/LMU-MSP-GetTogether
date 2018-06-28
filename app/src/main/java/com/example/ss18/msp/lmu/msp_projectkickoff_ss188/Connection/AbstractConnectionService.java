@@ -19,10 +19,10 @@ import com.google.android.gms.nearby.connection.Strategy;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public abstract class AbstractConnectionService extends Service implements IService {
     private final String TAG = "AConnectionService";
@@ -213,21 +213,13 @@ public abstract class AbstractConnectionService extends Service implements IServ
     }
 
     @Override
-    public List<ConnectionEndpoint> getConnectedEndpoints() {
-        List<ConnectionEndpoint> list = new ArrayList<>();
-        for(ConnectionEndpoint ce : connectedEndpoints.values()){
-            list.add(ce);
-        }
-        return list;
+    public Collection<ConnectionEndpoint> getConnectedEndpoints() {
+        return new ArrayList<>(connectedEndpoints.values());
     }
 
     @Override
-    public List<ConnectionEndpoint> getPendingEndpoints() {
-        List<ConnectionEndpoint> list = new ArrayList<>();
-        for(ConnectionEndpoint ce : pendingEndpoints.values()){
-            list.add(ce);
-        }
-        return list;
+    public Collection<ConnectionEndpoint> getPendingEndpoints() {
+        return new ArrayList<>(pendingEndpoints.values());
     }
 
     @Override
