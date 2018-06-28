@@ -4,8 +4,10 @@ import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -16,8 +18,10 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.AppPreferences;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.Presenter;
@@ -35,6 +39,9 @@ public class MainActivity extends BaseActivity {
     private ImageButton presenter;
     private ImageButton spectator;
     private DrawerLayout mDrawerLayout;
+    private ImageView userImage;
+    private NavigationView navigationView;
+    private AppPreferences preferences;
 
     @Override
     protected void onStart() {
@@ -42,11 +49,17 @@ public class MainActivity extends BaseActivity {
         super.onStart();
         Intent intent = new Intent(getApplicationContext(), ConnectionManager.class);
         stopService(intent);
+        preferences = AppPreferences.getInstance(this);
 
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24px);
         mDrawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+        userImage = navigationView.getHeaderView(0).findViewById(R.id.user_image_header);
+        Bitmap bitmap = preferences.getUserImageBitmap();
+        if(bitmap != null)
+            userImage.setImageBitmap(bitmap);
 
         //Views
         presenter = findViewById(R.id.buttonPresenter);

@@ -136,9 +136,9 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
 
             try {
                 final Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+                preferences.setUserImageBitmap(bitmap);
                 new Thread(new Runnable() {
                     public void run() {
-                        preferences.setUserImageBitmap(bitmap);
                         compressImage(bitmap);
                     }
                 }).start();

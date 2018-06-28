@@ -37,7 +37,7 @@
                 <android.support.v7.widget.CardView
                     android:layout_width="300dp"
                     android:layout_height="300dp"
-                    android:id="@+id/view2"
+                    android:id="@+id/view_settings"
                     app:cardCornerRadius="150dp">
                     <ImageView
                         android:layout_height="300dp"
@@ -54,8 +54,8 @@
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:elevation="4dp"
-                    android:layout_alignBottom="@id/view2"
-                    android:layout_alignRight="@id/view2"
+                    android:layout_alignBottom="@id/view_settings"
+                    android:layout_alignRight="@id/view_settings"
                     android:background="@drawable/circle"
                     android:onClick="onClickChangePhoto"
                     android:scaleType="fitXY"
