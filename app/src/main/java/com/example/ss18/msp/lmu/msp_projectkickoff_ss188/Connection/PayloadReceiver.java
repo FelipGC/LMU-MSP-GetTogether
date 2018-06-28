@@ -50,6 +50,8 @@ public final class PayloadReceiver extends PayloadCallback {
     private final SimpleArrayMap<Long, String> filePayloadFilenames = new SimpleArrayMap<>();
 
     private ConnectionManager cM;
+    String newEndpointID;
+    String newEndpointName;
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
 
@@ -102,8 +104,8 @@ public final class PayloadReceiver extends PayloadCallback {
                     case "C_ENDPOINT":
                         Log.i(TAG, "Received C_ENDPOINT: " + fileContent);
                         substringDividerIndex = fileContent.indexOf(':');
-                        String newEndpointID = fileContent.substring(0, substringDividerIndex);
-                        String newEndpointName = fileContent.substring(substringDividerIndex + 1);
+                        newEndpointID = fileContent.substring(0, substringDividerIndex);
+                        newEndpointName = fileContent.substring(substringDividerIndex + 1);
                         //TODO how to discover if it is presenter
                         //cM.getDiscoveredEndpoints().put(newEndpointID, new ConnectionEndpoint(endpointId, newEndpointName));
                         break;
@@ -191,10 +193,19 @@ public final class PayloadReceiver extends PayloadCallback {
      */
 
     private void onChatMessageReceived(String id, String message) {
-        Log.i(TAG, "RECEIVED CHAT MESSAGES" + message);
+        Log.i(TAG, "RECEIVED CHAT MESSAGES" + message + cM.getDiscoveredEndpoints().get(id).getName());
+        String name = cM.getDiscoveredEndpoints().get(id).getName();
+
+        int substringDividerIndex = message.indexOf(':');
+        String payloadSender = message.substring(0, substringDividerIndex);
+        if (!payloadSender.equals(name)) {
+            Log.i(TAG, "payloadsender:" + payloadSender + " other:" + name);
+            id = newEndpointID;
+            name = newEndpointName;
+        }
         //Display notification
         NotificationUtility.displayNotificationChat("Chat message received",
-                String.format("%s has sent you a message...", cM.getDiscoveredEndpoints().get(id).getName()),
+                String.format("%s has sent you a message...", name),
                 NotificationCompat.PRIORITY_DEFAULT);
         ChatFragment chat = getAppLogicActivity().getChatFragment();
         chat.getDataFromEndPoint(id, message);
@@ -248,6 +259,12 @@ public final class PayloadReceiver extends PayloadCallback {
         Log.i(TAG, "Name to trim: " + fileName);
         String payLoadTag = fileName.substring(0, substringDividerIndex);
         String bitMapSender = fileName.substring(substringDividerIndex + 1);
+        try {
+            int subs = bitMapSender.indexOf(':');
+            bitMapSender = bitMapSender.substring(0,subs);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         //Store image
         //TODO: Move and rename file to something good (NOT WORKING?)
         //Uri uriToPic = FileUtility.storePayLoadUserProfile(fileName, payloadFile);

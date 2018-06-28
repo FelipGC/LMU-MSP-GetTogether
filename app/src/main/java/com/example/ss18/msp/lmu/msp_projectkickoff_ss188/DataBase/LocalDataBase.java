@@ -65,7 +65,7 @@ public final class LocalDataBase {
     }
 
     public static Uri getProfilePictureUri(String id) {
-        Log.i(TAG,"RETREIVED ID: " + id + " " + idToUri.values());
+        Log.i(TAG,"RETREIVED ID: " + id + " " + idToUri.keySet() + " " + idToUri.get(id));
         if(!idToUri.containsKey(id)) return null;
         return idToUri.get(id);
     }
