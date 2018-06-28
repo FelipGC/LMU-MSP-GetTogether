@@ -64,7 +64,7 @@ Get Together "ist eine App, die eine einfache und komfortable Übertragung von D
     <string name="title_activity_inbox">InboxActivity</string>
     <string name="presentation_openDocumentErrorMessage">Bitte wählen sie eine gültige Präsentation aus.</string>
     <string name="presentation_openPresentationRequestCode">1</string>
-    <string name="presentation_tabName">Live Präsentation</string>
+    <string name="presentation_tabName">Live</string>
     <string name="yes">Ja</string>
     <string name="no_name_entered">Ooooops keinen Namen?</string>
     <string name="generate_random_name">Du hast keinen Benutzernamen eingegeben. Möchtest du vielleicht einen zufälligen erstellen?</string>

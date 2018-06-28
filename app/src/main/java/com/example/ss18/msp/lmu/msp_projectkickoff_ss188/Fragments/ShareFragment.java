@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.google.android.gms.nearby.connection.Payload;
 
@@ -156,6 +157,7 @@ public class ShareFragment extends Fragment {
      */
     private void sendDataToEndpoint(Uri uri) throws FileNotFoundException {
         Log.i(TAG,"START PALOAD SENDING");
+        LocalDataBase.urisSent.add(uri);
         for (final String endpointId : cM.getEstablishedConnections().keySet()) {
             Payload payload = dataToPayload(uri);
             // Mapping the ID of the file payload to the filename

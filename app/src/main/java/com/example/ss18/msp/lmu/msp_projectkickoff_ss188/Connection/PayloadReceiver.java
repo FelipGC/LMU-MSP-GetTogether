@@ -118,8 +118,10 @@ public final class PayloadReceiver extends PayloadCallback {
                         //We have a new chat message
                         onChatMessageReceived(endpointId, fileContent);
                         //Broadcast chat message to all if presenter
-                        if (AppLogicActivity.getUserRole().getRoleType() == User.UserRole.PRESENTER)
+                        if (AppLogicActivity.getUserRole().getRoleType() == User.UserRole.PRESENTER) {
                             cM.payloadSender.sendPayloadBytesBut(endpointId, payload);
+                            LocalDataBase.chatHistory.add(payload);
+                        }
                         break;
                     case "POKE":
                         Log.i(TAG, "Received POKE" + fileContent);

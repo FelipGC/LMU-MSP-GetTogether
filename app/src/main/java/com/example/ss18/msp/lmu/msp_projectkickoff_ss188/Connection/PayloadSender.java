@@ -52,6 +52,7 @@ public class PayloadSender {
         //Send message
         // Send the name of the payload/file as a bytes payload first!
         Payload payload = Payload.fromBytes(messageToSend.getBytes("UTF-8"));
+        LocalDataBase.chatHistory.add(payload);
         sendPayloadBytes(payload);
     }
 

@@ -1,13 +1,17 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
 import android.content.ComponentName;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -230,6 +234,47 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
         }
         super.onDestroy();
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if(getUserRole().getRoleType() == User.UserRole.PRESENTER)
+            getMenuInflater().inflate(R.menu.menu_toolbar, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public void displayShortMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Displays a variaty of setttings forthe presenter conserning connection management,etc..
+     */
+    public void DisplayExtendedSettings(MenuItem item) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.settings);
+
+        final String[] deviceNicknames = {"Autom. Verbindung",
+                "Chat anonymisieren",
+                "Fehlender Chatverlauf zusenden" ,
+                "Fehlende Bilder zusenden",};
+
+        DialogInterface.OnMultiChoiceClickListener dialogInterface = new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int index,
+                                boolean isChecked) {
+                LocalDataBase.connectionSettings[index] = isChecked;
+            }
+        };
+
+        // Specify the list array, the items to be selected by default (null for none),
+        // and the listener through which to receive callbacks when items are selected
+        builder.setMultiChoiceItems(deviceNicknames, LocalDataBase.connectionSettings, dialogInterface);
+        // Set the action buttons
+        builder.setNeutralButton(R.string.okay, null );
+        builder.show();
+    }
+
     //Getters and Setters
 
     public InboxFragment getInboxFragment() {
@@ -245,15 +290,10 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     }
 
     public SelectParticipantsFragment getSelectParticipantsFragment() {
-        return selectParticipantsFragment;
-    }
+        return selectParticipantsFragment; }
 
     public static VoiceTransmission getVoiceTransmission() {
         return voiceTransmission;
     }
 
-    @Override
-    public void displayShortMessage(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
 }
