@@ -3,27 +3,13 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages;
 import com.google.gson.Gson;
 
 public class BaseMessage {
-
-    protected String id;
-    private String sender;
     protected MessageType type;
-
-
-    public String getId() {
-        return id;
-    }
-
-    public String getSender() {
-        return sender;
-    }
 
     public MessageType getType() {
         return type;
     }
 
-    BaseMessage(String id, String sender, MessageType type){
-        this.id = id;
-        this.sender = sender;
+    public BaseMessage(MessageType type){
         this.type = type;
     }
 

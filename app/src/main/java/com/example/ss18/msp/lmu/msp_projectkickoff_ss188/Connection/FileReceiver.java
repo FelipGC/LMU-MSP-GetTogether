@@ -33,6 +33,7 @@ public class FileReceiver extends PayloadCallback {
             @Override
             public void onMessage(String message) {
                 try {
+                    // TODO: Refactor to new Gson system.
                     JSONObject json = new JSONObject(message);
                     String type = json.getString("type");
                     if (!type.equals("fileData")) {

@@ -24,11 +24,6 @@ public class NearbyAdvertiseService extends AbstractConnectionService implements
     }
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-    }
-
-    @Override
     public void startService() {
         AdvertisingOptions.Builder builder = new AdvertisingOptions.Builder();
         builder.setStrategy(STRATEGY);

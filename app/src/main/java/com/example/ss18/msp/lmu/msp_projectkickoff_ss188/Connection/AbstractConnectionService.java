@@ -6,6 +6,7 @@ import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.BaseMessage;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
@@ -204,11 +205,8 @@ public abstract class AbstractConnectionService extends Service implements IServ
     public void sendFile(String endpointId, ParcelFileDescriptor fileDescriptor, String fileName) {
         Payload filePayload = Payload.fromFile(fileDescriptor);
         long id = filePayload.getId();
-        String fileData = messageFactory.buildFileData(id, fileName);
-        if (fileData == null) {
-            return;
-        }
-        sendMessage(endpointId, fileData);
+        BaseMessage jsonFileDataMessage = new JsonFileDataMessage(id, fileName);
+        sendMessage(endpointId, jsonFileDataMessage.toJsonString());
         connectionsClient.sendPayload(endpointId, filePayload);
     }
 
