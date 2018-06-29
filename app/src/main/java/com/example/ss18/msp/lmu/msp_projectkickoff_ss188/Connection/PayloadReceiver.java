@@ -109,17 +109,30 @@ public final class PayloadReceiver extends PayloadCallback {
                         //TODO how to discover if it is presenter
                         //cM.getDiscoveredEndpoints().put(newEndpointID, new ConnectionEndpoint(endpointId, newEndpointName));
                         break;
+                    case "A_CHAT":
+                        //If we already received it quit
+                        if (fixedSizeList.contains(payload.getId()))
+                            return;
+                        Log.i(TAG, "Received A_CHAT: " + fileContent);
+                        fixedSizeList.add(payload.getId());
+                        //We have a new chat message
+                        onChatMessageReceived(endpointId, fileContent,true);
+                        //TODO: Anonymize profile picture?
+                        break;
                     case "CHAT":
                         //If we already received it quit
                         if (fixedSizeList.contains(payload.getId()))
                             return;
-                        Log.i(TAG, "Received CHAT" + fileContent);
+                        Log.i(TAG, "Received CHAT: " + fileContent);
                         fixedSizeList.add(payload.getId());
                         //We have a new chat message
-                        onChatMessageReceived(endpointId, fileContent);
+                        onChatMessageReceived(endpointId, fileContent,false);
                         //Broadcast chat message to all if presenter
                         if (AppLogicActivity.getUserRole().getRoleType() == User.UserRole.PRESENTER) {
-                            cM.payloadSender.sendPayloadBytesBut(endpointId, payload);
+                            if(LocalDataBase.isChatAnonymized())
+                                cM.payloadSender.sendPayloadBytesAnonymizedBut(endpointId, payload);
+                            else
+                                cM.payloadSender.sendPayloadBytesBut(endpointId, payload);
                             LocalDataBase.chatHistory.add(payload);
                         }
                         break;
@@ -194,7 +207,7 @@ public final class PayloadReceiver extends PayloadCallback {
      * Sends the received message from the endpoint to the device
      */
 
-    private void onChatMessageReceived(String id, String message) {
+    private void onChatMessageReceived(String id, String message, boolean anonymous) {
         Log.i(TAG, "RECEIVED CHAT MESSAGES" + message + cM.getDiscoveredEndpoints().get(id).getName());
         String name = cM.getDiscoveredEndpoints().get(id).getName();
 
@@ -203,14 +216,17 @@ public final class PayloadReceiver extends PayloadCallback {
         if (!payloadSender.equals(name)) {
             Log.i(TAG, "payloadsender:" + payloadSender + " other:" + name);
             id = newEndpointID;
-            name = newEndpointName;
+            if(anonymous)
+                name = "Anonymous";
+            else
+                name = newEndpointName;
         }
         //Display notification
         NotificationUtility.displayNotificationChat("Chat message received",
                 String.format("%s has sent you a message...", name),
                 NotificationCompat.PRIORITY_DEFAULT);
         ChatFragment chat = getAppLogicActivity().getChatFragment();
-        chat.getDataFromEndPoint(id, message);
+        chat.getDataFromEndPoint(id, message,anonymous);
     }
 
     private void onLocationReceived(Location receivedLocation){

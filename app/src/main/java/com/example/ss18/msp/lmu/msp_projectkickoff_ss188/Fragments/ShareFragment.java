@@ -159,20 +159,24 @@ public class ShareFragment extends Fragment {
         Log.i(TAG,"START PALOAD SENDING");
         LocalDataBase.urisSent.add(uri);
         for (final String endpointId : cM.getEstablishedConnections().keySet()) {
-            Payload payload = dataToPayload(uri);
-            // Mapping the ID of the file payload to the filename
-            String payloadStoringName = payload.getId() + ":IMAGE_PIC:" + uri.getLastPathSegment();
-            try {
-                Log.i(TAG, "sendPayloadFile :"+ payloadStoringName +" + to: " + endpointId);
-                payloadSender.sendPayloadFile(endpointId, payload, payloadStoringName);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            sendDataToEndpoint(endpointId,uri);
         }
         //Display Toast
         Toast.makeText(getContext(),"File sent!",Toast.LENGTH_SHORT).show();
+    }
+
+    public void sendDataToEndpoint(String endpointId,Uri uri) throws FileNotFoundException{
+        Payload payload = dataToPayload(uri);
+        // Mapping the ID of the file payload to the filename
+        String payloadStoringName = payload.getId() + ":IMAGE_PIC:" + uri.getLastPathSegment();
+        try {
+            Log.i(TAG, "sendPayloadFile :"+ payloadStoringName +" + to: " + endpointId);
+            payloadSender.sendPayloadFile(endpointId, payload, payloadStoringName);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**

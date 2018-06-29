@@ -15,7 +15,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.MessageAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
@@ -287,6 +286,10 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
 
     public SelectPresenterFragment getSelectPresenterFragment() {
         return selectPresenterFragment;
+    }
+
+    public ShareFragment getShareFragment() {
+        return shareFragment;
     }
 
     public SelectParticipantsFragment getSelectParticipantsFragment() {

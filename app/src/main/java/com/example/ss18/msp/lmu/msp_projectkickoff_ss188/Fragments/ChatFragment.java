@@ -117,13 +117,17 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
     /*
     ** Gets the message from the endpoint
      */
-    public void getDataFromEndPoint(String id, String receivedMessage) {
+    public void getDataFromEndPoint(String id, String receivedMessage, boolean anonymous) {
 
         //Extracts the payloadSender and the message from the message and converts it into
         //Message(). The format is sender:filename.
         Log.i(TAG, "Message is full: " + receivedMessage);
         int substringDividerIndex = receivedMessage.indexOf(':');
-        String payloadSender = receivedMessage.substring(0, substringDividerIndex);
+        String payloadSender;
+        if(anonymous)
+            payloadSender = "Anonymous";
+        else
+            payloadSender = receivedMessage.substring(0, substringDividerIndex);
         String message = receivedMessage.substring(substringDividerIndex + 1);
 
         Message received = new Message(message, id, payloadSender, false);

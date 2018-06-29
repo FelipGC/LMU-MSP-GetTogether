@@ -13,6 +13,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.Locatio
 import com.google.android.gms.nearby.connection.Payload;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 
 import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
 
@@ -68,6 +69,24 @@ public class PayloadSender {
         }
     }
 
+    private Payload anonymizePayload(Payload payload){
+            String message = new String(payload.asBytes());
+            message = "A_"+message;
+            Log.i(TAG,message);
+            Payload payloadAnonym = Payload.fromBytes(message.getBytes());
+            return payloadAnonym;
+    }
+    /**
+     * Sends a Payload object out to ALL endPoints but a specific one but anonymizes the name
+     */
+    public void sendPayloadBytesAnonymizedBut(String endpointId, Payload chatPayload) {
+        sendPayloadBytesBut(endpointId,anonymizePayload(chatPayload));
+    }
+
+    public void sendPayloadBytesAnonymizedToSpecific(String endpointId, Payload chatPayload) {
+            sendPayloadBytesToSpecific(endpointId,anonymizePayload(chatPayload));
+    }
+
     public void sendPayloadBytesToSpecific(String recipient, Payload payload) {
         cM.getConnectionsClient().sendPayload(recipient, payload);
     }
@@ -117,19 +136,7 @@ public class PayloadSender {
         String message = "DISTANCE:" + distance;
         Payload payload = Payload.fromBytes(message.getBytes());
         sendPayloadBytes(payload);
-        //sendPayloadBytesToSpecific(,payload);
     }
-
-   /* private ConnectionEndpoint findPresenter(){
-        HashMap<String, ConnectionEndpoint> connections = cM.getEstablishedConnections();
-        for (ConnectionEndpoint endpoint : connections.values()) {
-            if(endpoint.isPresenter()){
-                return endpoint;
-            }
-        }
-        return null;
-    }*/
-
     /**
      * Sends a poke message to the viewers (makes their device vibrate)
      */
@@ -164,4 +171,5 @@ public class PayloadSender {
     public void startSendingVoice(String id, Payload payload) {
         sendPayloadStream(id,payload);
     }
+
 }

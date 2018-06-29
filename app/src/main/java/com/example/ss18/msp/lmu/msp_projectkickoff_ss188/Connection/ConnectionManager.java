@@ -34,6 +34,7 @@ import com.google.android.gms.nearby.connection.Strategy;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -135,11 +136,13 @@ public class ConnectionManager extends Service {
                             ConnectionEndpoint connectionEndpoint =
                                     new ConnectionEndpoint(endpointId, connectionInfo.getEndpointName());
                             discoveredEndpoints.put(endpointId, connectionEndpoint);
-                            NotificationUtility.displayNotification("Viewer found!", connectionInfo.getEndpointName()
-                                    + " is asking for joining your session", NotificationCompat.PRIORITY_DEFAULT);
+                            if(!LocalDataBase.isAutoConnect()) {
+                                NotificationUtility.displayNotification("Viewer found!", connectionInfo.getEndpointName()
+                                        + " is asking for joining your session", NotificationCompat.PRIORITY_DEFAULT);
+                            }else{ acceptConnection(true, connectionEndpoint); }
+                            updateParticipantsCount(connectionEndpoint);
                             Toast.makeText(getAppLogicActivity(), String.format(String.format("Viewer %s found!",
                                     connectionEndpoint.getName())), Toast.LENGTH_SHORT).show();
-                            updateParticipantsCount(connectionEndpoint);
                             break;
                     }
                 }
@@ -160,34 +163,32 @@ public class ConnectionManager extends Service {
                                 pendingConnections.remove(endpointId);
 
                             final boolean SPECTATOR = appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR;
-                            if (!SPECTATOR) {
-                                appLogicActivity.startService(new Intent(appLogicActivity, FrequentLocationService.class));
-                            }
+
                             try {
                                 Uri uri = LocalDataBase.getProfilePictureUri();
-
                                 if (uri == null) {
                                     Log.i(TAG, "URI NULL...");
                                     String message = "012" + (SPECTATOR ? ":PROF_PIC_V:" : ":PROF_PIC:");
                                     payloadSender.sendPayloadBytesToSpecific(endpointId, Payload.fromBytes(message.getBytes("UTF-8")));
-                                    break;
-                                }
-                                //TODO: IMAGE IS TOO BIG?
-                                ParcelFileDescriptor file = appLogicActivity.getContentResolver().openFileDescriptor(uri, "r");
-                                Payload payload = Payload.fromFile(file);
+                                } else {
+                                    //TODO: IMAGE IS TOO BIG?
+                                    ParcelFileDescriptor file = appLogicActivity.getContentResolver().openFileDescriptor(uri, "r");
+                                    Payload payload = Payload.fromFile(file);
 
-                                Log.i(TAG, "Sending prof image: " + payload);
-                                payloadSender.sendPayloadFile(endpointId, payload, payload.getId() + (SPECTATOR ? ":PROF_PIC_V:" : ":PROF_PIC:"));
-                                if (!SPECTATOR) {
-                                    for (ConnectionEndpoint otherEndpoint : establishedConnections.values()) {
-                                        //Do not send info to the same endpoint
-                                        if (otherEndpoint.getId().equals(endpointId))
-                                            continue;
-                                        //Send all the other viewers to the viewer
-                                        sendConnectionEndpointTo(endpointId, otherEndpoint);
-                                        //Send this endpoint to all others
-                                        sendConnectionEndpointTo(otherEndpoint.getId(), endpoint);
+                                    Log.i(TAG, "Sending prof image: " + payload);
+                                    payloadSender.sendPayloadFile(endpointId, payload, payload.getId() + (SPECTATOR ? ":PROF_PIC_V:" : ":PROF_PIC:"));
+                                    if (!SPECTATOR) {
+                                        appLogicActivity.startService(new Intent(appLogicActivity, FrequentLocationService.class));
+                                        for (ConnectionEndpoint otherEndpoint : establishedConnections.values()) {
+                                            //Do not send info to the same endpoint
+                                            if (otherEndpoint.getId().equals(endpointId))
+                                                continue;
+                                            //Send all the other viewers to the viewer
+                                            sendConnectionEndpointTo(endpointId, otherEndpoint);
+                                            //Send this endpoint to all others
+                                            sendConnectionEndpointTo(otherEndpoint.getId(), endpoint);
 
+                                        }
                                     }
                                 }
 
@@ -199,6 +200,29 @@ public class ConnectionManager extends Service {
                                 e.printStackTrace();
                             }
 
+                            //Send missing chat if enabled
+                            if (LocalDataBase.isSendMissingChat()) {
+                                Log.i(TAG,"isSendMissingChat()");
+                                Log.i(TAG,LocalDataBase.chatHistory.toString());
+                                for (Payload chatPayload : LocalDataBase.chatHistory) {
+                                    if(LocalDataBase.isChatAnonymized())
+                                        payloadSender.sendPayloadBytesAnonymizedToSpecific(endpointId,chatPayload);
+                                    else
+                                        payloadSender.sendPayloadBytesToSpecific(endpointId,chatPayload);
+                                }
+                            }
+                            //Send missing files if enabled
+                            if (LocalDataBase.isSendMissingFiles()) {
+                                Log.i(TAG,"isSendMissingFiles()");
+                                Log.i(TAG,LocalDataBase.urisSent.toString());
+                                for (Uri uriToSend : LocalDataBase.urisSent) {
+                                    try {
+                                        getAppLogicActivity().getShareFragment().sendDataToEndpoint(endpointId, uriToSend);
+                                    } catch (FileNotFoundException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
 
                             break;
                         case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
@@ -364,7 +388,9 @@ public class ConnectionManager extends Service {
         Log.i(TAG, "Resetting connection.");
         //Disconnect from any potential connections and stop advertising/discovering
         disconnectFromAllEndpoints();
-        //Clear list every time we try to re-discover
+        //Clear lists every time we try to re-discover
+        LocalDataBase.chatHistory.clear();
+        LocalDataBase.urisSent.clear();
         discoveredEndpoints.clear();
         pendingConnections.clear();
         establishedConnections.clear();
