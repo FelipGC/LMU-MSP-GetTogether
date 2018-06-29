@@ -173,8 +173,7 @@ public class PresenterAdapter extends BaseAdapter {
                 Toast.makeText(context, String.format(String.format("Unsubscribed from: %s",
                         connectionEndpoint.getName())), Toast.LENGTH_SHORT).show();
                 //Disconnect from endpoint
-                AppLogicActivity.getConnectionManager().disconnectFromEndpoint(connectionEndpoint.getId());
-                AppLogicActivity.getConnectionManager().updatePresenters(connectionEndpoint);
+                discoveryService.disconnect(connectionEndpoint.getId());
             }
         });
 

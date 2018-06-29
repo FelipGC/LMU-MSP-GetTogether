@@ -38,6 +38,12 @@ public abstract class AbstractConnectionService extends Service implements IServ
         return result;
     }
 
+    @Override
+    public void disconnect(String endpointId) {
+        connectionsClient.disconnectFromEndpoint(endpointId);
+        connectionLifecycleCallback.onDisconnected(endpointId);
+    }
+
     protected ConnectionsClient connectionsClient;
     /**
      * The id of the NearbyConnection service. (package name of the main activity)
