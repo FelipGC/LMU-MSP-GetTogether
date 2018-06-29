@@ -1,9 +1,9 @@
-package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
+package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.Messages;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.BaseMessage;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.MessageType;
 
-class JsonFileDataMessage extends BaseMessage {
+public class JsonFileDataMessage extends BaseMessage {
     private final long payloadId;
     private final String fileName;
 
@@ -15,7 +15,7 @@ class JsonFileDataMessage extends BaseMessage {
         return fileName;
     }
 
-    JsonFileDataMessage(long payloadId, String fileName) {
+    public JsonFileDataMessage(long payloadId, String fileName) {
         super(MessageType.FILE);
         this.payloadId = payloadId;
         this.fileName = fileName;

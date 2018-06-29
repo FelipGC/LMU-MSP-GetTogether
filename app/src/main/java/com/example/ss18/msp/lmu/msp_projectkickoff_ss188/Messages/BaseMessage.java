@@ -9,7 +9,7 @@ public class BaseMessage {
         return type;
     }
 
-    public BaseMessage(MessageType type){
+    protected BaseMessage(MessageType type){
         this.type = type;
     }
 

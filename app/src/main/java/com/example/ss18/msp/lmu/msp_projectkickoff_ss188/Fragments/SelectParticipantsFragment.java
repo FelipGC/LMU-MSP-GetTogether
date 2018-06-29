@@ -19,13 +19,13 @@ import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.IAdvertiseService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters.ViewerAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission;
 
-import java.util.List;
+import java.util.Collection;
 
 public class SelectParticipantsFragment extends Fragment {
     private static final String TAG = "SelectParticipants";
@@ -125,7 +125,7 @@ public class SelectParticipantsFragment extends Fragment {
 
         final IAdvertiseService advertiseService = ((AppLogicActivity)getActivity()).getAdvertiseService();
 
-        List<ConnectionEndpoint> pending = advertiseService.getPendingEndpoints();
+        Collection<ConnectionEndpoint> pending = advertiseService.getPendingEndpoints();
         pending.addAll(advertiseService.getConnectedEndpoints());
         final ConnectionEndpoint[] possibleParticipants = pending.toArray(new ConnectionEndpoint[0]);
         final boolean[] selectedDevices = new boolean[possibleParticipants.length]; //Default to be true(selected)

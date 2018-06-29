@@ -10,7 +10,7 @@ import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.ConnectionManager;
 import com.google.android.gms.nearby.connection.Payload;
 
 import java.io.IOException;

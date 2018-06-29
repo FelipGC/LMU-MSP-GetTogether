@@ -11,7 +11,7 @@ import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
-import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
+import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.ConnectionManager.getAppLogicActivity;
 
 public class NotificationUtility {
 

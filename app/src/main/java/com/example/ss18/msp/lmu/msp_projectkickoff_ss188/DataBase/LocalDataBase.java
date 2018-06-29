@@ -4,7 +4,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.google.android.gms.nearby.connection.Payload;
 

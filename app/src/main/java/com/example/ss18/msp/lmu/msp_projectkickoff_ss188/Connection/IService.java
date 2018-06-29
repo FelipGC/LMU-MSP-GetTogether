@@ -2,6 +2,7 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
 import android.os.ParcelFileDescriptor;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageReceiver.OnMessageListener;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
 
 import java.util.Collection;

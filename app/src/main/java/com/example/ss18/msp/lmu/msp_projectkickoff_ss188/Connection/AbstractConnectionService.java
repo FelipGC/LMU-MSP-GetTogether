@@ -1,11 +1,13 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
 import android.app.Service;
-import android.content.Intent;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageReceiver.CombinedPayloadReceiver;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageReceiver.OnMessageListener;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.Messages.JsonFileDataMessage;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.BaseMessage;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
@@ -15,7 +17,6 @@ import com.google.android.gms.nearby.connection.ConnectionsClient;
 import com.google.android.gms.nearby.connection.ConnectionsStatusCodes;
 import com.google.android.gms.nearby.connection.Payload;
 import com.google.android.gms.nearby.connection.PayloadCallback;
-import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.nearby.connection.Strategy;
 
 import java.io.UnsupportedEncodingException;
@@ -31,15 +32,7 @@ public abstract class AbstractConnectionService extends Service implements IServ
     private final Map<String, ConnectionEndpoint> connectedEndpoints = new HashMap<>();
     private final List<ConnectionLifecycleCallback> lifecycleCallbacks = new ArrayList<>();
     private final List<OnMessageListener> messageListeners = new ArrayList<>();
-    private final IConnectionMessageFactory messageFactory = new JsonConnectionMessageFactory();
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        int result = super.onStartCommand(intent, flags, startId);
-        this.startService();
-        return result;
-    }
-
+    protected PayloadCallback payloadCallback = new CombinedPayloadReceiver(messageListeners);
     protected ConnectionsClient connectionsClient;
     /**
      * The id of the NearbyConnection service. (package name of the main activity)
@@ -49,28 +42,6 @@ public abstract class AbstractConnectionService extends Service implements IServ
      * The connection strategy as defined in https://developers.google.com/nearby/connections/strategies
      */
     protected final Strategy STRATEGY = Strategy.P2P_CLUSTER;
-    protected PayloadCallback payloadCallback = new PayloadCallback() {
-
-        private PayloadCallback fileReceiver = new FileReceiver(messageListeners);
-        private PayloadCallback messageReceiver = new MessageReceiver(messageListeners);
-        private PayloadCallback streamReceiver = new StreamReceiver(messageListeners);
-
-        @Override
-        public void onPayloadReceived(@NonNull String endpointId,
-                                      @NonNull Payload payload) {
-            fileReceiver.onPayloadReceived(endpointId, payload);
-            messageReceiver.onPayloadReceived(endpointId, payload);
-            streamReceiver.onPayloadReceived(endpointId, payload);
-        }
-
-        @Override
-        public void onPayloadTransferUpdate(@NonNull String endpointId,
-                                            @NonNull PayloadTransferUpdate payloadTransferUpdate) {
-            fileReceiver.onPayloadTransferUpdate(endpointId, payloadTransferUpdate);
-            messageReceiver.onPayloadTransferUpdate(endpointId, payloadTransferUpdate);
-            streamReceiver.onPayloadTransferUpdate(endpointId, payloadTransferUpdate);
-        }
-    };
     protected ConnectionLifecycleCallback serviceSpecificLifecycleCallback;
     protected ConnectionLifecycleCallback connectionLifecycleCallback =
             new ConnectionLifecycleCallback() {
@@ -105,10 +76,10 @@ public abstract class AbstractConnectionService extends Service implements IServ
                             pendingEndpoints.remove(endpointId);
                             break;
                         case ConnectionsStatusCodes.STATUS_ERROR:
-                            //TODO wird aufgerufen, wenn Connection angefragt und Presenter App schließt
                             Log.d(TAG, String.format(
                                     "Got ConnectionResolution status Error: %s",
                                     resolution.getStatus().getStatusMessage()));
+                            pendingEndpoints.remove(endpointId);
                             break;
                         default:
                             Log.d(TAG, String.format(
@@ -190,7 +161,7 @@ public abstract class AbstractConnectionService extends Service implements IServ
     }
 
     @Override
-    public void sendMessage(String endpointId, String message) {
+    public void sendMessage(String endpointId, String message) { // TODO: Maybe threaded?
         try {
             byte[] messageData = message.getBytes("UTF-8");
             Payload payload = Payload.fromBytes(messageData);
@@ -202,10 +173,10 @@ public abstract class AbstractConnectionService extends Service implements IServ
     }
 
     @Override
-    public void sendFile(String endpointId, ParcelFileDescriptor fileDescriptor, String fileName) {
+    public void sendFile(String endpointId, ParcelFileDescriptor fileDescriptor, String fileName) { // TODO: Maybe threaded?
         Payload filePayload = Payload.fromFile(fileDescriptor);
-        long id = filePayload.getId();
-        BaseMessage jsonFileDataMessage = new JsonFileDataMessage(id, fileName);
+        long payloadId = filePayload.getId();
+        BaseMessage jsonFileDataMessage = new JsonFileDataMessage(payloadId, fileName);
         sendMessage(endpointId, jsonFileDataMessage.toJsonString());
         connectionsClient.sendPayload(endpointId, filePayload);
     }

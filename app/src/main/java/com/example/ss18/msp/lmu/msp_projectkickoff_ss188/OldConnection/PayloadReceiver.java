@@ -1,4 +1,4 @@
-package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
+package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection;
 
 import android.content.Intent;
 import android.location.Location;
@@ -10,6 +10,7 @@ import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.CheckDistanceService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
@@ -24,7 +25,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
-import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
+import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.ConnectionManager.getAppLogicActivity;
 
 public final class PayloadReceiver extends PayloadCallback {
 

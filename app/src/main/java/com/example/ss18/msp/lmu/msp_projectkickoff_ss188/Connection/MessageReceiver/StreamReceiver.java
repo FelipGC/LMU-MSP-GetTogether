@@ -1,4 +1,4 @@
-package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
+package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageReceiver;
 
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
