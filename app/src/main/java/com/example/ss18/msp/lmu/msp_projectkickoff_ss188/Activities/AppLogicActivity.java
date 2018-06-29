@@ -269,7 +269,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
             discoveryService.listenLifecycle(new ConnectionLifecycleCallback() {
                 @Override
                 public void onConnectionInitiated(@NonNull String s, @NonNull ConnectionInfo connectionInfo) {
-                    selectPresenterFragment.updatePresenterLists();
+                    selectPresenterFragment.updatePendingButton();
                 }
 
                 @Override
