@@ -274,16 +274,12 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
 
                 @Override
                 public void onConnectionResult(@NonNull String s, @NonNull ConnectionResolution connectionResolution) {
-                    switch (connectionResolution.getStatus().getStatusCode()){
-                        case ConnectionsStatusCodes.STATUS_OK:
-                            selectPresenterFragment.updatePresenterLists();
-                            break;
-                    }
+                    selectPresenterFragment.updatePresenterLists();
                 }
 
                 @Override
                 public void onDisconnected(@NonNull String s) {
-
+                    selectPresenterFragment.updatePresenterLists();
                 }
             });
         }

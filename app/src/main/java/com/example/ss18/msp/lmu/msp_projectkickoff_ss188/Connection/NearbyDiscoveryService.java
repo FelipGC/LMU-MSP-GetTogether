@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
 import com.google.android.gms.nearby.connection.ConnectionResolution;
@@ -92,6 +93,9 @@ public class NearbyDiscoveryService extends AbstractConnectionService implements
                 Log.i(TAG,"onConnectionResult");
                 switch (connectionResolution.getStatus().getStatusCode()){
                     case ConnectionsStatusCodes.STATUS_OK:
+                        discoveredEndpoints.remove(endpointId);
+                        break;
+                    case CommonStatusCodes.ERROR:
                         discoveredEndpoints.remove(endpointId);
                         break;
                 }
