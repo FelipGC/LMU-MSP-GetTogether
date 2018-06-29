@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public abstract class AbstractConnectionService extends Service implements IService {
     private final String TAG = "AConnectionService";
@@ -233,6 +232,7 @@ public abstract class AbstractConnectionService extends Service implements IServ
     @Override
     public void onDestroy() {
         connectionsClient.stopAllEndpoints();
+        stopService();
     }
 
     protected boolean alreadyConnected(String endpointId) {

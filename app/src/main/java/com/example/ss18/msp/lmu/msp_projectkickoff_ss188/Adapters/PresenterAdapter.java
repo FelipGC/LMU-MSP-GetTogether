@@ -1,7 +1,6 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters;
 
 import android.app.Activity;
-import android.arch.lifecycle.ServiceLifecycleDispatcher;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;

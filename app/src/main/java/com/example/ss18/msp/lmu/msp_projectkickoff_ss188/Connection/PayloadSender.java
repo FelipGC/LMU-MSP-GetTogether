@@ -8,7 +8,6 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.Locatio
 import com.google.android.gms.nearby.connection.Payload;
 
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
 
 public class PayloadSender {
 
