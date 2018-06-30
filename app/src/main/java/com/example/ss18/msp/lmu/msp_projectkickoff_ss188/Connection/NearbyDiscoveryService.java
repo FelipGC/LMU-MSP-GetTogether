@@ -86,11 +86,6 @@ public class NearbyDiscoveryService extends AbstractConnectionService implements
             public void onConnectionResult(@NonNull String endpointId,
                                            @NonNull ConnectionResolution connectionResolution) {
                 Log.i(TAG,"onConnectionResult");
-                switch (connectionResolution.getStatus().getStatusCode()){
-                    case CommonStatusCodes.ERROR:
-                        discoveredEndpoints.remove(endpointId);
-                        break;
-                }
             }
 
             @Override
