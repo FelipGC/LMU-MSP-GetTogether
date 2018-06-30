@@ -3,49 +3,94 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageRece
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.util.LongSparseArray;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.Messages.JsonFileDataMessage;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.BaseMessage;
 import com.google.android.gms.nearby.connection.Payload;
 import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 
+import java.io.UnsupportedEncodingException;
+
 public class FileReceiver extends PayloadCallback {
+    private final String TAG = "FileReceiver";
     private final Iterable<OnMessageListener> messageListeners;
-    private final LongSparseArray<Payload> files = new LongSparseArray<>(); // [FileId, FilePayload]
-    private final LongSparseArray<Long> fileToFileDataAssociations = new LongSparseArray<>(); // [FileId, FileDataId]
-    private final LongSparseArray<JsonFileDataMessage> fileDataMessages = new LongSparseArray<>(); // [FileDataId, FileData]
+    private final LongSparseArray<Payload> files =
+            new LongSparseArray<>(); // [FileId, FilePayload]
+    private final LongSparseArray<Long> fileToFileDataAssociations =
+            new LongSparseArray<>(); // [FileId, FileDataId]
+    private final LongSparseArray<JsonFileDataMessage> fileDataMessages =
+            new LongSparseArray<>(); // [FileDataId, FileData]
+
 
     FileReceiver(Iterable<OnMessageListener> messageListeners) {
         this.messageListeners = messageListeners;
-        // TODO: Bind and use MessageDistributionService for fileName messages.
     }
 
     @Override
     public void onPayloadReceived(@NonNull String endpointId, @NonNull Payload payload) {
         long id = payload.getId();
-        if (payload.getType() == Payload.Type.FILE) {
-            files.put(id, payload);
+        switch (payload.getType()) {
+            case Payload.Type.FILE:
+                files.put(id, payload);
+                break;
+            case Payload.Type.BYTES:
+                JsonFileDataMessage fileDataMessage = parseFileDataMessage(payload);
+                if (fileDataMessage == null) {
+                    return;
+                }
+                addFileData(id, fileDataMessage);
+                break;
+        }
+    }
+
+    private void addFileData(long id, JsonFileDataMessage fileDataMessage) {
+        long fileId = fileDataMessage.getFileId();
+        fileDataMessages.put(id, fileDataMessage);
+        fileToFileDataAssociations.put(fileId, id);
+    }
+
+    @Nullable
+    private JsonFileDataMessage parseFileDataMessage(@NonNull Payload payload) {
+        try {
+            byte[] bytes = payload.asBytes();
+            if (bytes == null) {
+                return null;
+            }
+            String json = new String(bytes, "UTF-8");
+            BaseMessage message = BaseMessage.fromJsonString(json);
+            if (message == null) {
+                return null;
+            }
+            if (!(message instanceof JsonFileDataMessage)) {
+                return null;
+            }
+            return (JsonFileDataMessage) message;
+        } catch (UnsupportedEncodingException e) {
+            Log.i(TAG, e.getMessage());
+            return null;
         }
     }
 
     @Override
     public void onPayloadTransferUpdate(@NonNull String payloadId,
                                         @NonNull PayloadTransferUpdate payloadTransferUpdate) {
-        Long filePayloadId = getFilePayloadId(payloadId);
-        if (filePayloadId == null) {
+        Long fileId = getFileId(payloadId);
+        if (fileId == null) {
             return;
         }
-        if (!hasAllInformationFor(filePayloadId)) {
+        if (missingInformationFor(fileId)) {
             return;
         }
         if (payloadTransferUpdate.getStatus() != PayloadTransferUpdate.Status.SUCCESS) {
             return;
         }
-        Payload filePayload = files.get(filePayloadId);
-        long fileDataId = fileToFileDataAssociations.get(filePayloadId);
+        Payload filePayload = files.get(fileId);
+        long fileDataId = fileToFileDataAssociations.get(fileId);
         JsonFileDataMessage fileDataMessage = fileDataMessages.get(fileDataId);
-        clearLists(filePayloadId, fileDataId);
+        clearLists(fileId, fileDataId);
         ParcelFileDescriptor fileDescriptor = getParcelFileDescriptor(filePayload);
         if (fileDescriptor == null) {
             return;
@@ -55,9 +100,10 @@ public class FileReceiver extends PayloadCallback {
 
     private void onFinishedFileTransfer(JsonFileDataMessage fileDataMessage,
                                         ParcelFileDescriptor fileDescriptor) {
+        String fileName = fileDataMessage.getFileName();
         for (OnMessageListener listener :
                 messageListeners) {
-            listener.onFileReceived(fileDescriptor, fileDataMessage.getFileName());
+            listener.onFileReceived(fileDescriptor, fileName);
         }
     }
 
@@ -76,19 +122,19 @@ public class FileReceiver extends PayloadCallback {
         fileDataMessages.delete(fileDataId);
     }
 
-    private boolean hasAllInformationFor(long filePayloadId) {
-        return files.indexOfKey(filePayloadId) >= 0
-                && fileToFileDataAssociations.indexOfKey(filePayloadId) >= 0;
+    private boolean missingInformationFor(long fileId) {
+        return !(files.indexOfKey(fileId) >= 0
+                && fileToFileDataAssociations.indexOfKey(fileId) >= 0);
     }
 
-    private Long getFilePayloadId(String payloadId) {
+    private Long getFileId(String payloadId) {
         long payloadIdAsLong = Long.valueOf(payloadId);
         if (files.indexOfKey(payloadIdAsLong) >= 0) {
             return payloadIdAsLong;
         }
         if (fileDataMessages.indexOfKey(payloadIdAsLong) >= 0) {
             JsonFileDataMessage fileDataMessage = fileDataMessages.get(payloadIdAsLong);
-            return fileDataMessage.getPayloadId();
+            return fileDataMessage.getFileId();
         }
         return null;
     }

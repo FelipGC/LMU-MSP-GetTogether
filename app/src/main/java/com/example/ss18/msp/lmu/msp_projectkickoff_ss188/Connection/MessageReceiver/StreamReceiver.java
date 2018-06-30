@@ -3,6 +3,7 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageRece
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.IMessageDistributionService;
 import com.google.android.gms.nearby.connection.Payload;
 import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;

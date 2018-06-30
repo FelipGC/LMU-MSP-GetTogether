@@ -78,7 +78,7 @@ public class NearbyDiscoveryService extends AbstractConnectionService implements
                 if (!discoveredEndpoints.containsKey(endpointId)) {
                     return;
                 }
-                connectionsClient.acceptConnection(endpointId, payloadCallback);
+                connectionsClient.acceptConnection(endpointId, payloadReceiver);
             }
 
             @Override

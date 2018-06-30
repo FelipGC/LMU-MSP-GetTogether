@@ -1,6 +1,11 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
 import android.app.Service;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -9,6 +14,9 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageRecei
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageReceiver.OnMessageListener;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.Messages.JsonFileDataMessage;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.BaseMessage;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.IMessageDistributionService;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.JsonMessageDistributionService;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.MessageDistributionBinder;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
@@ -16,7 +24,6 @@ import com.google.android.gms.nearby.connection.ConnectionResolution;
 import com.google.android.gms.nearby.connection.ConnectionsClient;
 import com.google.android.gms.nearby.connection.ConnectionsStatusCodes;
 import com.google.android.gms.nearby.connection.Payload;
-import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.Strategy;
 
 import java.io.UnsupportedEncodingException;
@@ -32,16 +39,27 @@ public abstract class AbstractConnectionService extends Service implements IServ
     private final Map<String, ConnectionEndpoint> connectedEndpoints = new HashMap<>();
     private final List<ConnectionLifecycleCallback> lifecycleCallbacks = new ArrayList<>();
     private final List<OnMessageListener> messageListeners = new ArrayList<>();
-    protected PayloadCallback payloadCallback = new CombinedPayloadReceiver(messageListeners);
+    protected CombinedPayloadReceiver payloadReceiver =
+            new CombinedPayloadReceiver(messageListeners);
     protected ConnectionsClient connectionsClient;
-    /**
-     * The id of the NearbyConnection service. (package name of the main activity)
-     */
     protected final String serviceID = "SERVICE_ID_NEARBY_CONNECTIONS";
-    /**
-     * The connection strategy as defined in https://developers.google.com/nearby/connections/strategies
-     */
     protected final Strategy STRATEGY = Strategy.P2P_CLUSTER;
+    private ServiceConnection messageDistributionServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MessageDistributionBinder messageDistributionBinder =
+                    (MessageDistributionBinder) service;
+            IMessageDistributionService messageDistributionService =
+                    messageDistributionBinder.getService();
+            payloadReceiver.setDistributionService(messageDistributionService);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            payloadReceiver.unsetDistributionService();
+        }
+    };
     protected ConnectionLifecycleCallback serviceSpecificLifecycleCallback;
     protected ConnectionLifecycleCallback connectionLifecycleCallback =
             new ConnectionLifecycleCallback() {
@@ -118,6 +136,12 @@ public abstract class AbstractConnectionService extends Service implements IServ
         super.onCreate();
         serviceSpecificLifecycleCallback = initLifecycle();
         connectionsClient = Nearby.getConnectionsClient(this);
+        bindMessageListener();
+    }
+
+    private void bindMessageListener() {
+        Intent intent = new Intent(this, JsonMessageDistributionService.class);
+        bindService(intent, messageDistributionServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     protected abstract ConnectionLifecycleCallback initLifecycle();
@@ -193,6 +217,7 @@ public abstract class AbstractConnectionService extends Service implements IServ
 
     @Override
     public void onDestroy() {
+        unbindService(messageDistributionServiceConnection);
         connectionsClient.stopAllEndpoints();
     }
 

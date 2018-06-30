@@ -4,20 +4,20 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.BaseMessage;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.MessageType;
 
 public class JsonFileDataMessage extends BaseMessage {
-    private final long payloadId;
+    private final long fileId;
     private final String fileName;
 
-    public long getPayloadId() {
-        return payloadId;
+    public long getFileId() {
+        return fileId;
     }
 
     public String getFileName() {
         return fileName;
     }
 
-    public JsonFileDataMessage(long payloadId, String fileName) {
+    public JsonFileDataMessage(long fileId, String fileName) {
         super(MessageType.FILE);
-        this.payloadId = payloadId;
+        this.fileId = fileId;
         this.fileName = fileName;
     }
 }
