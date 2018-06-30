@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="200dp"
+    android:layout_height="wrap_content"
     android:background="@color/colorAccent">
 
     <android.support.v7.widget.CardView
@@ -11,6 +11,7 @@
         android:layout_height="180dp"
         android:id="@+id/view"
         android:layout_gravity="center_horizontal"
+        android:layout_margin="40dp"
         app:cardCornerRadius="90dp">
         <ImageView
             android:layout_height="match_parent"
