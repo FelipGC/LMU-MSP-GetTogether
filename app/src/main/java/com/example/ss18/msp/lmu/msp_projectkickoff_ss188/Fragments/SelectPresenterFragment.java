@@ -137,6 +137,9 @@ public class SelectPresenterFragment extends Fragment {
         availablePresenters.setVisibility(View.GONE);
         availableTitle.setVisibility(View.GONE);
         for(ConnectionEndpoint de : discoveryService.getDiscoveredEndpoints()){
+            if(discoveryService.getConnectedEndpoints().contains(de)){
+                continue;
+            }
             availablePresenters.setVisibility(View.VISIBLE);
             availableTitle.setVisibility(View.VISIBLE);
             devicesFound = true;

@@ -87,9 +87,6 @@ public class NearbyDiscoveryService extends AbstractConnectionService implements
                                            @NonNull ConnectionResolution connectionResolution) {
                 Log.i(TAG,"onConnectionResult");
                 switch (connectionResolution.getStatus().getStatusCode()){
-                    case ConnectionsStatusCodes.STATUS_OK:
-                        discoveredEndpoints.remove(endpointId);
-                        break;
                     case CommonStatusCodes.ERROR:
                         discoveredEndpoints.remove(endpointId);
                         break;
