@@ -1,6 +1,7 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -13,6 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
@@ -58,7 +60,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     private ChatFragment chatFragment;
     private TabPageAdapter tabPageAdapter;
     private static VoiceTransmission voiceTransmission;
-
+    private ViewPager viewPager;
     private static ConnectionManager connectionManager;
     private AppLogicActivity appLogicActivity;
     private ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -105,7 +107,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
             }
             chatFragment.setAdapter();
 
-            ViewPager viewPager = findViewById(R.id.pager);
+            viewPager = findViewById(R.id.pager);
             viewPager.setAdapter(tabPageAdapter);
 
             TabLayout tabLayout = findViewById(R.id.tabs);
@@ -299,4 +301,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
         return voiceTransmission;
     }
 
+    public ViewPager getViewPager() {
+        return viewPager;
+    }
 }
