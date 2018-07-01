@@ -17,9 +17,9 @@ public class ChatMessage extends BaseMessage {
         return body;
     }
 
-    public ChatMessage(String id, String sender, String body) {
+    public ChatMessage(String sender, String body) {
         super(MessageType.CHAT);
-        this.id = id;
+       // this.id = id;
         this.sender = sender;
         this.body = body;
     }

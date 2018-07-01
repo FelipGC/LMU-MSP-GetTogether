@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -14,6 +15,8 @@ import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.AbstractConnectionService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageReceiver.OnMessageListener;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.BaseMessage;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.IAdvertiseService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.IDiscoveryService;
@@ -288,6 +291,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
                     selectPresenterFragment.updatePresenterLists();
                 }
             });
+            discoveryService.listenMessage(onMessageListener);
         }
 
         @Override
@@ -318,11 +322,29 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
                     selectParticipantsFragment.updateParticipants();
                 }
             });
+            advertiseService.listenMessage(onMessageListener);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.i(TAG, "ADVERTISE SERVICE DISCONNECTED");
+        }
+    };
+
+    private OnMessageListener onMessageListener = new OnMessageListener() {
+        @Override
+        public void onStreamReceived(ParcelFileDescriptor fileDescriptor) {
+
+        }
+
+        @Override
+        public void onMessage(BaseMessage message) {
+            Log.i(TAG, "onMessage: "+ message);
+        }
+
+        @Override
+        public void onFileReceived(ParcelFileDescriptor fileDescriptor, String filename) {
+
         }
     };
 }

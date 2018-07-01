@@ -13,7 +13,9 @@ import android.util.Log;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageReceiver.CombinedPayloadReceiver;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageReceiver.OnMessageListener;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.Messages.JsonFileDataMessage;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.AppPreferences;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.BaseMessage;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.ChatMessage;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.IMessageDistributionService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.JsonMessageDistributionService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.MessageDistributionBinder;
@@ -182,6 +184,12 @@ public abstract class AbstractConnectionService extends Service implements IServ
                 connectedEndpoints.values()) {
             sendMessage(endpoint.getId(), message);
         }
+    }
+
+    @Override
+    public void broadcastChatMessage(String msgBody) {
+        BaseMessage msg = new ChatMessage(AppPreferences.getInstance().getUsername(), msgBody);
+        broadcastMessage(msg.toJsonString());
     }
 
     @Override

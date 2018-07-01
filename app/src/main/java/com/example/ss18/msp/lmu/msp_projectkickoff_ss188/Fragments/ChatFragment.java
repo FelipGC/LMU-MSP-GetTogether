@@ -75,7 +75,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
      */
     private void sendDataToEndpoints(String message) {
         AbstractConnectionService service = ((AppLogicActivity)getActivity()).getConnectionService();
-        service.broadcastMessage(message);
+        service.broadcastChatMessage(message);
     }
 
     /*
