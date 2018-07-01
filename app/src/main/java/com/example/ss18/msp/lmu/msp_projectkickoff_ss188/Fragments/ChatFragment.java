@@ -16,12 +16,12 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActi
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.Message;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.MessageAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.AbstractConnectionService;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.BaseMessage;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.ChatMessage;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.PayloadSender;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
-
-import java.io.UnsupportedEncodingException;
 
 public class ChatFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "ChatFragment";
@@ -44,6 +44,13 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         buttonSend.setOnClickListener(this);
         messagesView.setAdapter(messageAdapter);
         payloadSender = ConnectionManager.getInstance().getPayloadSender();
+
+        for(BaseMessage msg : ((AppLogicActivity)getActivity()).getDistributionService().getMessages()){
+            if(msg.getClass()==ChatMessage.class){
+                addReceivedMessage((ChatMessage) msg);
+            }
+        }
+
         return view;
     }
 
@@ -64,8 +71,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
             messagesView.setSelection(messagesView.getCount() - 1);
 
             editText.getText().clear();
-            sendDataToEndpoints(messageText);
-
+            sendMessage(messageText);
         }
     }
 
@@ -73,7 +79,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
      * Sends the message to (all) endpoints
      * @param message is a string
      */
-    private void sendDataToEndpoints(String message) {
+    private void sendMessage(String message) {
         AbstractConnectionService service = ((AppLogicActivity)getActivity()).getConnectionService();
         service.broadcastChatMessage(message);
     }
@@ -81,16 +87,16 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
     /*
     ** Gets the message from the endpoint
      */
-    public void getDataFromEndPoint(String id, String receivedMessage) {
+    public void addReceivedMessage(ChatMessage message) {
 
         //Extracts the payloadSender and the message from the message and converts it into
         //Message(). The format is sender:filename.
-        Log.i(TAG, "Message is full: " + receivedMessage);
-        int substringDividerIndex = receivedMessage.indexOf(':');
-        String payloadSender = receivedMessage.substring(0, substringDividerIndex);
-        String message = receivedMessage.substring(substringDividerIndex + 1);
+        Log.i(TAG, "Message is full: " + message);
 
-        Message received = new Message(message, id, payloadSender, false);
+        if(messageAdapter==null){
+            return;
+        }
+        Message received = new Message(message.getBody(), message.getId(), message.getSender(), false);
         messageAdapter.addMessage(received);
         // scroll the ListView to the last added element
         messagesView.setSelection(messagesView.getCount() - 1);

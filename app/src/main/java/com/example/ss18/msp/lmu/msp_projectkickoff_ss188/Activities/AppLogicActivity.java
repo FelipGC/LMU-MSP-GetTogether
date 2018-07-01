@@ -1,6 +1,7 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
@@ -17,6 +18,11 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.AbstractConn
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageReceiver.OnMessageListener;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.BaseMessage;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.ChatMessage;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.IMessageDistributionService;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.JsonMessageDistributionService;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.MessageDistributionBinder;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.OnMessageParsedCallback;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.IAdvertiseService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.IDiscoveryService;
@@ -54,6 +60,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
 
     private IDiscoveryService discoveryService;
     private IAdvertiseService advertiseService;
+    private IMessageDistributionService distributionService;
 
     public IDiscoveryService getDiscoveryService() {
         return discoveryService;
@@ -61,6 +68,10 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
 
     public IAdvertiseService getAdvertiseService() {
         return advertiseService;
+    }
+
+    public IMessageDistributionService getDistributionService() {
+        return distributionService;
     }
 
     public AbstractConnectionService getConnectionService(){
@@ -124,6 +135,9 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
                 return;
 
         }
+        Intent intent = new Intent(this, JsonMessageDistributionService.class);
+        bindService(intent, distributionConnection, Context.BIND_AUTO_CREATE);
+
         ViewPager viewPager = findViewById(R.id.pager);
         viewPager.setAdapter(tabPageAdapter);
 
@@ -322,10 +336,28 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
                 }
             });
         }
-
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.i(TAG, "ADVERTISE SERVICE DISCONNECTED");
+        }
+    };
+    private ServiceConnection distributionConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MessageDistributionBinder binder = (MessageDistributionBinder) service;
+            distributionService = binder.getService();
+            distributionService.register(new OnMessageParsedCallback() {
+                @Override
+                public void onMessageParsed(@NonNull BaseMessage message) {
+                    if(message.getClass() == ChatMessage.class){
+                        
+                        chatFragment.addReceivedMessage((ChatMessage) message);
+                    }
+                }
+            });
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
         }
     };
 }
