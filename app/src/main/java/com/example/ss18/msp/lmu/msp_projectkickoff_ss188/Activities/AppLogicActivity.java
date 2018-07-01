@@ -291,7 +291,6 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
                     selectPresenterFragment.updatePresenterLists();
                 }
             });
-            discoveryService.listenMessage(onMessageListener);
         }
 
         @Override
@@ -322,29 +321,11 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
                     selectParticipantsFragment.updateParticipants();
                 }
             });
-            advertiseService.listenMessage(onMessageListener);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.i(TAG, "ADVERTISE SERVICE DISCONNECTED");
-        }
-    };
-
-    private OnMessageListener onMessageListener = new OnMessageListener() {
-        @Override
-        public void onStreamReceived(ParcelFileDescriptor fileDescriptor) {
-
-        }
-
-        @Override
-        public void onMessage(BaseMessage message) {
-            Log.i(TAG, "onMessage: "+ message);
-        }
-
-        @Override
-        public void onFileReceived(ParcelFileDescriptor fileDescriptor, String filename) {
-
         }
     };
 }
