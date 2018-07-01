@@ -12,8 +12,10 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.Message;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.MessageAdapter;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.AbstractConnectionService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.PayloadSender;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
@@ -72,11 +74,8 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
      * @param message is a string
      */
     private void sendDataToEndpoints(String message) {
-        try {
-            payloadSender.sendChatMessage(message);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        AbstractConnectionService service = ((AppLogicActivity)getActivity()).getConnectionService();
+        service.broadcastMessage(message);
     }
 
     /*

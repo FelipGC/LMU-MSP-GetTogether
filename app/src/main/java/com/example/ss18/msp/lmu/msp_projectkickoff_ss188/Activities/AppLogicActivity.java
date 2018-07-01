@@ -60,6 +60,16 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
         return advertiseService;
     }
 
+    public AbstractConnectionService getConnectionService(){
+        if(discoveryService!=null){
+            return (AbstractConnectionService) discoveryService;
+        }
+        if(advertiseService!=null) {
+            return (AbstractConnectionService) advertiseService;
+        }
+        return null;
+    }
+
     /**
      * The role of the user (Presenter/Spectator)
      */

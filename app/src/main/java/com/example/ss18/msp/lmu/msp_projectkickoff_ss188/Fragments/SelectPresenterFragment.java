@@ -108,30 +108,6 @@ public class SelectPresenterFragment extends Fragment {
         else pendingButton.setText(String.format("Pending Connection(s): %d", cM.getPendingConnections().size()));
     }
 
-    /**
-     * Updates the list view displaying all devices an advertiser can connect/
-     * or has already connected to
-     */
-   /* public synchronized void updateDeviceList(ConnectionEndpoint endpoint) {
-        Log.i(TAG, "updateDeviceList( "+endpoint+" )");
-        //We found no device
-        if (cM == null || cM.getDiscoveredEndpoints().size() == 0) {
-            for (View view : viewDevicesFound)
-                view.setVisibility(View.GONE);
-            for (View viewNoDevice : viewNoDevices)
-                viewNoDevice.setVisibility(View.VISIBLE);
-        }//We found devices
-        else{
-            //Hide GUI we do not want
-            for (View view : viewNoDevices)
-                view.setVisibility(View.GONE);
-            for (View view : viewDevicesFound)
-                view.setVisibility(View.VISIBLE);
-            //Update lists
-            updateListViews(endpoint);
-        }
-    }*/
-
     public void updatePresenterLists(){
         IDiscoveryService discoveryService = ((AppLogicActivity)getActivity()).getDiscoveryService();
 
@@ -167,7 +143,7 @@ public class SelectPresenterFragment extends Fragment {
 
             updatePendingButton();
         }
-        
+
         // Display "No Devices"-Views when no devices found
         for (View viewNoDevice : viewNoDevices)
             viewNoDevice.setVisibility(devicesFound ? View.GONE : View.VISIBLE);
@@ -183,51 +159,6 @@ public class SelectPresenterFragment extends Fragment {
             pendingButton.setText(String.format("Pending Connection(s): %d", pendingCount));
         }
     }
-
-
-
-    /**
-     * Removes and endpoint from all listviews but in our specified one, where the endpoint will
-     * be added
-     */
-    /*private void updateListViews(ConnectionEndpoint endpoint) {
-        ListView targetListView = null;
-        if (cM.getEstablishedConnections().containsKey(endpoint.getId()))
-            targetListView = establishedPresenters;
-        else if (!cM.getPendingConnections().containsKey(endpoint.getId()))
-            targetListView = availablePresenters;
-        //Add or replace element form listView
-        HashSet<ListView> listViews = new HashSet<>(Arrays.asList(establishedPresenters, availablePresenters,null));
-        for (ListView listView : listViews) {
-            PresenterAdapter presenterAdapter = null;
-            if(listView != null)
-                presenterAdapter = (PresenterAdapter) listView.getAdapter();
-            //Rename is necessary
-            final String displayName = endpoint.getName();
-            //Update listView
-            if (listView == targetListView) {
-                //Add endpoint to list
-                if(presenterAdapter != null) {
-                    presenterAdapter.add(endpoint);
-                    Log.i(TAG, "Added to list: " + displayName);
-                }
-            } else if (listView != null) {
-                //Remove endpoint from list
-                presenterAdapter.remove(endpoint);
-                //Hide if empty
-                if (presenterAdapter.getCount() == 0) {
-                    listView.setVisibility(View.GONE);
-                    if (listView == availablePresenters)
-                        availableTitle.setVisibility(View.GONE);
-                    else if (listView == establishedPresenters)
-                        joinedTitle.setVisibility(View.GONE);
-                }
-            }
-            if(cM.getPendingConnections().size() == 0)
-                pendingButton.setVisibility(View.GONE);
-            else pendingButton.setText(String.format("Pending Connection(s): %d", cM.getPendingConnections().size()));
-        }
-    }*/
 
     public void updateJoinedPresentersAvatar() {
         ((PresenterAdapter) connectedPresenters.getAdapter()).notifyDataSetChanged();
