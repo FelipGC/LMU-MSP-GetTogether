@@ -58,6 +58,7 @@ public abstract class AbstractConnectionService extends Service implements IServ
     @Override
     public void disconnect(String endpointId) {
         connectionsClient.disconnectFromEndpoint(endpointId);
+        afterDisconnect(endpointId);
     }
 
     protected ConnectionsClient connectionsClient;
@@ -137,19 +138,23 @@ public abstract class AbstractConnectionService extends Service implements IServ
 
                 @Override
                 public void onDisconnected(@NonNull String endpointId) {
-                    if (!connectedEndpoints.containsKey(endpointId)) {
-                        return;
-                    }
-                    connectedEndpoints.remove(endpointId);
-                    if (serviceSpecificLifecycleCallback != null) {
-                        serviceSpecificLifecycleCallback.onDisconnected(endpointId);
-                    }
-                    for (ConnectionLifecycleCallback callback :
-                            lifecycleCallbacks) {
-                        callback.onDisconnected(endpointId);
-                    }
+                    afterDisconnect(endpointId);
                 }
             };
+
+    private void afterDisconnect(String endpointId){
+        if (!connectedEndpoints.containsKey(endpointId)) {
+            return;
+        }
+        connectedEndpoints.remove(endpointId);
+        if (serviceSpecificLifecycleCallback != null) {
+            serviceSpecificLifecycleCallback.onDisconnected(endpointId);
+        }
+        for (ConnectionLifecycleCallback callback :
+                lifecycleCallbacks) {
+            callback.onDisconnected(endpointId);
+        }
+    }
 
     @Override
     public void onCreate() {
