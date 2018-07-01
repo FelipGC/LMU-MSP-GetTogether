@@ -77,25 +77,29 @@ public class FileReceiver extends PayloadCallback {
     @Override
     public void onPayloadTransferUpdate(@NonNull String payloadId,
                                         @NonNull PayloadTransferUpdate payloadTransferUpdate) {
-        Long fileId = getFileId(payloadId);
-        if (fileId == null) {
-            return;
+        try {
+            Long fileId = getFileId(payloadId);
+            if (fileId == null) {
+                return;
+            }
+            if (missingInformationFor(fileId)) {
+                return;
+            }
+            if (payloadTransferUpdate.getStatus() != PayloadTransferUpdate.Status.SUCCESS) {
+                return;
+            }
+            Payload filePayload = files.get(fileId);
+            long fileDataId = fileToFileDataAssociations.get(fileId);
+            JsonFileDataMessage fileDataMessage = fileDataMessages.get(fileDataId);
+            clearLists(fileId, fileDataId);
+            ParcelFileDescriptor fileDescriptor = getParcelFileDescriptor(filePayload);
+            if (fileDescriptor == null) {
+                return;
+            }
+            onFinishedFileTransfer(fileDataMessage, fileDescriptor);
+        }catch (NumberFormatException nfe){
+            //not a file-payload - go on
         }
-        if (missingInformationFor(fileId)) {
-            return;
-        }
-        if (payloadTransferUpdate.getStatus() != PayloadTransferUpdate.Status.SUCCESS) {
-            return;
-        }
-        Payload filePayload = files.get(fileId);
-        long fileDataId = fileToFileDataAssociations.get(fileId);
-        JsonFileDataMessage fileDataMessage = fileDataMessages.get(fileDataId);
-        clearLists(fileId, fileDataId);
-        ParcelFileDescriptor fileDescriptor = getParcelFileDescriptor(filePayload);
-        if (fileDescriptor == null) {
-            return;
-        }
-        onFinishedFileTransfer(fileDataMessage, fileDescriptor);
     }
 
     private void onFinishedFileTransfer(JsonFileDataMessage fileDataMessage,
