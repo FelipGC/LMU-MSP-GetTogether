@@ -39,17 +39,18 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         View view = inflater.inflate(R.layout.fragment_chat,container,false);
         editText = (EditText) view.findViewById(R.id.editText);
         messagesView = (ListView) view.findViewById(R.id.messages_view);
-        messageAdapter = new MessageAdapter(getActivity());
+        if(messageAdapter==null){
+            messageAdapter = new MessageAdapter(getActivity());
+            for(BaseMessage msg : ((AppLogicActivity)getActivity()).getDistributionService().getMessages()){
+                if(msg.getClass()==ChatMessage.class){
+                    addReceivedMessage((ChatMessage) msg);
+                }
+            }
+        }
         buttonSend = (ImageButton) view.findViewById(R.id.button_send);
         buttonSend.setOnClickListener(this);
         messagesView.setAdapter(messageAdapter);
         payloadSender = ConnectionManager.getInstance().getPayloadSender();
-
-        for(BaseMessage msg : ((AppLogicActivity)getActivity()).getDistributionService().getMessages()){
-            if(msg.getClass()==ChatMessage.class){
-                addReceivedMessage((ChatMessage) msg);
-            }
-        }
 
         return view;
     }

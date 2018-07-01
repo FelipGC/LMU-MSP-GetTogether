@@ -350,7 +350,6 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
                 @Override
                 public void onMessageParsed(@NonNull BaseMessage message) {
                     if(message.getClass() == ChatMessage.class){
-                        
                         chatFragment.addReceivedMessage((ChatMessage) message);
                     }
                 }
