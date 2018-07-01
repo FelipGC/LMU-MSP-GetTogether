@@ -154,9 +154,8 @@ public final class PayloadReceiver extends PayloadCallback {
     private void onChatMessageReceived(String id, String message) {
         Log.i(TAG, "RECEIVED CHAT MESSAGES" + message);
         //Display notification
-        NotificationUtility.displayNotificationChat("Chat message received",
-                String.format("%s has sent you a message...", cM.getDiscoveredEndpoints().get(id).getName()),
-                NotificationCompat.PRIORITY_DEFAULT);
+        //NotificationUtility.displayChatNotification("Chat message received",
+          //      String.format("%s has sent you a message...", cM.getDiscoveredEndpoints().get(id).getName()), );
         ChatFragment chat = getAppLogicActivity().getChatFragment();
         //chat.addReceivedMessage(message);
     }

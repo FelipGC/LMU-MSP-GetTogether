@@ -72,4 +72,7 @@ Get Together "ist eine App, die eine einfache und komfortable Übertragung von D
     <string name="gps">GPS</string>
     <string name="sprechen">SPRECHEN</string>
     <string name="stupsen">STUPSEN</string>
+
+    <string name="chat_notif_title">Neue Chat-Nachricht erhalten</string>
+    <string name="chat_notif_content">%1$s hat eine Nachricht geschickt.</string>
 </resources>

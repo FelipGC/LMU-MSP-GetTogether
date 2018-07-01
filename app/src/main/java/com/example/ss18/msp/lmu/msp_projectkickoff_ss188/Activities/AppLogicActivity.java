@@ -40,6 +40,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Presentation.Presentati
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.AppContext;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.NotificationUtility;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
@@ -351,6 +352,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
                 public void onMessageParsed(@NonNull BaseMessage message) {
                     if(message.getClass() == ChatMessage.class){
                         chatFragment.addReceivedMessage((ChatMessage) message);
+                        NotificationUtility.displayChatNotification(AppLogicActivity.this,((ChatMessage) message).getSender());
                     }
                 }
             });

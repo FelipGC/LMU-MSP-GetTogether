@@ -46,20 +46,18 @@ public class NotificationUtility {
      * Displays a notification message for the chat.
      * See @see <a>https://developer.android.com/training/notify-user/build-notification>this</a>
      * for more information
-     *
-     * @param title   The title of the not
-     * @param message The message we want to display
+     *  @param context Calling context
+     *  @param sender Name of sender
      */
-    public static void displayNotificationChat(final String title, final String message, final int priority) {
-        Log.i(TAG, "NOTIFICATION: " + message);
+    public static void displayChatNotification(Context context, String sender) {
+        Log.i(TAG, "NOTIFICATION: New message from " + sender);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getAppLogicActivity(), CHANNEL_ID)
                 .setSmallIcon(R.drawable.chat_icon)
-                .setContentTitle(title)
+                .setContentTitle(context.getResources().getString(R.string.chat_notif_title))
                 .setDefaults(Notification.DEFAULT_ALL)
-                .setContentText(message)
-                .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText(message))
-                .setPriority(priority);
+                .setContentText(context.getResources().getString(R.string.chat_notif_content, sender))
+                .setStyle(new NotificationCompat.BigTextStyle())
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
         mBuilder.build();
         NotificationManager mNotificationManager = (NotificationManager) getAppLogicActivity().getSystemService(Context.NOTIFICATION_SERVICE);
         // notificationID allows you to update the notification later on.
