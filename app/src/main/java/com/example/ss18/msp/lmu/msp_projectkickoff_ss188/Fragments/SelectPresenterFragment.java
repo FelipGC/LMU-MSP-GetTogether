@@ -90,6 +90,12 @@ public class SelectPresenterFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        updatePresenterLists();
+    }
+
     /**
      * Removes an endPoint from the adapters (for example when he disconnects)
      */
@@ -131,35 +137,37 @@ public class SelectPresenterFragment extends Fragment {
 
         boolean devicesFound = false;
 
-        // Displaying available presenters
-        PresenterAdapter availableAdapter = ((PresenterAdapter)availablePresenters.getAdapter());
-        availableAdapter.removeAll();
-        availablePresenters.setVisibility(View.GONE);
-        availableTitle.setVisibility(View.GONE);
-        for(ConnectionEndpoint de : discoveryService.getDiscoveredEndpoints()){
-            if(discoveryService.getConnectedEndpoints().contains(de)){
-                continue;
+        if(discoveryService!=null) {
+            // Displaying available presenters
+            PresenterAdapter availableAdapter = ((PresenterAdapter) availablePresenters.getAdapter());
+            availableAdapter.removeAll();
+            availablePresenters.setVisibility(View.GONE);
+            availableTitle.setVisibility(View.GONE);
+            for (ConnectionEndpoint de : discoveryService.getDiscoveredEndpoints()) {
+                if (discoveryService.getConnectedEndpoints().contains(de)) {
+                    continue;
+                }
+                availablePresenters.setVisibility(View.VISIBLE);
+                availableTitle.setVisibility(View.VISIBLE);
+                devicesFound = true;
+                availableAdapter.add(de);
             }
-            availablePresenters.setVisibility(View.VISIBLE);
-            availableTitle.setVisibility(View.VISIBLE);
-            devicesFound = true;
-            availableAdapter.add(de);
+
+            // Displaying connected presenters
+            PresenterAdapter connectedAdapter = ((PresenterAdapter) connectedPresenters.getAdapter());
+            connectedAdapter.removeAll();
+            connectedPresenters.setVisibility(View.GONE);
+            connectedTitle.setVisibility(View.GONE);
+            for (ConnectionEndpoint ce : discoveryService.getConnectedEndpoints()) {
+                connectedTitle.setVisibility(View.VISIBLE);
+                connectedPresenters.setVisibility(View.VISIBLE);
+                devicesFound = true;
+                connectedAdapter.add(ce);
+            }
+
+            updatePendingButton();
         }
-
-        // Displaying connected presenters
-        PresenterAdapter connectedAdapter = ((PresenterAdapter)connectedPresenters.getAdapter());
-        connectedAdapter.removeAll();
-        connectedPresenters.setVisibility(View.GONE);
-        connectedTitle.setVisibility(View.GONE);
-        for(ConnectionEndpoint ce : discoveryService.getConnectedEndpoints()){
-            connectedTitle.setVisibility(View.VISIBLE);
-            connectedPresenters.setVisibility(View.VISIBLE);
-            devicesFound = true;
-            connectedAdapter.add(ce);
-        }
-
-        updatePendingButton();
-
+        
         // Display "No Devices"-Views when no devices found
         for (View viewNoDevice : viewNoDevices)
             viewNoDevice.setVisibility(devicesFound ? View.GONE : View.VISIBLE);
