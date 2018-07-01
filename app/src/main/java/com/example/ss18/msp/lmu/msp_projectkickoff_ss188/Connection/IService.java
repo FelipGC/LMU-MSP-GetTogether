@@ -26,6 +26,8 @@ interface IService {
 
     Collection<ConnectionEndpoint> getPendingEndpoints();
 
+    void disconnect(String endpointId);
+
     void startService();
     void stopService();
 }

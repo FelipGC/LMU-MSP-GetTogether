@@ -18,11 +18,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters.ViewerAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.IAdvertiseService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters.ViewerAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission;
 
 import java.util.Collection;
@@ -202,7 +202,7 @@ public class SelectParticipantsFragment extends Fragment {
                         // If the user checked the item, add it to the selected items, if not already connected
                         advertiseService.acceptRequest(endpoint.getId());
                     } else if(!isChecked && !newEndpoint) {
-                        advertiseService.rejectRequest(endpoint.getId());
+                        advertiseService.disconnect(endpoint.getId());
                     }
                 }
             }

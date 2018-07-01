@@ -39,8 +39,25 @@ public abstract class AbstractConnectionService extends Service implements IServ
     private final Map<String, ConnectionEndpoint> connectedEndpoints = new HashMap<>();
     private final List<ConnectionLifecycleCallback> lifecycleCallbacks = new ArrayList<>();
     private final List<OnMessageListener> messageListeners = new ArrayList<>();
+
     protected CombinedPayloadReceiver payloadReceiver =
             new CombinedPayloadReceiver(messageListeners);
+
+    //private final IConnectionMessageFactory messageFactory = new JsonConnectionMessageFactory();
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        int result = super.onStartCommand(intent, flags, startId);
+        this.startService();
+        return result;
+    }
+
+    @Override
+    public void disconnect(String endpointId) {
+        connectionsClient.disconnectFromEndpoint(endpointId);
+        connectionLifecycleCallback.onDisconnected(endpointId);
+    }
+
     protected ConnectionsClient connectionsClient;
     protected final String serviceID = "SERVICE_ID_NEARBY_CONNECTIONS";
     protected final Strategy STRATEGY = Strategy.P2P_CLUSTER;
@@ -94,6 +111,7 @@ public abstract class AbstractConnectionService extends Service implements IServ
                             pendingEndpoints.remove(endpointId);
                             break;
                         case ConnectionsStatusCodes.STATUS_ERROR:
+                            pendingEndpoints.remove(endpointId);
                             Log.d(TAG, String.format(
                                     "Got ConnectionResolution status Error: %s",
                                     resolution.getStatus().getStatusMessage()));
@@ -219,6 +237,7 @@ public abstract class AbstractConnectionService extends Service implements IServ
     public void onDestroy() {
         unbindService(messageDistributionServiceConnection);
         connectionsClient.stopAllEndpoints();
+        stopService();
     }
 
     protected boolean alreadyConnected(String endpointId) {

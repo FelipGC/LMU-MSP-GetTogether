@@ -14,11 +14,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters.PresenterAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.IDiscoveryService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters.PresenterAdapter;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -26,9 +26,9 @@ import java.util.HashSet;
 public class SelectPresenterFragment extends Fragment {
     private static final String TAG = "SelectPresenter";
     private ListView availablePresenters;
-    private ListView establishedPresenters;
+    private ListView connectedPresenters;
     private Button pendingButton;
-    private TextView joinedTitle;
+    private TextView connectedTitle;
     private TextView availableTitle;
     private ConnectionManager cM;
     /**
@@ -50,15 +50,15 @@ public class SelectPresenterFragment extends Fragment {
 
         viewDevicesFound.addAll(Arrays.asList(
                 availablePresenters = view.findViewById(R.id.presentersListView_available),
-                establishedPresenters = view.findViewById(R.id.presentersListView_joined),
+                connectedPresenters = view.findViewById(R.id.presentersListView_joined),
                 availableTitle = view.findViewById(R.id.presentersListViewTitle_available),
-                joinedTitle = view.findViewById(R.id.presentersListViewTitle_established),
+                connectedTitle = view.findViewById(R.id.presentersListViewTitle_established),
                 pendingButton = view.findViewById(R.id.presentersListViewTitle_pending)));
         viewNoDevices.add(view.findViewById(R.id.noDevicesFound));
 
         //Set adapters
         availablePresenters.setAdapter(new PresenterAdapter(getContext(),false));
-        establishedPresenters.setAdapter(new PresenterAdapter(getContext(),true));
+        connectedPresenters.setAdapter(new PresenterAdapter(getContext(),true));
 
         //Set up clickListeners for the individual items and lists
         //On Click: Displays list of pending connections as a dialog
@@ -96,7 +96,7 @@ public class SelectPresenterFragment extends Fragment {
     public void removeEndpointFromAdapters(ConnectionEndpoint connectionEndpoint){
         Log.i(TAG,"REMOVE ENDPOINT FROM ADAPTERS");
         ((PresenterAdapter) availablePresenters.getAdapter()).remove(connectionEndpoint);
-        ((PresenterAdapter) establishedPresenters.getAdapter()).remove(connectionEndpoint);
+        ((PresenterAdapter) connectedPresenters.getAdapter()).remove(connectionEndpoint);
         if(cM == null || cM.getPendingConnections().size() == 0)
             pendingButton.setVisibility(View.GONE);
         else pendingButton.setText(String.format("Pending Connection(s): %d", cM.getPendingConnections().size()));
@@ -127,7 +127,6 @@ public class SelectPresenterFragment extends Fragment {
     }*/
 
     public void updatePresenterLists(){
-
         IDiscoveryService discoveryService = ((AppLogicActivity)getActivity()).getDiscoveryService();
 
         boolean devicesFound = false;
@@ -137,31 +136,47 @@ public class SelectPresenterFragment extends Fragment {
         availableAdapter.removeAll();
         availablePresenters.setVisibility(View.GONE);
         availableTitle.setVisibility(View.GONE);
-        for(ConnectionEndpoint discoveredEndpoints : discoveryService.getDiscoveredEndpoints()){
+        for(ConnectionEndpoint de : discoveryService.getDiscoveredEndpoints()){
+            if(discoveryService.getConnectedEndpoints().contains(de)){
+                continue;
+            }
             availablePresenters.setVisibility(View.VISIBLE);
             availableTitle.setVisibility(View.VISIBLE);
             devicesFound = true;
-            if(!availableAdapter.contains(discoveredEndpoints.getId())){
-                availableAdapter.add(discoveredEndpoints);
-            }
+            availableAdapter.add(de);
         }
 
+        // Displaying connected presenters
+        PresenterAdapter connectedAdapter = ((PresenterAdapter)connectedPresenters.getAdapter());
+        connectedAdapter.removeAll();
+        connectedPresenters.setVisibility(View.GONE);
+        connectedTitle.setVisibility(View.GONE);
+        for(ConnectionEndpoint ce : discoveryService.getConnectedEndpoints()){
+            connectedTitle.setVisibility(View.VISIBLE);
+            connectedPresenters.setVisibility(View.VISIBLE);
+            devicesFound = true;
+            connectedAdapter.add(ce);
+        }
+
+        updatePendingButton();
+
+        // Display "No Devices"-Views when no devices found
+        for (View viewNoDevice : viewNoDevices)
+            viewNoDevice.setVisibility(devicesFound ? View.GONE : View.VISIBLE);
+    }
+
+    public void updatePendingButton(){
+        IDiscoveryService discoveryService = ((AppLogicActivity)getActivity()).getDiscoveryService();
         // Displaying Pending button
         pendingButton.setVisibility(View.GONE);
-        int pendingCount = 0;
-        for(ConnectionEndpoint pendingEndpoints : discoveryService.getPendingEndpoints()){
-            pendingCount++;
-        }
+        int pendingCount = discoveryService.getPendingEndpoints().size();
         if(pendingCount>0){
-            devicesFound = true;
             pendingButton.setVisibility(View.VISIBLE);
             pendingButton.setText(String.format("Pending Connection(s): %d", pendingCount));
         }
-
-        for (View viewNoDevice : viewNoDevices)
-            viewNoDevice.setVisibility(devicesFound ? View.GONE : View.VISIBLE);
-
     }
+
+
 
     /**
      * Removes and endpoint from all listviews but in our specified one, where the endpoint will
@@ -207,6 +222,6 @@ public class SelectPresenterFragment extends Fragment {
     }*/
 
     public void updateJoinedPresentersAvatar() {
-        ((PresenterAdapter) establishedPresenters.getAdapter()).notifyDataSetChanged();
+        ((PresenterAdapter) connectedPresenters.getAdapter()).notifyDataSetChanged();
     }
 }
