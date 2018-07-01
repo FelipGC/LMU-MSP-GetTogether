@@ -8,8 +8,12 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
+import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
+import com.google.android.gms.nearby.connection.ConnectionResolution;
+import com.google.android.gms.nearby.connection.ConnectionsStatusCodes;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
@@ -50,7 +54,30 @@ public class NearbyAdvertiseService extends AbstractConnectionService implements
 
     @Override
     protected ConnectionLifecycleCallback initLifecycle() {
-        return null;
+        return new ConnectionLifecycleCallback() {
+            @Override
+            public void onConnectionInitiated(@NonNull String s, @NonNull ConnectionInfo connectionInfo) {
+
+            }
+
+            @Override
+            public void onConnectionResult(@NonNull String s, @NonNull ConnectionResolution connectionResolution) {
+                switch (connectionResolution.getStatus().getStatusCode()){
+                    case ConnectionsStatusCodes.STATUS_OK:
+                        String name = getNameOfEndpoint(s);
+                        if(name != null)
+                            broadcastSystemMessage(getString(R.string.chat_user_connected,name));
+                        break;
+                }
+            }
+
+            @Override
+            public void onDisconnected(@NonNull String s) {
+                String name = getNameOfEndpoint(s);
+                if(name != null)
+                    broadcastSystemMessage(getString(R.string.chat_user_disconnected,name));
+            }
+        };
     }
 
     @Override

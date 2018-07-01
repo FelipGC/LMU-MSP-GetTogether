@@ -23,6 +23,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.IMessageDistri
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.JsonMessageDistributionService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.MessageDistributionBinder;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.OnMessageParsedCallback;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.SystemMessage;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.IAdvertiseService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.IDiscoveryService;
@@ -353,6 +354,8 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
                     if(message.getClass() == ChatMessage.class){
                         chatFragment.addReceivedMessage((ChatMessage) message);
                         NotificationUtility.displayChatNotification(AppLogicActivity.this,((ChatMessage) message).getSender());
+                    }else if(message.getClass() == SystemMessage.class){
+                        chatFragment.displaySystemNotification((SystemMessage)message);
                     }
                 }
             });

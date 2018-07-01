@@ -138,8 +138,8 @@ public class ConnectionManager {
                         case ConnectionsStatusCodes.STATUS_OK:
                             Log.i(TAG, "WE ARE CONNECTED");
                             //Display system message inside the chat window
-                            appLogicActivity.getChatFragment().displaySystemNotification(
-                                    String.format("Connection to %s established.", endpoint.getName()));
+                           // appLogicActivity.getChatFragment().displaySystemNotification(
+                             //       String.format("Connection to %s established.", endpoint.getName()));
                             // We're connected! Can now start sending and receiving data.
                             establishedConnections.put(endpointId, endpoint);
                             if (pendingConnections.containsKey(endpointId))
@@ -223,8 +223,8 @@ public class ConnectionManager {
         //Clear in other classes
         if (appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR)
             appLogicActivity.getSelectPresenterFragment().removeEndpointFromAdapters(endpoint);
-        appLogicActivity.getChatFragment().displaySystemNotification(
-                String.format("%s has disconnected...", endpoint.getName()));
+        //appLogicActivity.getChatFragment().displaySystemNotification(
+          //      String.format("%s has disconnected...", endpoint.getName()));
         //Update the GUI finally
         updateGUI(endpoint);
 

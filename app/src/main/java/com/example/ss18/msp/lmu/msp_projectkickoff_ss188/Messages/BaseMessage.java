@@ -35,6 +35,9 @@ public class BaseMessage {
                 case FILE:
                     c = JsonFileDataMessage.class;
                     break;
+                case SYSTEM:
+                    c = SystemMessage.class;
+                    break;
                 case POKE:
                 case LOCATION:
                 default:

@@ -18,6 +18,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.MessageAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.AbstractConnectionService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.BaseMessage;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.ChatMessage;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.SystemMessage;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.PayloadSender;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
@@ -102,14 +103,15 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         // scroll the ListView to the last added element
         messagesView.setSelection(messagesView.getCount() - 1);
     }
+
     /**
      * Displays a neutral system chat message in the chat
      */
-    public void displaySystemNotification(String message) {
+    public void displaySystemNotification(SystemMessage message) {
         if(messageAdapter == null)
             return;
 
-        Message received = new Message(message, null, "SYSTEM", false);
+        Message received = new Message(message.getContent(), null, "SYSTEM", false);
         messageAdapter.addMessage(received);
         // scroll the ListView to the last added element
         messagesView.setSelection(messagesView.getCount() - 1);

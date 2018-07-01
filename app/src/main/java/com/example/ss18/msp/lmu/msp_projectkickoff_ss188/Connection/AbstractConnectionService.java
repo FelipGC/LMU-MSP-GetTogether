@@ -19,6 +19,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.ChatMessage;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.IMessageDistributionService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.JsonMessageDistributionService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.MessageDistributionBinder;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.SystemMessage;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
@@ -187,6 +188,12 @@ public abstract class AbstractConnectionService extends Service implements IServ
     }
 
     @Override
+    public void broadcastSystemMessage(String content) {
+        BaseMessage msg = new SystemMessage(content);
+        broadcastMessage(msg.toJsonString());
+    }
+
+    @Override
     public void broadcastChatMessage(String msgBody) {
         BaseMessage msg = new ChatMessage(AppPreferences.getInstance().getUsername(), msgBody);
         broadcastMessage(msg.toJsonString());
@@ -253,5 +260,11 @@ public abstract class AbstractConnectionService extends Service implements IServ
 
     protected boolean isNotPending(String endpointId) {
         return !pendingEndpoints.containsKey((endpointId));
+    }
+
+    protected String getNameOfEndpoint(String endpointId){
+        if(connectedEndpoints.containsKey(endpointId))
+            return connectedEndpoints.get(endpointId).getName();
+        return null;
     }
 }

@@ -75,4 +75,7 @@ Get Together "ist eine App, die eine einfache und komfortable Übertragung von D
 
     <string name="chat_notif_title">Neue Chat-Nachricht erhalten</string>
     <string name="chat_notif_content">%1$s hat eine Nachricht geschickt.</string>
+    <string name="chat_user_connected">%1$s ist der Gruppe beigetreten.</string>
+    <string name="chat_user_disconnected">%1$s hat die Gruppe verlassen.</string>
+
 </resources>
