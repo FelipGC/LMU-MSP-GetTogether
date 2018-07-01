@@ -55,7 +55,6 @@ public abstract class AbstractConnectionService extends Service implements IServ
     @Override
     public void disconnect(String endpointId) {
         connectionsClient.disconnectFromEndpoint(endpointId);
-        connectionLifecycleCallback.onDisconnected(endpointId);
     }
 
     protected ConnectionsClient connectionsClient;
