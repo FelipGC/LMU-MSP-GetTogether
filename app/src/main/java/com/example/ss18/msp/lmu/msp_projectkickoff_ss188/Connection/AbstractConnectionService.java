@@ -46,21 +46,6 @@ public abstract class AbstractConnectionService extends Service implements IServ
     protected CombinedPayloadReceiver payloadReceiver =
             new CombinedPayloadReceiver(messageListeners);
 
-    //private final IConnectionMessageFactory messageFactory = new JsonConnectionMessageFactory();
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        int result = super.onStartCommand(intent, flags, startId);
-        this.startService();
-        return result;
-    }
-
-    @Override
-    public void disconnect(String endpointId) {
-        connectionsClient.disconnectFromEndpoint(endpointId);
-        afterDisconnect(endpointId);
-    }
-
     protected ConnectionsClient connectionsClient;
     protected final String serviceID = "SERVICE_ID_NEARBY_CONNECTIONS";
     protected final Strategy STRATEGY = Strategy.P2P_CLUSTER;
@@ -114,7 +99,6 @@ public abstract class AbstractConnectionService extends Service implements IServ
                             pendingEndpoints.remove(endpointId);
                             break;
                         case ConnectionsStatusCodes.STATUS_ERROR:
-                            pendingEndpoints.remove(endpointId);
                             Log.d(TAG, String.format(
                                     "Got ConnectionResolution status Error: %s",
                                     resolution.getStatus().getStatusMessage()));
@@ -157,6 +141,13 @@ public abstract class AbstractConnectionService extends Service implements IServ
     }
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        int result = super.onStartCommand(intent, flags, startId);
+        this.startService();
+        return result;
+    }
+
+    @Override
     public void onCreate() {
         super.onCreate();
         serviceSpecificLifecycleCallback = initLifecycle();
@@ -167,6 +158,12 @@ public abstract class AbstractConnectionService extends Service implements IServ
     private void bindMessageListener() {
         Intent intent = new Intent(this, JsonMessageDistributionService.class);
         bindService(intent, messageDistributionServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void disconnect(String endpointId) {
+        connectionsClient.disconnectFromEndpoint(endpointId);
+        connectionLifecycleCallback.onDisconnected(endpointId);
     }
 
     protected abstract ConnectionLifecycleCallback initLifecycle();
@@ -256,7 +253,7 @@ public abstract class AbstractConnectionService extends Service implements IServ
     public void onDestroy() {
         unbindService(messageDistributionServiceConnection);
         connectionsClient.stopAllEndpoints();
-        stopService();
+        stopService(); // TODO @Laureen: Nötig, bzw. hinderlich für das am Leben halten des Service? Außerdem vllt eher stopSelf?
     }
 
     protected boolean alreadyConnected(String endpointId) {
