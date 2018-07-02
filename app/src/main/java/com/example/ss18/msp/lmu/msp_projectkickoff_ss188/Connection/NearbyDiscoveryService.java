@@ -19,6 +19,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +80,7 @@ public class NearbyDiscoveryService extends AbstractConnectionService implements
                 if (!discoveredEndpoints.containsKey(endpointId)) {
                     return;
                 }
-                connectionsClient.acceptConnection(endpointId, payloadCallback);
+                connectionsClient.acceptConnection(endpointId, payloadReceiver);
             }
 
             @Override
@@ -155,8 +156,8 @@ public class NearbyDiscoveryService extends AbstractConnectionService implements
     }
 
     @Override
-    public Iterable<ConnectionEndpoint> getDiscoveredEndpoints() {
-        return discoveredEndpoints.values();
+    public Collection<ConnectionEndpoint> getDiscoveredEndpoints() {
+        return new ArrayList<>(discoveredEndpoints.values());
     }
 
     public class NearbyDiscoveryBinder extends Binder {

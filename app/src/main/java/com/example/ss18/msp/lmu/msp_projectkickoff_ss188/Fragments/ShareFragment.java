@@ -16,8 +16,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.PayloadSender;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.google.android.gms.nearby.connection.Payload;
 

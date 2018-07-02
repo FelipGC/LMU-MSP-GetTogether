@@ -2,9 +2,10 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
 import android.os.ParcelFileDescriptor;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageReceiver.OnMessageListener;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
 
-import java.util.List;
+import java.util.Collection;
 
 interface IService {
     void listenLifecycle(ConnectionLifecycleCallback connectionLifecycleCallback);
@@ -21,9 +22,9 @@ interface IService {
 
     void sendFile(String endpointId, ParcelFileDescriptor fileDescriptor, String fileName);
 
-    List<ConnectionEndpoint> getConnectedEndpoints();
+    Collection<ConnectionEndpoint> getConnectedEndpoints();
 
-    List<ConnectionEndpoint> getPendingEndpoints();
+    Collection<ConnectionEndpoint> getPendingEndpoints();
 
     void disconnect(String endpointId);
 

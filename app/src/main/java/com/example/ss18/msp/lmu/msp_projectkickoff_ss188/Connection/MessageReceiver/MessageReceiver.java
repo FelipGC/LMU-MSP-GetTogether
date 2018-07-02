@@ -1,8 +1,9 @@
-package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
+package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageReceiver;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.IMessageDistributionService;
 import com.google.android.gms.nearby.connection.Payload;
 import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
@@ -11,6 +12,7 @@ import java.io.UnsupportedEncodingException;
 
 public class MessageReceiver extends PayloadCallback {
     private final Iterable<OnMessageListener> messageListeners;
+    private IMessageDistributionService messageDistributionService;
 
     MessageReceiver(Iterable<OnMessageListener> messageListeners) {
         this.messageListeners = messageListeners;
@@ -31,6 +33,9 @@ public class MessageReceiver extends PayloadCallback {
                     messageListeners) {
                 listener.onMessage(message);
             }
+            if (messageDistributionService != null) {
+                messageDistributionService.put(message);
+            }
         } catch (UnsupportedEncodingException ex) {
             Log.w("MessageReceiver", ex.getMessage());
         }
@@ -39,5 +44,13 @@ public class MessageReceiver extends PayloadCallback {
     @Override
     public void onPayloadTransferUpdate(@NonNull String s,
                                         @NonNull PayloadTransferUpdate payloadTransferUpdate) {
+    }
+
+    public void setDistributionService(@NonNull IMessageDistributionService distributionService) {
+        messageDistributionService = distributionService;
+    }
+
+    public void unsetDistributionService() {
+        messageDistributionService = null;
     }
 }

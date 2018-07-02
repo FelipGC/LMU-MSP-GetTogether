@@ -10,8 +10,8 @@ import android.location.LocationManager;
 import android.os.IBinder;
 import android.support.v4.content.ContextCompat;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.PayloadSender;
 
 public abstract class AbstractLocationService extends Service {
 

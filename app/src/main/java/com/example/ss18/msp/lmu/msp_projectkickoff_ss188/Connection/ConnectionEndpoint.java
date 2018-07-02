@@ -89,33 +89,9 @@ public final class ConnectionEndpoint {
         return String.format("ConnectionEndpoint{id=%s, name=%s}", id, name);
     }
 
-    public String toJsonString() {
-        try {
-            JSONObject json = new JSONObject();
-            json.put("displayName", getName());
-            json.put("id", getId());
-            return json.toString();
-        } catch (JSONException ex) {
-            Log.w(TAG, ex.getMessage());
-            return null;
-        }
-    }
-
     public Uri getProfilePicture() {
         Uri uri = LocalDataBase.getProfilePictureUri(id);
         Log.i(TAG,"getProfilePicture() for: " + getName() + " result:\n" + uri);
         return uri;
-    }
-
-    public static ConnectionEndpoint parseJson(String jsonString) {
-        try {
-            JSONObject json = new JSONObject(jsonString);
-            String displayName = json.getString("displayName");
-            String id = json.getString("id");
-            return new ConnectionEndpoint(id, displayName);
-        } catch(JSONException ex) {
-            Log.w(TAG, ex.getMessage());
-            return null;
-        }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
+package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -9,6 +9,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.FrequentLocationService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;

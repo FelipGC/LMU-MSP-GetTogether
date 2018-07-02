@@ -14,8 +14,8 @@ import android.widget.ListView;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.Message;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.MessageAdapter;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.PayloadSender;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 

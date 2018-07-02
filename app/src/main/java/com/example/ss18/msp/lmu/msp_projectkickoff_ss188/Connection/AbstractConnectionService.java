@@ -1,11 +1,22 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 
 import android.app.Service;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageReceiver.CombinedPayloadReceiver;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageReceiver.OnMessageListener;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.Messages.JsonFileDataMessage;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.BaseMessage;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.IMessageDistributionService;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.JsonMessageDistributionService;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.MessageDistributionBinder;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
@@ -13,12 +24,11 @@ import com.google.android.gms.nearby.connection.ConnectionResolution;
 import com.google.android.gms.nearby.connection.ConnectionsClient;
 import com.google.android.gms.nearby.connection.ConnectionsStatusCodes;
 import com.google.android.gms.nearby.connection.Payload;
-import com.google.android.gms.nearby.connection.PayloadCallback;
-import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.nearby.connection.Strategy;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,50 +39,25 @@ public abstract class AbstractConnectionService extends Service implements IServ
     private final Map<String, ConnectionEndpoint> connectedEndpoints = new HashMap<>();
     private final List<ConnectionLifecycleCallback> lifecycleCallbacks = new ArrayList<>();
     private final List<OnMessageListener> messageListeners = new ArrayList<>();
-    private final IConnectionMessageFactory messageFactory = new JsonConnectionMessageFactory();
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        int result = super.onStartCommand(intent, flags, startId);
-        this.startService();
-        return result;
-    }
-
-    @Override
-    public void disconnect(String endpointId) {
-        connectionsClient.disconnectFromEndpoint(endpointId);
-        connectionLifecycleCallback.onDisconnected(endpointId);
-    }
-
+    protected CombinedPayloadReceiver payloadReceiver =
+            new CombinedPayloadReceiver(messageListeners);
     protected ConnectionsClient connectionsClient;
-    /**
-     * The id of the NearbyConnection service. (package name of the main activity)
-     */
     protected final String serviceID = "SERVICE_ID_NEARBY_CONNECTIONS";
-    /**
-     * The connection strategy as defined in https://developers.google.com/nearby/connections/strategies
-     */
     protected final Strategy STRATEGY = Strategy.P2P_CLUSTER;
-    protected PayloadCallback payloadCallback = new PayloadCallback() {
-
-        private PayloadCallback fileReceiver = new FileReceiver(messageListeners);
-        private PayloadCallback messageReceiver = new MessageReceiver(messageListeners);
-        private PayloadCallback streamReceiver = new StreamReceiver(messageListeners);
+    private ServiceConnection messageDistributionServiceConnection = new ServiceConnection() {
 
         @Override
-        public void onPayloadReceived(@NonNull String endpointId,
-                                      @NonNull Payload payload) {
-            fileReceiver.onPayloadReceived(endpointId, payload);
-            messageReceiver.onPayloadReceived(endpointId, payload);
-            streamReceiver.onPayloadReceived(endpointId, payload);
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MessageDistributionBinder messageDistributionBinder =
+                    (MessageDistributionBinder) service;
+            IMessageDistributionService messageDistributionService =
+                    messageDistributionBinder.getService();
+            payloadReceiver.setDistributionService(messageDistributionService);
         }
 
         @Override
-        public void onPayloadTransferUpdate(@NonNull String endpointId,
-                                            @NonNull PayloadTransferUpdate payloadTransferUpdate) {
-            fileReceiver.onPayloadTransferUpdate(endpointId, payloadTransferUpdate);
-            messageReceiver.onPayloadTransferUpdate(endpointId, payloadTransferUpdate);
-            streamReceiver.onPayloadTransferUpdate(endpointId, payloadTransferUpdate);
+        public void onServiceDisconnected(ComponentName name) {
+            payloadReceiver.unsetDistributionService();
         }
     };
     protected ConnectionLifecycleCallback serviceSpecificLifecycleCallback;
@@ -109,10 +94,10 @@ public abstract class AbstractConnectionService extends Service implements IServ
                             pendingEndpoints.remove(endpointId);
                             break;
                         case ConnectionsStatusCodes.STATUS_ERROR:
-                            pendingEndpoints.remove(endpointId);
                             Log.d(TAG, String.format(
                                     "Got ConnectionResolution status Error: %s",
                                     resolution.getStatus().getStatusMessage()));
+                            pendingEndpoints.remove(endpointId);
                             break;
                         default:
                             Log.d(TAG, String.format(
@@ -147,10 +132,29 @@ public abstract class AbstractConnectionService extends Service implements IServ
             };
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        int result = super.onStartCommand(intent, flags, startId);
+        this.startService();
+        return result;
+    }
+
+    @Override
     public void onCreate() {
         super.onCreate();
         serviceSpecificLifecycleCallback = initLifecycle();
         connectionsClient = Nearby.getConnectionsClient(this);
+        bindMessageListener();
+    }
+
+    private void bindMessageListener() {
+        Intent intent = new Intent(this, JsonMessageDistributionService.class);
+        bindService(intent, messageDistributionServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void disconnect(String endpointId) {
+        connectionsClient.disconnectFromEndpoint(endpointId);
+        connectionLifecycleCallback.onDisconnected(endpointId);
     }
 
     protected abstract ConnectionLifecycleCallback initLifecycle();
@@ -194,7 +198,7 @@ public abstract class AbstractConnectionService extends Service implements IServ
     }
 
     @Override
-    public void sendMessage(String endpointId, String message) {
+    public void sendMessage(String endpointId, String message) { // TODO: Maybe threaded?
         try {
             byte[] messageData = message.getBytes("UTF-8");
             Payload payload = Payload.fromBytes(messageData);
@@ -206,39 +210,29 @@ public abstract class AbstractConnectionService extends Service implements IServ
     }
 
     @Override
-    public void sendFile(String endpointId, ParcelFileDescriptor fileDescriptor, String fileName) {
+    public void sendFile(String endpointId, ParcelFileDescriptor fileDescriptor, String fileName) { // TODO: Maybe threaded?
         Payload filePayload = Payload.fromFile(fileDescriptor);
-        long id = filePayload.getId();
-        String fileData = messageFactory.buildFileData(id, fileName);
-        if (fileData == null) {
-            return;
-        }
-        sendMessage(endpointId, fileData);
+        long payloadId = filePayload.getId();
+        BaseMessage jsonFileDataMessage = new JsonFileDataMessage(payloadId, fileName);
+        sendMessage(endpointId, jsonFileDataMessage.toJsonString());
         connectionsClient.sendPayload(endpointId, filePayload);
     }
 
     @Override
-    public List<ConnectionEndpoint> getConnectedEndpoints() {
-        List<ConnectionEndpoint> list = new ArrayList<>();
-        for(ConnectionEndpoint ce : connectedEndpoints.values()){
-            list.add(ce);
-        }
-        return list;
+    public Collection<ConnectionEndpoint> getConnectedEndpoints() {
+        return new ArrayList<>(connectedEndpoints.values());
     }
 
     @Override
-    public List<ConnectionEndpoint> getPendingEndpoints() {
-        List<ConnectionEndpoint> list = new ArrayList<>();
-        for(ConnectionEndpoint ce : pendingEndpoints.values()){
-            list.add(ce);
-        }
-        return list;
+    public Collection<ConnectionEndpoint> getPendingEndpoints() {
+        return new ArrayList<>(pendingEndpoints.values());
     }
 
     @Override
     public void onDestroy() {
+        unbindService(messageDistributionServiceConnection);
         connectionsClient.stopAllEndpoints();
-        stopService();
+        stopService(); // TODO @Laureen: Nötig, bzw. hinderlich für das am Leben halten des Service? Außerdem vllt eher stopSelf?
     }
 
     protected boolean alreadyConnected(String endpointId) {

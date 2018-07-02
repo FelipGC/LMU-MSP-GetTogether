@@ -1,52 +1,49 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages;
 
+import android.support.annotation.Nullable;
+
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.Messages.JsonFileDataMessage;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 public class BaseMessage {
-
-    protected String id;
-    protected String sender;
     protected MessageType type;
-
-
-    public String getId() {
-        return id;
-    }
-
-    public String getSender() {
-        return sender;
-    }
 
     public MessageType getType() {
         return type;
     }
 
-    protected BaseMessage(String id, String sender, MessageType type){
-        this.id = id;
-        this.sender = sender;
+    protected BaseMessage(MessageType type){
         this.type = type;
     }
 
     public String toJsonString(){
         Gson gson = new Gson();
-        String json = gson.toJson(this);
-        return json;
+        return gson.toJson(this);
     }
 
-    public static <T extends BaseMessage> T fromJsonString(String json){
+    @Nullable
+    public static BaseMessage fromJsonString(String json){
         Gson gson = new Gson();
-        BaseMessage msg = gson.fromJson(json, BaseMessage.class);
-        Class type = BaseMessage.class;
-        switch (msg.getType()){
-            case CHAT:
-                type = ChatMessage.class;
-                break;
-            case FILE:
-            case POKE:
-            case LOCATION:
-                break;
+        try {
+            BaseMessage msg = gson.fromJson(json, BaseMessage.class);
+            Class<? extends BaseMessage> c;
+            switch (msg.getType()) {
+                case CHAT:
+                    c = ChatMessage.class;
+                    break;
+                case FILE:
+                    c = JsonFileDataMessage.class;
+                    break;
+                case POKE:
+                case LOCATION:
+                default:
+                    c = BaseMessage.class;
+                    break;
+            }
+            return gson.fromJson(json, c);
+        } catch (JsonSyntaxException e) {
+            return null;
         }
-
-        return (T) type.cast(gson.fromJson(json,type));
     }
 }

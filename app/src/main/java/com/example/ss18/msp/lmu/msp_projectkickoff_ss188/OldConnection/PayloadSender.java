@@ -1,8 +1,9 @@
-package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
+package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection;
 
 import android.location.Location;
 import android.util.Log;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.LocationUtility;
 import com.google.android.gms.nearby.connection.Payload;
