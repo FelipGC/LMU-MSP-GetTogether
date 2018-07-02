@@ -7,9 +7,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
 import com.google.android.gms.nearby.connection.ConnectionResolution;
+import com.google.android.gms.nearby.connection.ConnectionsStatusCodes;
 import com.google.android.gms.nearby.connection.DiscoveredEndpointInfo;
 import com.google.android.gms.nearby.connection.DiscoveryOptions;
 import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback;
@@ -82,7 +84,7 @@ public class NearbyDiscoveryService extends AbstractConnectionService implements
             }
 
             @Override
-            public void onConnectionResult(@NonNull String s,
+            public void onConnectionResult(@NonNull String endpointId,
                                            @NonNull ConnectionResolution connectionResolution) {
                 Log.i(TAG,"onConnectionResult");
             }

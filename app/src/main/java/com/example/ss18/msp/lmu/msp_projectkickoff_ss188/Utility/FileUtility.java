@@ -1,13 +1,9 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility;
 
-import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
-
 import java.io.File;
-import java.io.IOException;
 
 public class FileUtility {
 

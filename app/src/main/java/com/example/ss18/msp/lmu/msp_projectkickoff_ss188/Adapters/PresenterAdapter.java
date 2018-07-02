@@ -1,7 +1,6 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters;
 
 import android.app.Activity;
-import android.arch.lifecycle.ServiceLifecycleDispatcher;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -174,8 +173,7 @@ public class PresenterAdapter extends BaseAdapter {
                 Toast.makeText(context, String.format(String.format("Unsubscribed from: %s",
                         connectionEndpoint.getName())), Toast.LENGTH_SHORT).show();
                 //Disconnect from endpoint
-                AppLogicActivity.getConnectionManager().disconnectFromEndpoint(connectionEndpoint.getId());
-                AppLogicActivity.getConnectionManager().updatePresenters(connectionEndpoint);
+                discoveryService.disconnect(connectionEndpoint.getId());
             }
         });
 

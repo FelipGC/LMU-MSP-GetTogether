@@ -132,6 +132,13 @@ public abstract class AbstractConnectionService extends Service implements IServ
             };
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        int result = super.onStartCommand(intent, flags, startId);
+        this.startService();
+        return result;
+    }
+
+    @Override
     public void onCreate() {
         super.onCreate();
         serviceSpecificLifecycleCallback = initLifecycle();
@@ -142,6 +149,12 @@ public abstract class AbstractConnectionService extends Service implements IServ
     private void bindMessageListener() {
         Intent intent = new Intent(this, JsonMessageDistributionService.class);
         bindService(intent, messageDistributionServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void disconnect(String endpointId) {
+        connectionsClient.disconnectFromEndpoint(endpointId);
+        connectionLifecycleCallback.onDisconnected(endpointId);
     }
 
     protected abstract ConnectionLifecycleCallback initLifecycle();
@@ -219,6 +232,7 @@ public abstract class AbstractConnectionService extends Service implements IServ
     public void onDestroy() {
         unbindService(messageDistributionServiceConnection);
         connectionsClient.stopAllEndpoints();
+        stopService(); // TODO @Laureen: Nötig, bzw. hinderlich für das am Leben halten des Service? Außerdem vllt eher stopSelf?
     }
 
     protected boolean alreadyConnected(String endpointId) {
