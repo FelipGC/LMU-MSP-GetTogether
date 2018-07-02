@@ -3,16 +3,15 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageRece
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.IMessageDistributionService;
 import com.google.android.gms.nearby.connection.Payload;
 import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 
 public class StreamReceiver extends PayloadCallback {
 
-    private final Iterable<OnMessageListener> messageListeners;
+    private final Iterable<IOnMessageListener> messageListeners;
 
-    StreamReceiver(Iterable<OnMessageListener> messageListeners) {
+    StreamReceiver(Iterable<IOnMessageListener> messageListeners) {
         this.messageListeners = messageListeners;
     }
 
@@ -21,7 +20,7 @@ public class StreamReceiver extends PayloadCallback {
         if (payload.getType() != Payload.Type.STREAM) {
             return;
         }
-        for (OnMessageListener listener :
+        for (IOnMessageListener listener :
                 messageListeners) {
             Payload.Stream stream = payload.asStream();
             if (stream == null) {

@@ -8,6 +8,7 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -22,12 +23,12 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.NearbyDiscov
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.InboxFragment;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.LiveViewFragment;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Presentation.Fragments.LiveViewFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.SelectParticipantsFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.SelectPresenterFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ShareFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.TabPageAdapter;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Presentation.PresentationFragment;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Presentation.Fragments.PresentationFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.AppContext;
@@ -77,7 +78,10 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
         super.onCreate(savedInstanceState);
         super.onCreate(R.layout.activity_app_logic);
 
-        getSupportActionBar().setTitle(LocalDataBase.getUserName()); //TODO
+        ActionBar supportActionBar = getSupportActionBar();
+        if (supportActionBar != null) {
+            supportActionBar.setTitle(LocalDataBase.getUserName()); //TODO
+        }
 
         //Get object from intent
         setUserRole((User) getIntent().getSerializableExtra("UserRole"));
@@ -186,7 +190,6 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
      * Displays options to manage (allow/deny) file sharing with devices.
      * That is selecting devices you want to enable file sharing
      *
-     * @param view
      */
     public void manageParticipants(View view) {
         selectParticipantsFragment.manageParticipants(view);
@@ -241,15 +244,13 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
-
-
     private ServiceConnection discoveryConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.i(TAG, "DISCOVERY SERVICE CONNECTED");
             NearbyDiscoveryService.NearbyDiscoveryBinder binder = (NearbyDiscoveryService.NearbyDiscoveryBinder)service;
             discoveryService = binder.getService();
-            discoveryService.listenDiscovery(new EndpointDiscoveryCallback() {
+            discoveryService.register(new EndpointDiscoveryCallback() {
                 @Override
                 public void onEndpointFound(@NonNull String s, @NonNull DiscoveredEndpointInfo discoveredEndpointInfo) {
                     Log.i(TAG, "Endpunkt gefunden");
@@ -262,7 +263,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
                     selectPresenterFragment.updatePresenterLists();
                 }
             });
-            discoveryService.listenLifecycle(new ConnectionLifecycleCallback() {
+            discoveryService.register(new ConnectionLifecycleCallback() {
                 @Override
                 public void onConnectionInitiated(@NonNull String s, @NonNull ConnectionInfo connectionInfo) {
                     selectPresenterFragment.updatePendingButton();
@@ -291,7 +292,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
             Log.i(TAG, "ADVERTISE SERVICE CONNECTED");
             NearbyAdvertiseService.NearbyAdvertiseBinder binder = (NearbyAdvertiseService.NearbyAdvertiseBinder)service;
             advertiseService = binder.getService();
-            advertiseService.listenLifecycle(new ConnectionLifecycleCallback() {
+            advertiseService.register(new ConnectionLifecycleCallback() {
                 @Override
                 public void onConnectionInitiated(@NonNull String s, @NonNull ConnectionInfo connectionInfo) {
                     Log.i(TAG,"onConnectionInitiated");

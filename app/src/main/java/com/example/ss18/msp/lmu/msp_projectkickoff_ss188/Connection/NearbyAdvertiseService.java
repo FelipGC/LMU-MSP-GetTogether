@@ -80,7 +80,7 @@ public class NearbyAdvertiseService extends AbstractConnectionService implements
         connectionsClient.rejectConnection(endpointId);
     }
 
-    public class NearbyAdvertiseBinder extends Binder {
+    public class NearbyAdvertiseBinder extends Binder implements IServiceBinder {
         public IAdvertiseService getService() {
             return NearbyAdvertiseService.this;
         }

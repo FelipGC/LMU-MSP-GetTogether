@@ -11,10 +11,10 @@ import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import java.io.UnsupportedEncodingException;
 
 public class MessageReceiver extends PayloadCallback {
-    private final Iterable<OnMessageListener> messageListeners;
+    private final Iterable<IOnMessageListener> messageListeners;
     private IMessageDistributionService messageDistributionService;
 
-    MessageReceiver(Iterable<OnMessageListener> messageListeners) {
+    MessageReceiver(Iterable<IOnMessageListener> messageListeners) {
         this.messageListeners = messageListeners;
     }
 
@@ -29,7 +29,7 @@ public class MessageReceiver extends PayloadCallback {
         }
         try {
             String message = new String(messageData, "UTF-8");
-            for (OnMessageListener listener :
+            for (IOnMessageListener listener :
                     messageListeners) {
                 listener.onMessage(message);
             }

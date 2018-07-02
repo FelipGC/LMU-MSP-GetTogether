@@ -11,7 +11,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageReceiver.CombinedPayloadReceiver;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageReceiver.OnMessageListener;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageReceiver.IOnMessageListener;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.Messages.JsonFileDataMessage;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.BaseMessage;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.IMessageDistributionService;
@@ -26,6 +26,8 @@ import com.google.android.gms.nearby.connection.ConnectionsStatusCodes;
 import com.google.android.gms.nearby.connection.Payload;
 import com.google.android.gms.nearby.connection.Strategy;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,7 +40,7 @@ public abstract class AbstractConnectionService extends Service implements IServ
     private final Map<String, ConnectionEndpoint> pendingEndpoints = new HashMap<>();
     private final Map<String, ConnectionEndpoint> connectedEndpoints = new HashMap<>();
     private final List<ConnectionLifecycleCallback> lifecycleCallbacks = new ArrayList<>();
-    private final List<OnMessageListener> messageListeners = new ArrayList<>();
+    private final List<IOnMessageListener> messageListeners = new ArrayList<>();
     protected CombinedPayloadReceiver payloadReceiver =
             new CombinedPayloadReceiver(messageListeners);
     protected ConnectionsClient connectionsClient;
@@ -159,13 +161,19 @@ public abstract class AbstractConnectionService extends Service implements IServ
 
     protected abstract ConnectionLifecycleCallback initLifecycle();
 
-    public void listenLifecycle(ConnectionLifecycleCallback connectionLifecycleCallback) {
+    @Override
+    public void register(ConnectionLifecycleCallback connectionLifecycleCallback) {
         lifecycleCallbacks.add(connectionLifecycleCallback);
     }
 
     @Override
-    public void listenMessage(OnMessageListener messageListener) {
+    public void register(IOnMessageListener messageListener) {
         messageListeners.add(messageListener);
+    }
+
+    @Override
+    public void unregister(IOnMessageListener messageListener) {
+        messageListeners.remove(messageListener);
     }
 
     /**
@@ -190,10 +198,10 @@ public abstract class AbstractConnectionService extends Service implements IServ
     }
 
     @Override
-    public void broadcastFile(ParcelFileDescriptor fileDescriptor, String fileName) {
+    public void broadcastFile(File file, String fileName) {
         for (ConnectionEndpoint endpoint :
                 connectedEndpoints.values()) {
-            sendFile(endpoint.getId(), fileDescriptor, fileName);
+            sendFile(endpoint.getId(), file, fileName);
         }
     }
 
@@ -210,12 +218,16 @@ public abstract class AbstractConnectionService extends Service implements IServ
     }
 
     @Override
-    public void sendFile(String endpointId, ParcelFileDescriptor fileDescriptor, String fileName) { // TODO: Maybe threaded?
-        Payload filePayload = Payload.fromFile(fileDescriptor);
-        long payloadId = filePayload.getId();
-        BaseMessage jsonFileDataMessage = new JsonFileDataMessage(payloadId, fileName);
-        sendMessage(endpointId, jsonFileDataMessage.toJsonString());
-        connectionsClient.sendPayload(endpointId, filePayload);
+    public void sendFile(String endpointId, File file, String fileName) { // TODO: Maybe threaded?
+        try {
+            Payload filePayload = Payload.fromFile(file);
+            long payloadId = filePayload.getId();
+            BaseMessage jsonFileDataMessage = new JsonFileDataMessage(payloadId, fileName);
+            sendMessage(endpointId, jsonFileDataMessage.toJsonString());
+            connectionsClient.sendPayload(endpointId, filePayload);
+        } catch (FileNotFoundException ex) {
+            Log.i(TAG, ex.getMessage());
+        }
     }
 
     @Override
