@@ -8,6 +8,8 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.BaseMessage;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.SystemMessage;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
@@ -65,8 +67,9 @@ public class NearbyAdvertiseService extends AbstractConnectionService implements
                 switch (connectionResolution.getStatus().getStatusCode()){
                     case ConnectionsStatusCodes.STATUS_OK:
                         String name = getNameOfEndpoint(s);
-                        if(name != null)
-                            broadcastSystemMessage(getString(R.string.chat_user_connected,name));
+                        if(name != null){
+                            broadcastMessage((new SystemMessage(getString(R.string.chat_user_connected,name))).toJsonString());
+                        }
                         break;
                 }
             }
@@ -74,8 +77,9 @@ public class NearbyAdvertiseService extends AbstractConnectionService implements
             @Override
             public void onDisconnected(@NonNull String s) {
                 String name = getNameOfEndpoint(s);
-                if(name != null)
-                    broadcastSystemMessage(getString(R.string.chat_user_disconnected,name));
+                if(name != null) {
+                    broadcastMessage((new SystemMessage(getResources().getString(R.string.chat_user_disconnected, name))).toJsonString());
+                }
             }
         };
     }

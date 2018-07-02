@@ -14,10 +14,6 @@ interface IService {
 
     void broadcastMessage(String message);
 
-    void broadcastSystemMessage(String content);
-
-    void broadcastChatMessage(String msgBody);
-
     void broadcastStream(ParcelFileDescriptor fileDescriptor);
 
     void broadcastFile(ParcelFileDescriptor fileDescriptor, String fileName);

@@ -16,6 +16,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActi
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.Message;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.MessageAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.AbstractConnectionService;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.AppPreferences;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.BaseMessage;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.ChatMessage;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.SystemMessage;
@@ -83,7 +84,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
      */
     private void sendMessage(String message) {
         AbstractConnectionService service = ((AppLogicActivity)getActivity()).getConnectionService();
-        service.broadcastChatMessage(message);
+        service.broadcastMessage((new ChatMessage(AppPreferences.getInstance().getUsername(),message)).toJsonString());
     }
 
     /*

@@ -190,18 +190,6 @@ public abstract class AbstractConnectionService extends Service implements IServ
     }
 
     @Override
-    public void broadcastSystemMessage(String content) {
-        BaseMessage msg = new SystemMessage(content);
-        broadcastMessage(msg.toJsonString());
-    }
-
-    @Override
-    public void broadcastChatMessage(String msgBody) {
-        BaseMessage msg = new ChatMessage(AppPreferences.getInstance().getUsername(), msgBody);
-        broadcastMessage(msg.toJsonString());
-    }
-
-    @Override
     public void broadcastStream(ParcelFileDescriptor fileDescriptor) {
         Payload payload = Payload.fromStream(fileDescriptor);
         for (ConnectionEndpoint endpoint :
