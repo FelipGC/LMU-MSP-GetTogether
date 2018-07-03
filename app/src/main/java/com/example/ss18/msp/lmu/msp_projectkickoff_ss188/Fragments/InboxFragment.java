@@ -58,7 +58,7 @@ public class InboxFragment extends Fragment {
 
         Log.i(TAG, "updateInboxFragment()");
         if(title!=null) {
-            if (ImageSliderActivity.images.size() == 0)
+            if (ImageSliderActivity.images == null || ImageSliderActivity.images.size() == 0)
                 title.setText(R.string.keine_bilder);
             else
                 title.setText("<Bilder: " + ImageSliderActivity.images.size() + ">");
