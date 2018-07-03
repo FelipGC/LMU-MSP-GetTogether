@@ -136,10 +136,12 @@ public class ConnectionManager extends Service {
                             ConnectionEndpoint connectionEndpoint =
                                     new ConnectionEndpoint(endpointId, connectionInfo.getEndpointName());
                             discoveredEndpoints.put(endpointId, connectionEndpoint);
-                            if(!LocalDataBase.isAutoConnect()) {
+                            if (!LocalDataBase.isAutoConnect()) {
                                 NotificationUtility.displayNotification("Teilnehmer gefunden", connectionInfo.getEndpointName()
                                         + " möchte Deiner Gruppe beitreten", NotificationCompat.PRIORITY_DEFAULT);
-                            }else{ acceptConnection(true, connectionEndpoint); }
+                            } else {
+                                acceptConnection(true, connectionEndpoint);
+                            }
                             updateParticipantsCount(connectionEndpoint);
                             Toast.makeText(getAppLogicActivity(), String.format(String.format("Teilnehmer %s gefunden",
                                     connectionEndpoint.getName())), Toast.LENGTH_SHORT).show();
@@ -162,33 +164,35 @@ public class ConnectionManager extends Service {
                             if (pendingConnections.containsKey(endpointId))
                                 pendingConnections.remove(endpointId);
 
-                            final boolean SPECTATOR = appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR;
+                            final boolean SPECTATOR = AppLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR;
 
                             try {
                                 Uri uri = LocalDataBase.getProfilePictureUri();
                                 if (uri == null) {
-                                    Log.i(TAG, "URI NULL...");
-                                    String message = "012" + (SPECTATOR ? ":PROF_PIC_V:" : ":PROF_PIC:");
-                                    payloadSender.sendPayloadBytesToSpecific(endpointId, Payload.fromBytes(message.getBytes("UTF-8")));
+                                    if(SPECTATOR) {
+                                        Log.i(TAG, "URI NULL...");
+                                        String message = "-1" + (":NULL_PROF_PIC:");
+                                        payloadSender.sendPayloadBytesToSpecific(endpointId, Payload.fromBytes(message.getBytes("UTF-8")));
+                                    }
                                 } else {
                                     //TODO: IMAGE IS TOO BIG?
                                     ParcelFileDescriptor file = appLogicActivity.getContentResolver().openFileDescriptor(uri, "r");
+                                    assert file != null;
                                     Payload payload = Payload.fromFile(file);
-
                                     Log.i(TAG, "Sending prof image: " + payload);
                                     payloadSender.sendPayloadFile(endpointId, payload, payload.getId() + (SPECTATOR ? ":PROF_PIC_V:" : ":PROF_PIC:"));
-                                    if (!SPECTATOR) {
-                                        appLogicActivity.startService(new Intent(appLogicActivity, FrequentLocationService.class));
-                                        for (ConnectionEndpoint otherEndpoint : establishedConnections.values()) {
-                                            //Do not send info to the same endpoint
-                                            if (otherEndpoint.getId().equals(endpointId))
-                                                continue;
-                                            //Send all the other viewers to the viewer
-                                            sendConnectionEndpointTo(endpointId, otherEndpoint);
-                                            //Send this endpoint to all others
-                                            sendConnectionEndpointTo(otherEndpoint.getId(), endpoint);
+                                }
+                                if (!SPECTATOR) {
+                                    appLogicActivity.startService(new Intent(appLogicActivity, FrequentLocationService.class));
+                                    for (ConnectionEndpoint otherEndpoint : establishedConnections.values()) {
+                                        //Do not send info to the same endpoint
+                                        if (otherEndpoint.getId().equals(endpointId))
+                                            continue;
+                                        //Send all the other viewers to the viewer
+                                        sendConnectionEndpointTo(endpointId, otherEndpoint);
+                                        //Send this endpoint to all others
+                                        sendConnectionEndpointTo(otherEndpoint.getId(), endpoint);
 
-                                        }
                                     }
                                 }
 
@@ -202,19 +206,19 @@ public class ConnectionManager extends Service {
 
                             //Send missing chat if enabled
                             if (LocalDataBase.isSendMissingChat()) {
-                                Log.i(TAG,"isSendMissingChat()");
-                                Log.i(TAG,LocalDataBase.chatHistory.toString());
+                                Log.i(TAG, "isSendMissingChat()");
+                                Log.i(TAG, LocalDataBase.chatHistory.toString());
                                 for (Payload chatPayload : LocalDataBase.chatHistory) {
-                                    if(LocalDataBase.isChatAnonymized())
-                                        payloadSender.sendPayloadBytesAnonymizedToSpecific(endpointId,chatPayload);
+                                    if (LocalDataBase.isChatAnonymized())
+                                        payloadSender.sendPayloadBytesAnonymizedToSpecific(endpointId, chatPayload);
                                     else
-                                        payloadSender.sendPayloadBytesToSpecific(endpointId,chatPayload);
+                                        payloadSender.sendPayloadBytesToSpecific(endpointId, chatPayload);
                                 }
                             }
                             //Send missing files if enabled
                             if (LocalDataBase.isSendMissingFiles()) {
-                                Log.i(TAG,"isSendMissingFiles()");
-                                Log.i(TAG,LocalDataBase.urisSent.toString());
+                                Log.i(TAG, "isSendMissingFiles()");
+                                Log.i(TAG, LocalDataBase.urisSent.toString());
                                 for (Uri uriToSend : LocalDataBase.urisSent) {
                                     try {
                                         getAppLogicActivity().getShareFragment().sendDataToEndpoint(endpointId, uriToSend);
@@ -386,6 +390,7 @@ public class ConnectionManager extends Service {
      */
     private void reset() {
         Log.i(TAG, "Resetting connection.");
+        LocalDataBase.resetDataBaseCache();
         //Disconnect from any potential connections and stop advertising/discovering
         disconnectFromAllEndpoints();
         //Clear lists every time we try to re-discover
@@ -423,6 +428,8 @@ public class ConnectionManager extends Service {
      * @param endPoint The connection endpoint
      */
     public void acceptConnection(boolean accept, ConnectionEndpoint endPoint) {
+        if(endPoint == null)
+            return;
         if (accept) {
             Log.i(TAG, "Connection ACCEPTED!");
             connectionsClient.acceptConnection(endPoint.getId(), payloadCallback);
@@ -500,8 +507,9 @@ public class ConnectionManager extends Service {
 
     public void disconnectFromEndpoint(String endpointID) {
         Log.i(TAG, "Disconnect " + endpointID);
+        ConnectionEndpoint endpoint = discoveredEndpoints.get(endpointID);
         connectionsClient.disconnectFromEndpoint(endpointID);
-        onDisconnectConsequences(discoveredEndpoints.get(endpointID));
+        onDisconnectConsequences(endpoint);
     }
 
     public void disconnectFromAllEndpoints() {
@@ -553,10 +561,13 @@ public class ConnectionManager extends Service {
         return discoveredEndpoints;
     }
 
+    /** Returns a cloned version of establishedConnections*/
+    public HashMap<String, ConnectionEndpoint> getEstablishedConnectionsCloned() {
+        return (HashMap<String, ConnectionEndpoint>) establishedConnections.clone();
+    }
     public HashMap<String, ConnectionEndpoint> getEstablishedConnections() {
         return establishedConnections;
     }
-
     public HashMap<String, ConnectionEndpoint> getPendingConnections() {
         return pendingConnections;
     }

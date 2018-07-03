@@ -79,7 +79,7 @@ public final class VoiceTransmission implements IVoice {
                         buffer.size);
 
         final ArrayList<OutputStream> outputStreamList = new ArrayList<>();
-        for (final String id : cM.getEstablishedConnections().keySet()) {
+        for (final String id : cM.getEstablishedConnectionsCloned().keySet()) {
             Log.i(TAG, "RECORDING FOR: " + id);
             final ParcelFileDescriptor[] payloadPipe;
             try {
