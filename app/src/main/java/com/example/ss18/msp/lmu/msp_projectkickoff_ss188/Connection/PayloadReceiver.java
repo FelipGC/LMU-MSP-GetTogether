@@ -304,8 +304,11 @@ public final class PayloadReceiver extends PayloadCallback {
                     if (uri != null) {
                         //Send bitmap to all other endpoints
                         for (String id : cM.getEstablishedConnections().keySet()) {
-                            if(!id.equals(bitMapSender))
-                                cM.payloadSender.sendPayloadFile(id, payload, payload.getId() + ":PROF_PIC:" + bitMapSender + ":");
+                            if (!id.equals(bitMapSender)) {
+                                Payload payloadToSend = Payload.fromFile(payloadFile);
+                             //   cM.payloadSender.sendPayloadFile(id, payloadToSend,
+                               //         payloadToSend.getId() + ":PROF_PIC:" + bitMapSender + ":");
+                            }
                         }
                     }
                     //Send all other endpoint`s bitmap to the endpoint
@@ -317,7 +320,7 @@ public final class PayloadReceiver extends PayloadCallback {
                             break;
                         ParcelFileDescriptor file = getAppLogicActivity().getContentResolver().openFileDescriptor(uri, "r");
                         Payload profilePic = Payload.fromFile(file);
-                        cM.payloadSender.sendPayloadFile(endpointId, profilePic, profilePic.getId() + ":PROF_PIC:" + id + ":");
+                      //  cM.payloadSender.sendPayloadFile(endpointId, profilePic, profilePic.getId() + ":PROF_PIC:" + id + ":");
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
