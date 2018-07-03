@@ -16,12 +16,14 @@ import android.widget.TextView;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.ImageSliderActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class InboxFragment extends Fragment {
     private static final String TAG = "InboxFragment";
     private final int READ_REQUEST_CODE = 4242;
     private TextView title;
-    private static int fileCounter = 0;
 
     @Nullable
     @Override
@@ -38,22 +40,30 @@ public class InboxFragment extends Fragment {
                 startSlidePresentation();
             }
         });
-        updateInboxFragment(null);
+        updateInboxFragment();
         return view;
+    }
+
+    public void addPicture(Uri uri){
+        if (uri != null) {
+            //Add uri to image to the list
+            ImageSliderActivity.addPicture(uri);
+        }
     }
 
     /**
      * Renames and saves the payload to a specific location
      */
-    public void updateInboxFragment(Uri uri) {
+    public void updateInboxFragment() {
+
         Log.i(TAG, "updateInboxFragment()");
-        if (uri != null ? ++fileCounter == 0 : fileCounter == 0)
-            title.setText(R.string.keine_bilder);
-        else
-            title.setText("<Images: " + fileCounter + ">");
-        if (uri != null)
-            //Add uri to image to the list
-            ImageSliderActivity.images.add(uri);
+        if(title!=null) {
+            if (ImageSliderActivity.images.size() == 0)
+                title.setText(R.string.keine_bilder);
+            else
+                title.setText("<Bilder: " + ImageSliderActivity.images.size() + ">");
+        }
+
     }
 
     /**

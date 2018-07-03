@@ -14,7 +14,7 @@ import me.relex.circleindicator.CircleIndicator;
 
 public class ImageSliderActivity extends AppCompatActivity {
 
-    public static final ArrayList<Uri> images = new ArrayList<>();
+    public static ArrayList<Uri> images;
     private static ViewPager viewPager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,5 +25,9 @@ public class ImageSliderActivity extends AppCompatActivity {
         viewPager.setAdapter(new ImageSlideAdapter(this, (ArrayList<Uri>) images.clone()));
         CircleIndicator indicator = (CircleIndicator) findViewById(R.id.indicator);
         indicator.setViewPager(viewPager);
+    }
+    public static void addPicture(Uri uri){
+        if(images==null) images = new ArrayList<>();
+        images.add(uri);
     }
 }

@@ -343,7 +343,7 @@ public final class PayloadReceiver extends PayloadCallback {
         //Update inbox-fragment.
         Uri uri = Uri.fromFile(payloadFile);
         InboxFragment inboxFragment = getAppLogicActivity().getInboxFragment();
-        inboxFragment.updateInboxFragment(uri);
+        inboxFragment.addPicture(uri);
     }
 
     private void receivedFileFully(File payloadFile, String endpointId) {
