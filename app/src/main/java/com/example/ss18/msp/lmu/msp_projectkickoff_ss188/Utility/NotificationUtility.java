@@ -56,8 +56,9 @@ public class NotificationUtility {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getAppLogicActivity(), PROGRESS_ID)
                 .setSmallIcon(R.drawable.file_icon)
                 .setContentTitle("File im Senden")
-                .setDefaults(Notification.DEFAULT_ALL)
-                .setPriority(Notification.PRIORITY_MAX);
+                .setDefaults(Notification.DEFAULT_LIGHTS)
+                .setPriority(Notification.PRIORITY_MAX)
+                .setVibrate(new long[]{0L});
         mBuilder.build();
         NotificationManager mNotificationManager = (NotificationManager) getAppLogicActivity().getSystemService(Context.NOTIFICATION_SERVICE);
 
