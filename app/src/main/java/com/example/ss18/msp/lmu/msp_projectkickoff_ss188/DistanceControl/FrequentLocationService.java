@@ -26,7 +26,8 @@ public class FrequentLocationService extends AbstractLocationService {
             @Override
             public void onLocationChanged(Location location) {
                 Log.i(TAG, "LocationListener::onLocationChanged - new location data available");
-                payloadSender.sendLocation(location);
+                if(payloadSender != null)
+                    payloadSender.sendLocation(location);
             }
 
             @Override

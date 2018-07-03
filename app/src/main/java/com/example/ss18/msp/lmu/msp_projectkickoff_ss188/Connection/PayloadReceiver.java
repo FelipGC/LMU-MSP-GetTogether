@@ -11,12 +11,10 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.os.AsyncTask;
 import android.os.ParcelFileDescriptor;
-import android.renderscript.RenderScript;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
@@ -31,11 +29,7 @@ import com.google.android.gms.nearby.connection.Payload;
 import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
@@ -51,14 +45,12 @@ public final class PayloadReceiver extends PayloadCallback {
     private final SimpleArrayMap<Long, String> filePayloadFilenames = new SimpleArrayMap<>();
 
     private ConnectionManager cM;
-    private String newEndpointID;
-    private String newEndpointName;
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            if(getAppLogicActivity() != null)
+            if (getAppLogicActivity() != null)
                 getAppLogicActivity().serviceConnections.remove(this);
         }
 
@@ -105,8 +97,9 @@ public final class PayloadReceiver extends PayloadCallback {
                     case "C_ENDPOINT":
                         Log.i(TAG, "Received C_ENDPOINT: " + fileContent);
                         substringDividerIndex = fileContent.indexOf(':');
-                        newEndpointID = fileContent.substring(0, substringDividerIndex);
-                        newEndpointName = fileContent.substring(substringDividerIndex + 1);
+                        String newEndpointID = fileContent.substring(0, substringDividerIndex);
+                        String newEndpointName = fileContent.substring(substringDividerIndex + 1);
+                        LocalDataBase.otherUsersNameToID.put(newEndpointName,newEndpointID);
                         //TODO how to discover if it is presenter
                         //cM.getDiscoveredEndpoints().put(newEndpointID, new ConnectionEndpoint(endpointId, newEndpointName));
                         break;
@@ -117,7 +110,7 @@ public final class PayloadReceiver extends PayloadCallback {
                         Log.i(TAG, "Received A_CHAT: " + fileContent);
                         fixedSizeList.add(payload.getId());
                         //We have a new chat message
-                        onChatMessageReceived(endpointId, fileContent,true);
+                        onChatMessageReceived(endpointId, fileContent, true);
                         //TODO: Anonymize profile picture?
                         break;
                     case "CHAT":
@@ -127,10 +120,10 @@ public final class PayloadReceiver extends PayloadCallback {
                         Log.i(TAG, "Received CHAT: " + fileContent);
                         fixedSizeList.add(payload.getId());
                         //We have a new chat message
-                        onChatMessageReceived(endpointId, fileContent,false);
+                        onChatMessageReceived(endpointId, fileContent, false);
                         //Broadcast chat message to all if presenter
                         if (AppLogicActivity.getUserRole().getRoleType() == User.UserRole.PRESENTER) {
-                            if(LocalDataBase.isChatAnonymized())
+                            if (LocalDataBase.isChatAnonymized())
                                 cM.payloadSender.sendPayloadBytesAnonymizedBut(endpointId, payload);
                             else
                                 cM.payloadSender.sendPayloadBytesBut(endpointId, payload);
@@ -139,7 +132,7 @@ public final class PayloadReceiver extends PayloadCallback {
                         break;
                     case "POKE":
                         Log.i(TAG, "Received POKE" + fileContent);
-                        if(fileContent.equals("S"))
+                        if (fileContent.equals("S"))
                             NotificationUtility.startVibration();
                         else
                             NotificationUtility.endVibration();
@@ -147,7 +140,7 @@ public final class PayloadReceiver extends PayloadCallback {
                     case "DISTANCE":
                         Log.i(TAG, "Received DISTANCE " + fileContent);
                         float distance = Float.parseFloat(fileContent);
-                        if(distance > MAX_GPS_DISTANCE) {
+                        if (distance > MAX_GPS_DISTANCE) {
                             onDistanceWarningReceived(endpointId, fileContent);
                         }
                         //Update location
@@ -162,6 +155,10 @@ public final class PayloadReceiver extends PayloadCallback {
                         location.setLatitude(latitude);
                         onLocationReceived(location);
                         break;
+                    case "NULL_PROF_PIC":
+                        Log.i(TAG,"NULL_PROF_PIC received.");
+                        sendEndpointsProfilePictureTo(endpointId);
+                        break;
                     default:
                         Log.i(TAG, "Received FILE-NAME: " + fileContent + " PayloadID=" + payloadId);
                         filePayloadFilenames.put(Long.valueOf(payloadId), fileContent);
@@ -174,7 +171,7 @@ public final class PayloadReceiver extends PayloadCallback {
             Log.i(TAG, "Received FILE: ID=" + payload.getId());
             // Add this to our tracking map, so that we can retrieve the payload later.
             incomingPayloads.put(payload.getId(), payload);
-        }else if (payload.getType() == Payload.Type.STREAM) {
+        } else if (payload.getType() == Payload.Type.STREAM) {
             Log.i(TAG, "Received STREAM: ID=" + payload.getId());
             //We received a stream. i.e Voice stream
             receivedVoiceStream(payload.asStream().asInputStream());
@@ -196,12 +193,12 @@ public final class PayloadReceiver extends PayloadCallback {
                     receivedFileParser(payload, update, endpointId);
                 } else Log.i(TAG, "Payload received is not Type.FILE, but: " + payload.getType());
             }
-        }else  if (update.getStatus() == PayloadTransferUpdate.Status.FAILURE) {
+        } else if (update.getStatus() == PayloadTransferUpdate.Status.FAILURE) {
             Log.i(TAG, "Payload status: PayloadTransferUpdate.Status.FAILURE");
-        }else{
+        } else {
             Payload p = incomingPayloads.get(update.getPayloadId());
-            if(p != null && p.getType() == Payload.Type.FILE)
-                NotificationUtility.displayProgressNotifications((int)update.getBytesTransferred(), (int)update.getTotalBytes());
+            if (p != null && p.getType() == Payload.Type.FILE)
+                NotificationUtility.displayProgressNotifications((int) update.getBytesTransferred(), (int) update.getTotalBytes());
         }
     }
     /*
@@ -216,30 +213,30 @@ public final class PayloadReceiver extends PayloadCallback {
         String payloadSender = message.substring(0, substringDividerIndex);
         if (!payloadSender.equals(name)) {
             Log.i(TAG, "payloadsender:" + payloadSender + " other:" + name);
-            id = newEndpointID;
-            if(anonymous)
+            id = LocalDataBase.otherUsersNameToID.get(payloadSender);
+            if (anonymous)
                 name = "Anonymous";
             else
-                name = newEndpointName;
+                name = payloadSender;
         }
         //Display notification
         NotificationUtility.displayNotificationChat("Chat-Nachricht empfangen",
                 String.format("%s hat eine Nachricht geschickt.", name),
                 NotificationCompat.PRIORITY_DEFAULT);
         ChatFragment chat = getAppLogicActivity().getChatFragment();
-        chat.getDataFromEndPoint(id, message,anonymous);
+        chat.getDataFromEndPoint(id, message, anonymous);
     }
 
-    private void onLocationReceived(Location receivedLocation){
+    private void onLocationReceived(Location receivedLocation) {
         Intent intent = new Intent(getAppLogicActivity(), CheckDistanceService.class);
         intent.putExtra("location", receivedLocation);
         getAppLogicActivity().startService(intent);
     }
 
-    private void onDistanceWarningReceived(String senderId,String distance){
+    private void onDistanceWarningReceived(String senderId, String distance) {
         String senderName = cM.getDiscoveredEndpoints().get(senderId).getName();
         NotificationUtility.displayNotification("Entfernungswarnung",
-                String.format("Teilnehmer %s ist %s Meter entfernt.",senderName,distance),
+                String.format("Teilnehmer %s ist %s Meter entfernt.", senderName, distance),
                 NotificationCompat.PRIORITY_DEFAULT);
     }
 
@@ -253,17 +250,17 @@ public final class PayloadReceiver extends PayloadCallback {
         if (fileName != null) {
             //Did we receive a Profile Picture?
             if (fileName.contains("PROF_PIC")) {
-                Log.i(TAG,"Received PROF_PIC");
-                profilePictureReceived(fileName, payloadFile, endpointId, payload);
+                Log.i(TAG, "Received PROF_PIC");
+                profilePictureReceived(fileName, payloadFile, endpointId);
             }
             //Did we receive an Image?
             else if (fileName.contains("IMAGE_PIC:")) {
-                Log.i(TAG,"Received IMAGE_PIC");
+                Log.i(TAG, "Received IMAGE_PIC");
                 receivedImageFully(payloadFile, endpointId);
             }
             //We received a document which is not an image nor an profile picture
             else {
-                Log.i(TAG,"Received document file");
+                Log.i(TAG, "Received document file");
                 receivedFileFully(payloadFile, endpointId);
             }
         } else {
@@ -272,19 +269,17 @@ public final class PayloadReceiver extends PayloadCallback {
 
     }
 
-    private void profilePictureReceived(String fileName, File payloadFile, String endpointId, Payload payload) {
-
+    private void profilePictureReceived(String fileName, File payloadFile, String endpointId) {
+        Log.i(TAG, "To trim: " + fileName);
         String[] parts = fileName.split(":");
-        Log.i(TAG, "Name to trim: " + fileName);
+        Log.i(TAG, "Parts: " + parts.toString());
 
-        String payLoadTag = parts[1]; //TODO check if 3 parts available
-        String bitMapSender  = endpointId;
-        if (parts.length>=3){
-            bitMapSender = parts[2];
+        String payLoadTag = parts[0]; //TODO check if 3 parts available
+        String bitMapSender = endpointId;
+        if (parts.length >= 2) {
+            bitMapSender = parts[1];
         }
-
-        Toast.makeText(getAppLogicActivity(),fileName,Toast.LENGTH_LONG);
-
+        //Toast.makeText(getAppLogicActivity(), fileName, Toast.LENGTH_LONG).show();
         //Store image
         //TODO: Move and rename file to something good (NOT WORKING?)
         //Uri uriToPic = FileUtility.storePayLoadUserProfile(fileName, payloadFile);
@@ -299,28 +294,9 @@ public final class PayloadReceiver extends PayloadCallback {
             case "PROF_PIC_V":
                 Log.i(TAG, "<<PROF_PIC_V>>");
                 try {
-                    Uri uri = LocalDataBase.getProfilePictureUri(bitMapSender);
-                    if (uri != null) {
-                        //Send bitmap to all other endpoints
-                        for (String id : cM.getEstablishedConnections().keySet()) {
-                            if (!id.equals(bitMapSender)) {
-                               // Payload payloadToSend = Payload.fromFile(payloadFile);
-                                cM.payloadSender.sendPayloadFile(id, payload,
-                                        payload.getId() + ":PROF_PIC:" + bitMapSender + ":");
-                            }
-                        }
-                    }
-                    //Send all other endpoint`s bitmap to the endpoint
-                    for (String id : cM.getEstablishedConnections().keySet()) {
-                        if(id.equals(bitMapSender))
-                            continue;
-                            uri = LocalDataBase.getProfilePictureUri(id);
-                        if (uri == null)
-                            break;
-                        ParcelFileDescriptor file = getAppLogicActivity().getContentResolver().openFileDescriptor(uri, "r");
-                        Payload profilePic = Payload.fromFile(file);
-                        cM.payloadSender.sendPayloadFile(endpointId, profilePic, profilePic.getId() + ":PROF_PIC:" + id + ":");
-                    }
+                    //Uri uri = LocalDataBase.getProfilePictureUri(bitMapSender);
+                    profilePictureToEndpoints(bitMapSender,payloadFile);
+                    sendEndpointsProfilePictureTo(bitMapSender);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -332,8 +308,33 @@ public final class PayloadReceiver extends PayloadCallback {
         }
     }
 
+    /**Sends a profile picture to all other endpoints     */
+    private void profilePictureToEndpoints(String bitMapSender, File payloadFile) throws Exception {
+        Log.i(TAG,"profilePictureToEndpoints("+bitMapSender+")");
+        //Send bitmap to all other endpoints
+        for (String id : cM.getEstablishedConnectionsCloned().keySet()) {
+            if (!id.equals(bitMapSender)) {
+                Payload payloadToSend = Payload.fromFile(payloadFile);
+                cM.payloadSender.sendPayloadFile(id, payloadToSend,
+                        payloadToSend.getId() + ":PROF_PIC:" + bitMapSender + ":");
+            }
+        }
+    }
+    /**Send all other endpoint`s profile picture to the endpoint*/
+    private void sendEndpointsProfilePictureTo(String bitMapSender) throws Exception {
+        Log.i(TAG,"sendEndpointsProfilePictureTo("+bitMapSender+")");
+        //Send all other endpoint`s bitmap to the endpoint
+        for (String id : cM.getEstablishedConnectionsCloned().keySet()) {
+            Uri uri = LocalDataBase.getProfilePictureUri(id);
+            if (id.equals(bitMapSender) || uri == null)
+                continue;
+            ParcelFileDescriptor file = getAppLogicActivity().getContentResolver().openFileDescriptor(uri, "r");
+            Payload profilePic = Payload.fromFile(file);
+            cM.payloadSender.sendPayloadFile(bitMapSender, profilePic, profilePic.getId() + ":PROF_PIC:" + id + ":");
+        }
+    }
     private void receivedImageFully(File payloadFile, String endpointId) {
-        if(cM.getEstablishedConnections().get(endpointId) == null)
+        if (cM.getEstablishedConnections().get(endpointId) == null)
             return;
         //TODO: RenameFile
         //Display a notification.

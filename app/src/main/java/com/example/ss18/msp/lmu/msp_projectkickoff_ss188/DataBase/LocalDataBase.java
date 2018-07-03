@@ -33,11 +33,17 @@ public final class LocalDataBase {
     public static final ArrayList<Uri> urisSent = new ArrayList<>();
     public static final ArrayList<Payload> chatHistory = new ArrayList<>();
 
+    public static final HashMap<String,String> otherUsersNameToID = new HashMap<>();
     /**
      * Stores other viewers inside the specific presentation
      */
     public final static HashMap<String, Uri> idToUri = new HashMap<>();
 
+    public static void resetDataBaseCache(){
+        otherUsersNameToID.clear();
+        chatHistory.clear();
+        urisSent.clear();
+    }
     //Getter & Setter
 
     public static String getUserName() {
@@ -71,7 +77,7 @@ public final class LocalDataBase {
     }
 
     public static Uri getProfilePictureUri(String id) {
-        Log.i(TAG, "RETREIVED ID: " + id + " " + idToUri.keySet() + " " + idToUri.get(id));
+        Log.i(TAG, "getProfilePictureUri() ID: " + id + " " + idToUri.keySet() + " " + idToUri.get(id));
         if (!idToUri.containsKey(id)) return null;
         return idToUri.get(id);
     }
@@ -79,7 +85,7 @@ public final class LocalDataBase {
     public static void addUriToID(Uri uri, String id) {
         Log.i(TAG, "Added uri: " + uri + " to id: " + id);
         idToUri.put(id, uri);
-        Log.i(TAG, "ADDED ID: " + id + " " + idToUri.values());
+        Log.i(TAG, "idToUri: " + idToUri.toString());
         AppLogicActivity appLogicActivity = ConnectionManager.getAppLogicActivity();
         if (AppLogicActivity.getUserRole().getRoleType() == User.UserRole.PRESENTER)
             appLogicActivity.getSelectParticipantsFragment().updateParticipantsAvatar();

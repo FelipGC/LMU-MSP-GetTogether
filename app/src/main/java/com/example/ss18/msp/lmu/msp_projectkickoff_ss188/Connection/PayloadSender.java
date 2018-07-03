@@ -61,10 +61,11 @@ public class PayloadSender {
      * Sends a Payload object out to ALL endPoints but a specific one
      */
     public void sendPayloadBytesBut(String idToExclude, Payload payload) {
-        for (String endpointId : cM.getEstablishedConnections().keySet()) {
+        for (String endpointId : cM.getEstablishedConnectionsCloned().keySet()) {
+            Payload payloadToSend = Payload.fromBytes(payload.asBytes());
             if (!endpointId.equals(idToExclude)) {
                 Log.i(TAG, "sendPayloadBytes to: " + endpointId);
-                cM.getConnectionsClient().sendPayload(endpointId, payload);
+                cM.getConnectionsClient().sendPayload(endpointId, payloadToSend);
             }
         }
     }
@@ -95,9 +96,10 @@ public class PayloadSender {
      * Sends a Payload object out to ALL endPoints
      */
     private void sendPayloadBytes(final Payload payload) {
-        for (final String endpointId : cM.getEstablishedConnections().keySet()) {
+        for (final String endpointId : cM.getEstablishedConnectionsCloned().keySet()) {
+            Payload payloadToSend = Payload.fromBytes(payload.asBytes());
             Log.i(TAG, "sendPayloadBytes to: " + endpointId);
-            cM.getConnectionsClient().sendPayload(endpointId, payload);
+            cM.getConnectionsClient().sendPayload(endpointId, payloadToSend);
         }
     }
 
