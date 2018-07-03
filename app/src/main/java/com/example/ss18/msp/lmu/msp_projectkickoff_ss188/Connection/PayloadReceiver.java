@@ -16,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
@@ -273,16 +274,17 @@ public final class PayloadReceiver extends PayloadCallback {
 
     private void profilePictureReceived(String fileName, File payloadFile, String endpointId, Payload payload) {
 
-        int substringDividerIndex = fileName.indexOf(':');
+        String[] parts = fileName.split(":");
         Log.i(TAG, "Name to trim: " + fileName);
-        String payLoadTag = fileName.substring(0, substringDividerIndex);
-        String bitMapSender = fileName.substring(substringDividerIndex + 1);
-        try {
-            int subs = bitMapSender.indexOf(':');
-            bitMapSender = bitMapSender.substring(0,subs);
-        } catch (Exception e) {
-            e.printStackTrace();
+
+        String payLoadTag = parts[1]; //TODO check if 3 parts available
+        String bitMapSender  = endpointId;
+        if (parts.length>=3){
+            bitMapSender = parts[2];
         }
+
+        Toast.makeText(getAppLogicActivity(),fileName,Toast.LENGTH_LONG);
+
         //Store image
         //TODO: Move and rename file to something good (NOT WORKING?)
         //Uri uriToPic = FileUtility.storePayLoadUserProfile(fileName, payloadFile);
@@ -290,9 +292,6 @@ public final class PayloadReceiver extends PayloadCallback {
         Log.i(TAG, "CONTENT URI " + uriToPic);
         //Log.i(TAG, "ORIGINAL URI " + Uri.fromFile(payloadFile));
         Log.i(TAG, "BITMAP SENDER: " + bitMapSender);
-        //Add to local DataBase
-        if (bitMapSender.length() == 0)
-            bitMapSender = endpointId;
         //Store bitmap
         LocalDataBase.addUriToID(uriToPic, bitMapSender);
         switch (payLoadTag) {
@@ -305,9 +304,9 @@ public final class PayloadReceiver extends PayloadCallback {
                         //Send bitmap to all other endpoints
                         for (String id : cM.getEstablishedConnections().keySet()) {
                             if (!id.equals(bitMapSender)) {
-                                Payload payloadToSend = Payload.fromFile(payloadFile);
-                             //   cM.payloadSender.sendPayloadFile(id, payloadToSend,
-                               //         payloadToSend.getId() + ":PROF_PIC:" + bitMapSender + ":");
+                               // Payload payloadToSend = Payload.fromFile(payloadFile);
+                                cM.payloadSender.sendPayloadFile(id, payload,
+                                        payload.getId() + ":PROF_PIC:" + bitMapSender + ":");
                             }
                         }
                     }
@@ -320,7 +319,7 @@ public final class PayloadReceiver extends PayloadCallback {
                             break;
                         ParcelFileDescriptor file = getAppLogicActivity().getContentResolver().openFileDescriptor(uri, "r");
                         Payload profilePic = Payload.fromFile(file);
-                      //  cM.payloadSender.sendPayloadFile(endpointId, profilePic, profilePic.getId() + ":PROF_PIC:" + id + ":");
+                        cM.payloadSender.sendPayloadFile(endpointId, profilePic, profilePic.getId() + ":PROF_PIC:" + id + ":");
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
