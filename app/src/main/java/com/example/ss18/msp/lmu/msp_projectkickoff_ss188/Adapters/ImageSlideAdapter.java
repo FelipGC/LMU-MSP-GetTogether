@@ -41,6 +41,7 @@ public class ImageSlideAdapter extends PagerAdapter {
         ImageView imageView = (ImageView) myImageLayout
                 .findViewById(R.id.sliderImage);
         imageView.setImageURI(images.get(position));
+        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
         view.addView(myImageLayout, 0);
         return myImageLayout;
     }
