@@ -156,7 +156,7 @@ public class SelectPresenterFragment extends Fragment {
         if (cM == null || cM.getPendingConnections().size() == 0) {
             pendingButton.setVisibility(View.GONE);
         } else
-            pendingButton.setText(String.format("Pending Connection(s): %d", cM.getPendingConnections().size()));
+            pendingButton.setText(String.format("Ausstehende Anfragen: %d", cM.getPendingConnections().size()));
     }
 
     /**
@@ -239,7 +239,7 @@ public class SelectPresenterFragment extends Fragment {
                 pendingButton.setVisibility(View.GONE);
             else {
 
-                pendingButton.setText(String.format("Pending Connection(s): %d", cM.getPendingConnections().size()));
+                pendingButton.setText(String.format("Ausstehende Anfragen: %d", cM.getPendingConnections().size()));
             }
         }
     }

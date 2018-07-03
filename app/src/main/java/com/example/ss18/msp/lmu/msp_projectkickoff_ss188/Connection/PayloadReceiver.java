@@ -222,8 +222,8 @@ public final class PayloadReceiver extends PayloadCallback {
                 name = newEndpointName;
         }
         //Display notification
-        NotificationUtility.displayNotificationChat("Chat message received",
-                String.format("%s has sent you a message...", name),
+        NotificationUtility.displayNotificationChat("Chat-Nachricht empfangen",
+                String.format("%s hat eine Nachricht geschickt.", name),
                 NotificationCompat.PRIORITY_DEFAULT);
         ChatFragment chat = getAppLogicActivity().getChatFragment();
         chat.getDataFromEndPoint(id, message,anonymous);

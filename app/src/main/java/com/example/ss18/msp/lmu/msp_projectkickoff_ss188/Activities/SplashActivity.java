@@ -155,7 +155,7 @@ public class SplashActivity extends AppCompatActivity {
             LocalDataBase.setProfilePictureUri(preferences.getUserImage()); //TODO Laureen! Das hier nicht vergessen sonst bugt alles rum ;)
 
             Toast.makeText(getApplicationContext(),
-                    String.format("Welcome back %s!", preferences.getUsername()),
+                    String.format("Willkommen zurück %s!", preferences.getUsername()),
                     Toast.LENGTH_LONG).show();
         }
         overridePendingTransition(R.anim.fade_in,R.anim.fade_out);

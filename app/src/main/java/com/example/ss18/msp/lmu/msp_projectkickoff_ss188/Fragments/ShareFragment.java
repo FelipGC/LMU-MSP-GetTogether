@@ -133,7 +133,7 @@ public class ShareFragment extends Fragment {
         String filename = uri.getLastPathSegment().toString();
         int divider = filename.lastIndexOf("/");
         filename = "\""+filename.substring(divider+1)+"\"";
-        builder.setTitle(String.format("Sende %s?",filename));
+        builder.setTitle(String.format("%s wirklich senden?",filename));
         builder.setMessage("Bist du sicher, dass du diese Datei an all deine Zuschauer versenden willst?");
         builder.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
             @Override
