@@ -315,7 +315,7 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
                 onSignUpButtonClicked();
             }
         });
-        builder.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNeutralButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Toast.makeText(SettingsActivity.this,
@@ -338,7 +338,7 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
                 displayRandomName();
             }
         });
-        builder.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNeutralButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Toast.makeText(SettingsActivity.this,
