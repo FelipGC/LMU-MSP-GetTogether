@@ -19,7 +19,7 @@ public class MessageReceiver extends PayloadCallback {
     }
 
     @Override
-    public void onPayloadReceived(@NonNull String s, @NonNull Payload payload) {
+    public void onPayloadReceived(@NonNull String endpointId, @NonNull Payload payload) {
         if (payload.getType() != Payload.Type.BYTES) {
             return;
         }
@@ -42,7 +42,7 @@ public class MessageReceiver extends PayloadCallback {
     }
 
     @Override
-    public void onPayloadTransferUpdate(@NonNull String s,
+    public void onPayloadTransferUpdate(@NonNull String endpointId,
                                         @NonNull PayloadTransferUpdate payloadTransferUpdate) {
     }
 

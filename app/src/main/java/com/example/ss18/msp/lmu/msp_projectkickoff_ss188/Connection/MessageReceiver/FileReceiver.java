@@ -75,8 +75,9 @@ public class FileReceiver extends PayloadCallback {
     }
 
     @Override
-    public void onPayloadTransferUpdate(@NonNull String payloadId,
+    public void onPayloadTransferUpdate(@NonNull String endpointId,
                                         @NonNull PayloadTransferUpdate payloadTransferUpdate) {
+        long payloadId = payloadTransferUpdate.getPayloadId();
         Long fileId = getFileId(payloadId);
         if (fileId == null) {
             return;
@@ -126,13 +127,12 @@ public class FileReceiver extends PayloadCallback {
                 && fileToFileDataAssociations.indexOfKey(fileId) >= 0);
     }
 
-    private Long getFileId(String payloadId) {
-        long payloadIdAsLong = Long.valueOf(payloadId);
-        if (files.indexOfKey(payloadIdAsLong) >= 0) {
-            return payloadIdAsLong;
+    private Long getFileId(long payloadId) {
+        if (files.indexOfKey(payloadId) >= 0) {
+            return payloadId;
         }
-        if (fileDataMessages.indexOfKey(payloadIdAsLong) >= 0) {
-            JsonFileDataMessage fileDataMessage = fileDataMessages.get(payloadIdAsLong);
+        if (fileDataMessages.indexOfKey(payloadId) >= 0) {
+            JsonFileDataMessage fileDataMessage = fileDataMessages.get(payloadId);
             return fileDataMessage.getFileId();
         }
         return null;
