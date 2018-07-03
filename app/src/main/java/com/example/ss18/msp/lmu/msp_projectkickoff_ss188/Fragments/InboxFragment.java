@@ -49,6 +49,7 @@ public class InboxFragment extends Fragment {
             //Add uri to image to the list
             ImageSliderActivity.addPicture(uri);
         }
+        updateInboxFragment();
     }
 
     /**
