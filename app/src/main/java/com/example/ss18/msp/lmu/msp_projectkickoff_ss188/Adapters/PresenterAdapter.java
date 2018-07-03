@@ -140,8 +140,8 @@ public class PresenterAdapter extends BaseAdapter {
     private void clickedItemInAvailable(final ConnectionEndpoint endpoint) {
 
         AlertDialog.Builder dialog = new AlertDialog.Builder(context);
-        dialog.setTitle("Stay tuned!");
-        dialog.setMessage(String.format("You can join as soon as \"%s\" accepts your request!",
+        dialog.setTitle("Gruppe beitreten");
+        dialog.setMessage(String.format("Warte darauf, dass \"%s\" Deine Anfrage bestätigt.",
                 endpoint.getName()));
         dialog.setNeutralButton(R.string.okay, new DialogInterface.OnClickListener() {
             @Override
@@ -154,7 +154,7 @@ public class PresenterAdapter extends BaseAdapter {
             @Override
             public void onDismiss(DialogInterface dialog) {
                 //OnClick: Add to pending list
-                Toast.makeText(context, String.format(String.format("Requested to join: %s",
+                Toast.makeText(context, String.format(String.format("Anfrage an %s verschickt",
                         endpoint.getName())), Toast.LENGTH_SHORT).show();
                 cM.getPendingConnections().put(endpoint.getId(), endpoint);
                 cM.requestConnection(endpoint);
@@ -171,16 +171,13 @@ public class PresenterAdapter extends BaseAdapter {
     private void clickedItemInEstablished(final ConnectionEndpoint connectionEndpoint) {
         AlertDialog.Builder dialog = new AlertDialog.Builder(context);
         dialog.setTitle(R.string.leave_presentation);
-        dialog.setMessage(String.format("You are about to leave and disconnect from \"%s\". " +
-                        "Are you sure you want to leave the group?" +
-                        "\nYou will no longer receive any notifications from this presenter!",
+        dialog.setMessage(String.format("Bist Du sicher, dass du die Gruppe von \"%s\" verlassen willst?" +
+                        "\nDu wirst keine Nachrichten mehr von diesem Moderator bekommen.",
                 connectionEndpoint.getName()));
         dialog.setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //Click and ticked
-                Toast.makeText(context, String.format(String.format("Canceled unsubscribing from: %s",
-                        connectionEndpoint.getName())), Toast.LENGTH_SHORT).show();
                 dialog.dismiss();
             }
         });
@@ -188,7 +185,7 @@ public class PresenterAdapter extends BaseAdapter {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //Click and ticked
-                Toast.makeText(context, String.format(String.format("Unsubscribed from: %s",
+                Toast.makeText(context, String.format(String.format("Gruppe von %s verlassen",
                         connectionEndpoint.getName())), Toast.LENGTH_SHORT).show();
                 //Disconnect from endpoint
                 cM.disconnectFromEndpoint(connectionEndpoint.getId());

@@ -162,7 +162,7 @@ public class ShareFragment extends Fragment {
             sendDataToEndpoint(endpointId,uri);
         }
         //Display Toast
-        Toast.makeText(getContext(),"File sent!",Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(),"Datei wurde versendet",Toast.LENGTH_SHORT).show();
     }
 
     public void sendDataToEndpoint(String endpointId,Uri uri) throws FileNotFoundException{

@@ -137,11 +137,11 @@ public class ConnectionManager extends Service {
                                     new ConnectionEndpoint(endpointId, connectionInfo.getEndpointName());
                             discoveredEndpoints.put(endpointId, connectionEndpoint);
                             if(!LocalDataBase.isAutoConnect()) {
-                                NotificationUtility.displayNotification("Viewer found!", connectionInfo.getEndpointName()
-                                        + " is asking for joining your session", NotificationCompat.PRIORITY_DEFAULT);
+                                NotificationUtility.displayNotification("Teilnehmer gefunden", connectionInfo.getEndpointName()
+                                        + " möchte Deiner Gruppe beitreten", NotificationCompat.PRIORITY_DEFAULT);
                             }else{ acceptConnection(true, connectionEndpoint); }
                             updateParticipantsCount(connectionEndpoint);
-                            Toast.makeText(getAppLogicActivity(), String.format(String.format("Viewer %s found!",
+                            Toast.makeText(getAppLogicActivity(), String.format(String.format("Teilnehmer %s gefunden",
                                     connectionEndpoint.getName())), Toast.LENGTH_SHORT).show();
                             break;
                     }
@@ -156,7 +156,7 @@ public class ConnectionManager extends Service {
                             Log.i(TAG, "WE ARE CONNECTED");
                             //Display system message inside the chat window
                             appLogicActivity.getChatFragment().displaySystemNotification(
-                                    String.format("Connection to %s established.", endpoint.getName()));
+                                    String.format("%s ist der Gruppe beigetreten.", endpoint.getName()));
                             // We're connected! Can now start sending and receiving data.
                             establishedConnections.put(endpointId, endpoint);
                             if (pendingConnections.containsKey(endpointId))
@@ -229,7 +229,7 @@ public class ConnectionManager extends Service {
                             Log.i(TAG, "CONNECTION REJECTED");
                             // The connection was rejected by one or both sides.
                             pendingConnections.remove(endpointId);
-                            Toast.makeText(appLogicActivity, String.format(String.format("Connection rejected to: %s",
+                            Toast.makeText(appLogicActivity, String.format(String.format("Anfrage von %s abgelehnt",
                                     endpoint.getName())), Toast.LENGTH_SHORT).show();
                             break;
                         case ConnectionsStatusCodes.STATUS_ERROR:
@@ -275,7 +275,7 @@ public class ConnectionManager extends Service {
         if (appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR)
             appLogicActivity.getSelectPresenterFragment().removeEndpointFromAdapters(endpoint);
         appLogicActivity.getChatFragment().displaySystemNotification(
-                String.format("%s has disconnected...", endpoint.getName()));
+                String.format("%s hat die Gruppe verlassen.", endpoint.getName()));
         //Update the GUI finally
         updateGUI(endpoint);
 

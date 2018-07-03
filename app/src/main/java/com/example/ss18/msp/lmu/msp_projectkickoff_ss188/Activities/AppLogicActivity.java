@@ -85,18 +85,18 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
                 case SPECTATOR:
                     startDiscovering();
                     //Add tabs for spectator
-                    tabPageAdapter.addFragment(selectPresenterFragment = new SelectPresenterFragment(), "Presenters");
-                    tabPageAdapter.addFragment(inboxFragment = new InboxFragment(), "Inbox");
+                    tabPageAdapter.addFragment(selectPresenterFragment = new SelectPresenterFragment(), "Gruppen");
                     tabPageAdapter.addFragment(new LiveViewFragment(), "Live");
+                    tabPageAdapter.addFragment(inboxFragment = new InboxFragment(), "Bilder");
                     tabPageAdapter.addFragment(chatFragment = new ChatFragment(), "Chat");
                     selectPresenterFragment.reset();
                     break;
                 case PRESENTER:
                     startAdvertising();
                     //Add tabs for presenter
-                    tabPageAdapter.addFragment(selectParticipantsFragment = new SelectParticipantsFragment(), "Participants");
+                    tabPageAdapter.addFragment(selectParticipantsFragment = new SelectParticipantsFragment(), "Teilnehmer");
                     tabPageAdapter.addFragment(new PresentationFragment(), getString(R.string.presentation_tabName));
-                    tabPageAdapter.addFragment(shareFragment = new ShareFragment(), "Share");
+                    tabPageAdapter.addFragment(shareFragment = new ShareFragment(), "Bilder");
                     tabPageAdapter.addFragment(chatFragment = new ChatFragment(), "Chat");
                     selectParticipantsFragment.reset();
                     break;

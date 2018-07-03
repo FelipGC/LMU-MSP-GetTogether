@@ -55,7 +55,7 @@ public class NotificationUtility {
         //Notify the progress of the sent document
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getAppLogicActivity(), PROGRESS_ID)
                 .setSmallIcon(R.drawable.file_icon)
-                .setContentTitle("File im Senden")
+                .setContentTitle("Datei wird empfangen...")
                 .setDefaults(Notification.DEFAULT_LIGHTS)
                 .setPriority(Notification.PRIORITY_MAX)
                 .setVibrate(new long[]{0L});

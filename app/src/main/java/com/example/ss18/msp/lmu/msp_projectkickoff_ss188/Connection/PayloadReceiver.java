@@ -335,8 +335,8 @@ public final class PayloadReceiver extends PayloadCallback {
             return;
         //TODO: RenameFile
         //Display a notification.
-        NotificationUtility.displayNotification("Image received",
-                String.format("%s has sent you an image.", cM.getEstablishedConnections().get(endpointId).getName()),
+        NotificationUtility.displayNotification("Bild empfangen",
+                String.format("%s hat Dir ein Bild geschickt.", cM.getEstablishedConnections().get(endpointId).getName()),
                 NotificationCompat.PRIORITY_DEFAULT);
         Log.i(TAG, "Payload file name: " + payloadFile.getName());
         //ConnectionEndpoint connectionEndpoint = cM.getDiscoveredEndpoints().get(endpointId);
@@ -349,8 +349,8 @@ public final class PayloadReceiver extends PayloadCallback {
     private void receivedFileFully(File payloadFile, String endpointId) {
         //TODO: RenameFile
         //Display a notification.
-        NotificationUtility.displayNotification("Document received",
-                String.format("%s has sent you a document.", cM.getEstablishedConnections().get(endpointId).getName()),
+        NotificationUtility.displayNotification("Dokument empfangen",
+                String.format("%s hat Dir ein Dokument geschickt.", cM.getEstablishedConnections().get(endpointId).getName()),
                 NotificationCompat.PRIORITY_DEFAULT);
         Log.i(TAG, "Payload file name: " + payloadFile.getName());
     }
