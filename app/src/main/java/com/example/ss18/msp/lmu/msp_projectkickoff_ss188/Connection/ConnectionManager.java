@@ -178,7 +178,7 @@ public class ConnectionManager extends Service {
                                     Log.i(TAG, "Sending prof image: " + payload);
                                     payloadSender.sendPayloadFile(endpointId, payload, payload.getId() + (SPECTATOR ? ":PROF_PIC_V:" : ":PROF_PIC:"));
                                     if (!SPECTATOR) {
-                                        appLogicActivity.startService(new Intent(appLogicActivity, FrequentLocationService.class));
+                                       // appLogicActivity.startService(new Intent(appLogicActivity, FrequentLocationService.class));
                                         for (ConnectionEndpoint otherEndpoint : establishedConnections.values()) {
                                             //Do not send info to the same endpoint
                                             if (otherEndpoint.getId().equals(endpointId))
