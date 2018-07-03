@@ -46,6 +46,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
 import com.google.android.gms.nearby.connection.ConnectionResolution;
+import com.google.android.gms.nearby.connection.ConnectionsStatusCodes;
 import com.google.android.gms.nearby.connection.DiscoveredEndpointInfo;
 import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback;
 
@@ -329,11 +330,25 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
 
                 @Override
                 public void onConnectionResult(@NonNull String s, @NonNull ConnectionResolution connectionResolution) {
+                    switch (connectionResolution.getStatus().getStatusCode()){
+                        case ConnectionsStatusCodes.STATUS_OK:
+                            String name = advertiseService.getNameOfEndpoint(s);
+                            if(name != null){
+                                advertiseService.broadcastMessage((new SystemMessage(getString(R.string.chat_user_connected,name))).toJsonString());
+                            }
+                            break;
+                    }
                     selectParticipantsFragment.updateParticipants();
                 }
 
                 @Override
                 public void onDisconnected(@NonNull String s) {
+                    // does not work for now
+                    // presenter does not know name of leaving endpoint
+                    /*String name = advertiseService.getNameOfEndpoint(s);
+                    if(name != null) {
+                        advertiseService.broadcastMessage((new SystemMessage(getResources().getString(R.string.chat_user_disconnected, name))).toJsonString());
+                    }*/
                     selectParticipantsFragment.updateParticipants();
                 }
             });

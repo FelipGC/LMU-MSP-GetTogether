@@ -38,8 +38,8 @@ import java.util.Map;
 
 public abstract class AbstractConnectionService extends Service implements IService {
     private final String TAG = "AConnectionService";
-    private final Map<String, ConnectionEndpoint> pendingEndpoints = new HashMap<>();
-    private final Map<String, ConnectionEndpoint> connectedEndpoints = new HashMap<>();
+    protected final Map<String, ConnectionEndpoint> pendingEndpoints = new HashMap<>();
+    protected final Map<String, ConnectionEndpoint> connectedEndpoints = new HashMap<>();
     private final List<ConnectionLifecycleCallback> lifecycleCallbacks = new ArrayList<>();
     private final List<OnMessageListener> messageListeners = new ArrayList<>();
 
@@ -250,11 +250,5 @@ public abstract class AbstractConnectionService extends Service implements IServ
 
     protected boolean isNotPending(String endpointId) {
         return !pendingEndpoints.containsKey((endpointId));
-    }
-
-    protected String getNameOfEndpoint(String endpointId){
-        if(connectedEndpoints.containsKey(endpointId))
-            return connectedEndpoints.get(endpointId).getName();
-        return null;
     }
 }

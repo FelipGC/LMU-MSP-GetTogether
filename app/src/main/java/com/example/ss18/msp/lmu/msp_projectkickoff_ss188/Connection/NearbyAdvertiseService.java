@@ -55,34 +55,7 @@ public class NearbyAdvertiseService extends AbstractConnectionService implements
     }
 
     @Override
-    protected ConnectionLifecycleCallback initLifecycle() {
-        return new ConnectionLifecycleCallback() {
-            @Override
-            public void onConnectionInitiated(@NonNull String s, @NonNull ConnectionInfo connectionInfo) {
-
-            }
-
-            @Override
-            public void onConnectionResult(@NonNull String s, @NonNull ConnectionResolution connectionResolution) {
-                switch (connectionResolution.getStatus().getStatusCode()){
-                    case ConnectionsStatusCodes.STATUS_OK:
-                        String name = getNameOfEndpoint(s);
-                        if(name != null){
-                            broadcastMessage((new SystemMessage(getString(R.string.chat_user_connected,name))).toJsonString());
-                        }
-                        break;
-                }
-            }
-
-            @Override
-            public void onDisconnected(@NonNull String s) {
-                String name = getNameOfEndpoint(s);
-                if(name != null) {
-                    broadcastMessage((new SystemMessage(getResources().getString(R.string.chat_user_disconnected, name))).toJsonString());
-                }
-            }
-        };
-    }
+    protected ConnectionLifecycleCallback initLifecycle() {return null;}
 
     @Override
     public void stopService() {
@@ -115,5 +88,11 @@ public class NearbyAdvertiseService extends AbstractConnectionService implements
         public IAdvertiseService getService() {
             return NearbyAdvertiseService.this;
         }
+    }
+
+    public String getNameOfEndpoint(String endpointId){
+        if(connectedEndpoints.containsKey(endpointId))
+            return connectedEndpoints.get(endpointId).getName();
+        return null;
     }
 }
