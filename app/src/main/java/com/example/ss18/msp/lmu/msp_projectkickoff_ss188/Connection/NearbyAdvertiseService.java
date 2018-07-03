@@ -93,6 +93,11 @@ public class NearbyAdvertiseService extends AbstractConnectionService implements
     public String getNameOfEndpoint(String endpointId){
         if(connectedEndpoints.containsKey(endpointId))
             return connectedEndpoints.get(endpointId).getName();
+        if(shortlyDisconnected.containsKey(endpointId)) {
+            String name = shortlyDisconnected.get(endpointId);
+            shortlyDisconnected.remove(endpointId);
+            return name;
+        }
         return null;
     }
 }

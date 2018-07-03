@@ -126,10 +126,12 @@ public abstract class AbstractConnectionService extends Service implements IServ
                 }
             };
 
+    protected Map<String, String> shortlyDisconnected = new HashMap<>();
     private void afterDisconnect(String endpointId){
         if (!connectedEndpoints.containsKey(endpointId)) {
             return;
         }
+        shortlyDisconnected.put(endpointId,connectedEndpoints.get(endpointId).getName());
         connectedEndpoints.remove(endpointId);
         if (serviceSpecificLifecycleCallback != null) {
             serviceSpecificLifecycleCallback.onDisconnected(endpointId);
@@ -241,7 +243,7 @@ public abstract class AbstractConnectionService extends Service implements IServ
     public void onDestroy() {
         unbindService(messageDistributionServiceConnection);
         connectionsClient.stopAllEndpoints();
-        stopService(); // TODO @Laureen: Nötig, bzw. hinderlich für das am Leben halten des Service? Außerdem vllt eher stopSelf?
+        stopService();
     }
 
     protected boolean alreadyConnected(String endpointId) {
