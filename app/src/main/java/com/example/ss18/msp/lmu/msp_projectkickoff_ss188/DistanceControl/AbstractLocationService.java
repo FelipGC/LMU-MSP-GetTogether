@@ -23,16 +23,12 @@ public abstract class AbstractLocationService extends Service {
     }
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-        start();
-    }
-
-    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG,"onStartCommand()");
-        payloadSender = new PayloadSender();
+        if(payloadSender == null)
+            payloadSender = new PayloadSender();
         this.intent = intent;
+        start();
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -63,15 +59,10 @@ public abstract class AbstractLocationService extends Service {
             // TODO handling missing permission
             return;
         }
-       /* if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
-            startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-        }*/
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                     updateTime, updateDistance, listener);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
-                    updateTime,updateDistance,listener);
         }
     }
 

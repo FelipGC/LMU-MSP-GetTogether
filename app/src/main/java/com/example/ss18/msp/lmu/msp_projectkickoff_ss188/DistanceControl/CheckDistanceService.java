@@ -21,13 +21,12 @@ public class CheckDistanceService extends AbstractLocationService {
 
     @Override
     protected void setUpdateTime() {
-        updateTime = 1000;
+        updateTime = 0;
     }
 
     @Override
     protected void setLocationListener() {
         listener = new LocationListener() {
-            private float lastDistance = 99999;
             @Override
             public void onLocationChanged(Location location) {
                 locationManager.removeUpdates(CheckDistanceService.this.listener);
@@ -35,17 +34,13 @@ public class CheckDistanceService extends AbstractLocationService {
                 if(locationTo == null)
                     return;
                 float distance = LocationUtility.getDistanceBetween(location,locationTo);
-                Log.i(TAG,"DISTANCE: " + distance + " Last Distance: " + lastDistance);
                 if(distance > MAX_GPS_DISTANCE){
                     //TODO: DISPLAY NOTIFICATION
                     NotificationUtility.displayNotification("ACHTUNG",
                             String.format("Distanz zum Moderator: %s m.",distance),
                             NotificationCompat.PRIORITY_DEFAULT);
                 }
-                //LAUREEM: Wir schicken die Distanz jetzt immer falls sich die position stark ändert (5 meter)!
-                if(lastDistance-distance > 3)
-                    payloadSender.sendDistance(distance);
-                lastDistance = distance;
+                payloadSender.sendDistance(distance);
             }
 
             @Override

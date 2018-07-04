@@ -9,11 +9,9 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.LocationUtility;
 import com.google.android.gms.nearby.connection.Payload;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 
 import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
 
@@ -96,6 +94,7 @@ public class PayloadSender {
      * Sends a Payload object out to ALL endPoints
      */
     private void sendPayloadBytes(final Payload payload) {
+        if(cM==null)return;
         for (final String endpointId : cM.getEstablishedConnectionsCloned().keySet()) {
             Payload payloadToSend = Payload.fromBytes(payload.asBytes());
             Log.i(TAG, "sendPayloadBytes to: " + endpointId);

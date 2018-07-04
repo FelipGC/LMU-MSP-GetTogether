@@ -91,8 +91,9 @@ public class ConnectionManager extends Service {
                     ConnectionEndpoint connectionEndpoint = new ConnectionEndpoint(endpointId, info.getEndpointName());
                     //Create and define a new ConnectionEndpoint
                     discoveredEndpoints.put(connectionEndpoint.getId(), connectionEndpoint);
-                    NotificationUtility.displayNotification("Presenter found!", info.getEndpointName()
-                            + " can be added to the presentation", NotificationCompat.PRIORITY_LOW);
+                    NotificationUtility.displayNotification("Gruppe gefunden",
+                            String.format("Du kannst der Gruppe von %s beitreten.",info.getEndpointName()),
+                            NotificationCompat.PRIORITY_LOW);
                     updatePresenters(connectionEndpoint);
                 }
 
