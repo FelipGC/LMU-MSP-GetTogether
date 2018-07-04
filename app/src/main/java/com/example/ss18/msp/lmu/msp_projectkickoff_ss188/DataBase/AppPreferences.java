@@ -51,7 +51,6 @@ public class AppPreferences {
             try{
                 byte [] encodeByte = Base64.decode(image,Base64.DEFAULT);
                 Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
-                Log.i("Eli696969", "get image is " + encodeByte + " and get string is : " + image);
                 return bitmap;
             }catch(Exception e){
                 e.getMessage();
@@ -73,7 +72,6 @@ public class AppPreferences {
     }
 
     public boolean setUserImageBitmap(Bitmap bitmap) {
-        Log.i("Eli696969", "image is " + bitmap + " and string is : " + bitmap.toString());
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG,100, baos);
         byte [] b=baos.toByteArray();
