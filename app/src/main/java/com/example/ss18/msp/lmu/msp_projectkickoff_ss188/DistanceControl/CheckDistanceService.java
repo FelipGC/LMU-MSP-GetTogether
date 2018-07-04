@@ -30,7 +30,9 @@ public class CheckDistanceService extends AbstractLocationService {
             @Override
             public void onLocationChanged(Location location) {
                 //locationManager.removeUpdates(this);
+                if(intent==null)return;
                 Location locationTo = intent.getParcelableExtra("location");
+                intent=null;
                 if(locationTo == null)
                     return;
                 float distance = LocationUtility.getDistanceBetween(location,locationTo);

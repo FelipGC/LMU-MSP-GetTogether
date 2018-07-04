@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.CheckDistanceService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.FrequentLocationService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.NotificationUtility;
@@ -407,7 +408,7 @@ public class ConnectionManager extends Service {
      */
     public void stopDiscovering() {
         connectionsClient.stopDiscovery();
-        connectionsClient.stopAllEndpoints();
+        disconnectFromAllEndpoints();
     }
 
     /**
@@ -415,7 +416,7 @@ public class ConnectionManager extends Service {
      */
     public void stopAdvertising() {
         connectionsClient.stopAdvertising();
-        connectionsClient.stopAllEndpoints();
+        disconnectFromAllEndpoints();
     }
 
     public ConnectionsClient getConnectionsClient() {
@@ -514,6 +515,8 @@ public class ConnectionManager extends Service {
     }
 
     public void disconnectFromAllEndpoints() {
+        stopService(new Intent(appLogicActivity,CheckDistanceService.class));
+        stopService(new Intent(appLogicActivity,FrequentLocationService.class));
         connectionsClient.stopAllEndpoints();
     }
 
