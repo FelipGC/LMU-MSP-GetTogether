@@ -128,7 +128,7 @@ public class SelectParticipantsFragment extends Fragment {
                     }else {
                         list = new String[connectionManager.getEstablishedConnections().size()];
                         for (ConnectionEndpoint e : connectionManager.getEstablishedConnections().values()) {
-                            list[index++] = e.getName() + ": " + e.getLastKnownDistance();
+                            list[index++] = e.getName() + ": " + e.getLastKnownDistance() + "m";
                         }
                     }
                     builder.setItems(list,null);

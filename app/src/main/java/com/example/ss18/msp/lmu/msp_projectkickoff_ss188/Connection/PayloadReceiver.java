@@ -135,11 +135,12 @@ public final class PayloadReceiver extends PayloadCallback {
                     case "DISTANCE":
                         Log.i(TAG, "Received DISTANCE " + fileContent);
                         float distance = Float.parseFloat(fileContent);
-                        if (distance > MAX_GPS_DISTANCE) {
+                        if (distance > MAX_GPS_DISTANCE
+                                && Float.parseFloat(cM.getEstablishedConnections().get(endpointId).getLastKnownDistance())>distance) {
                             onDistanceWarningReceived(endpointId, fileContent);
                         }
                         //Update location
-                        cM.getEstablishedConnections().get(endpointId).setLastKnownDistance(fileContent + "m");
+                        cM.getEstablishedConnections().get(endpointId).setLastKnownDistance(fileContent);
                         break;
                     case "LOCATION":
                         String[] coords = fileContent.split("/");
