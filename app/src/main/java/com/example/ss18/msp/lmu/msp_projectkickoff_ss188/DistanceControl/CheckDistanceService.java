@@ -21,7 +21,7 @@ public class CheckDistanceService extends AbstractLocationService {
 
     @Override
     protected void setUpdateTime() {
-        updateTime = 0;
+        updateTime = 30 * 1000;
     }
 
     @Override
@@ -29,7 +29,7 @@ public class CheckDistanceService extends AbstractLocationService {
         listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                locationManager.removeUpdates(CheckDistanceService.this.listener);
+                locationManager.removeUpdates(this);
                 Location locationTo = intent.getParcelableExtra("location");
                 if(locationTo == null)
                     return;

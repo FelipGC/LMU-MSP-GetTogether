@@ -44,7 +44,7 @@
     <string name="channel_name">CHANNEL</string>
     <string name="channel_description">CHANNEL_NOTIFICATIONS</string>
 
-    <string name="no_devices_found">Es wurden keine Präsentationen gefunden...</string>
+    <string name="no_devices_found">Es wurden noch keine Gruppen gefunden</string>
     <string name="help_feedback">"
 Get Together "ist eine App, die eine einfache und komfortable Übertragung von Dateien über Bluetooth innerhalb einer Reichweite von ca. 100m ermöglicht.
         \n\nSie benötigt keine Internetverbindung und ermöglicht eine schnelle Dateiübertragung zwischen mehreren Geräten in der Nähe.
