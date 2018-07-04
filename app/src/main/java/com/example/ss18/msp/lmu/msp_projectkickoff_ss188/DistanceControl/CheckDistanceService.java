@@ -29,7 +29,7 @@ public class CheckDistanceService extends AbstractLocationService {
         listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                locationManager.removeUpdates(this);
+                //locationManager.removeUpdates(this);
                 Location locationTo = intent.getParcelableExtra("location");
                 if(locationTo == null)
                     return;

@@ -63,9 +63,9 @@ public abstract class AbstractLocationService extends Service {
         }
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            Criteria criteria = new Criteria();
-            criteria.setAccuracy(Criteria.ACCURACY_FINE);
-            locationManager.requestLocationUpdates(updateTime,updateDistance,criteria,listener,null);
+            locationManager.requestLocationUpdates(updateTime,updateDistance,new Criteria(),listener,null);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                    updateTime, updateDistance, listener);
         }
     }
 
