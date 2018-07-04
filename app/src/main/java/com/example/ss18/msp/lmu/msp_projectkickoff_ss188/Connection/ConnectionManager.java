@@ -171,7 +171,7 @@ public class ConnectionManager extends Service {
                                 if (uri == null) {
                                     if(SPECTATOR) {
                                         Log.i(TAG, "URI NULL...");
-                                        String message = "-1" + (":NULL_PROF_PIC:");
+                                        String message = "NULL_PROF_PIC:";
                                         payloadSender.sendPayloadBytesToSpecific(endpointId, Payload.fromBytes(message.getBytes("UTF-8")));
                                     }
                                 } else {
