@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.ss18.msp.lmu.msp_projectkickoff_ss188">
+    package="de.lmu.msp.gettogether">
 
     <!-- Required for Nearby Connections -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -21,7 +21,7 @@
         android:supportsRtl="true"
 
         android:theme="@style/AppTheme.Launcher">
-        <activity android:name=".Activities.SplashActivity"
+        <activity android:name="de.lmu.msp.gettogether.Activities.SplashActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,27 +29,27 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Activities.MainActivity"
+        <activity android:name="de.lmu.msp.gettogether.Activities.MainActivity"
             android:screenOrientation="portrait"/>
         <activity
-            android:name=".Activities.AppLogicActivity"
+            android:name="de.lmu.msp.gettogether.Activities.AppLogicActivity"
             android:windowSoftInputMode="adjustResize"
             android:screenOrientation="portrait"/>
-        <activity android:name=".Activities.SettingsActivity"
+        <activity android:name="de.lmu.msp.gettogether.Activities.SettingsActivity"
             android:screenOrientation="portrait"/>
-        <activity android:name=".Activities.ImageSliderActivity"
+        <activity android:name="de.lmu.msp.gettogether.Activities.ImageSliderActivity"
             android:screenOrientation="portrait"/>
 
         <service
-            android:name=".DistanceControl.FrequentLocationService"
+            android:name="de.lmu.msp.gettogether.DistanceControl.FrequentLocationService"
             android:enabled="true"
             android:exported="true" />
         <service
-            android:name=".DistanceControl.CheckDistanceService"
+            android:name="de.lmu.msp.gettogether.DistanceControl.CheckDistanceService"
             android:enabled="true"
             android:exported="true" />
         <service
-            android:name=".Connection.ConnectionManager"
+            android:name="de.lmu.msp.gettogether.Connection.ConnectionManager"
             android:enabled="true"
             android:exported="true" />
     </application>

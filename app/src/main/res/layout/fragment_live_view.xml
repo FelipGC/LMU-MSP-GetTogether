@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:background="@android:color/transparent"
     android:layout_height="match_parent"
-    tools:context=".Activities.AppLogicActivity">
+    tools:context="de.lmu.msp.gettogether.Activities.AppLogicActivity">
 
 
     <TextView

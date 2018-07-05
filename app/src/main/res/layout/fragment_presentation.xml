@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/backgroundColor"
-    tools:context=".Presentation.PresentationFragment">
+    tools:context="de.lmu.msp.gettogether.Presentation.PresentationFragment">
 
     <android.support.design.widget.FloatingActionButton
         style="@style/AppTheme.FAB"
