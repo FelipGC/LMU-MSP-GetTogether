@@ -1,9 +1,9 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters.ImageSlideAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;

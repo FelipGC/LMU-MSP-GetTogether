@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.AppPreferences;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.Constants;
 
 public class SplashActivity extends AppCompatActivity {
     private static final String TAG = "SPLASH_ACTIVITY";
@@ -98,8 +99,8 @@ public class SplashActivity extends AppCompatActivity {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = getString(R.string.channel_name);
-            String description = getString(R.string.channel_description);
+            CharSequence name = Constants.CHANNEL_NAME;
+            String description = Constants.CHANNEL_DESCRIPTION;
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
             channel.setDescription(description);
@@ -155,7 +156,7 @@ public class SplashActivity extends AppCompatActivity {
             LocalDataBase.setProfilePictureUri(preferences.getUserImage()); //TODO Laureen! Das hier nicht vergessen sonst bugt alles rum ;)
 
             Toast.makeText(getApplicationContext(),
-                    String.format("Willkommen zurück %s!", preferences.getUsername()),
+                    getString(R.string.welcome_back, preferences.getUsername()),
                     Toast.LENGTH_LONG).show();
         }
         overridePendingTransition(R.anim.fade_in,R.anim.fade_out);

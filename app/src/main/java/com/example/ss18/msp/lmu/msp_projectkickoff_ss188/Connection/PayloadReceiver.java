@@ -3,6 +3,7 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.res.Resources;
 import android.location.Location;
 import android.net.Uri;
 import android.os.IBinder;
@@ -17,6 +18,7 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.CheckDistanceService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.InboxFragment;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.FixedSizeList;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.NotificationUtility;
@@ -212,13 +214,14 @@ public final class PayloadReceiver extends PayloadCallback {
             Log.i(TAG, "payloadsender:" + payloadSender + " other:" + name);
             id = LocalDataBase.otherUsersNameToID.get(payloadSender);
             if (anonymous)
-                name = "Anonymous";
+                name = getAppLogicActivity().getResources().getString(R.string.anonymous);
             else
                 name = payloadSender;
         }
         //Display notification
-        NotificationUtility.displayNotificationChat("Chat-Nachricht empfangen",
-                String.format("%s hat eine Nachricht geschickt.", name),
+        Resources resources = getAppLogicActivity().getResources();
+        NotificationUtility.displayNotificationChat(resources.getString(R.string.notif_chat_title),
+                resources.getString(R.string.notif_chat_body, name),
                 NotificationCompat.PRIORITY_DEFAULT);
         ChatFragment chat = getAppLogicActivity().getChatFragment();
         chat.getDataFromEndPoint(id, message, anonymous);
@@ -232,8 +235,9 @@ public final class PayloadReceiver extends PayloadCallback {
 
     private void onDistanceWarningReceived(String senderId, String distance) {
         String senderName = cM.getDiscoveredEndpoints().get(senderId).getName();
-        NotificationUtility.displayNotification("Entfernungswarnung",
-                String.format("Teilnehmer %s ist %s Meter entfernt.", senderName, distance),
+        Resources resources = getAppLogicActivity().getResources();
+        NotificationUtility.displayNotification(resources.getString(R.string.distance_warning),
+                resources.getString(R.string.notif_distance_body_presenter, senderName, distance),
                 NotificationCompat.PRIORITY_DEFAULT);
     }
 
@@ -335,8 +339,9 @@ public final class PayloadReceiver extends PayloadCallback {
             return;
         //TODO: RenameFile
         //Display a notification.
-        NotificationUtility.displayNotification("Bild empfangen",
-                String.format("%s hat Dir ein Bild geschickt.", cM.getEstablishedConnections().get(endpointId).getName()),
+        Resources resources = getAppLogicActivity().getResources();
+        NotificationUtility.displayNotification(resources.getString(R.string.notif_picture_title),
+                resources.getString(R.string.notif_picture_body, cM.getEstablishedConnections().get(endpointId).getName()),
                 NotificationCompat.PRIORITY_DEFAULT);
         Log.i(TAG, "Payload file name: " + payloadFile.getName());
         //ConnectionEndpoint connectionEndpoint = cM.getDiscoveredEndpoints().get(endpointId);
@@ -349,8 +354,9 @@ public final class PayloadReceiver extends PayloadCallback {
     private void receivedFileFully(File payloadFile, String endpointId) {
         //TODO: RenameFile
         //Display a notification.
-        NotificationUtility.displayNotification("Dokument empfangen",
-                String.format("%s hat Dir ein Dokument geschickt.", cM.getEstablishedConnections().get(endpointId).getName()),
+        Resources resources = getAppLogicActivity().getResources();
+        NotificationUtility.displayNotification(resources.getString(R.string.notif_file_title),
+                resources.getString(R.string.notif_file_body, cM.getEstablishedConnections().get(endpointId).getName()),
                 NotificationCompat.PRIORITY_DEFAULT);
         Log.i(TAG, "Payload file name: " + payloadFile.getName());
     }

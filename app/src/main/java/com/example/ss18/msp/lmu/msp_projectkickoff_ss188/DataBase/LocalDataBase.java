@@ -2,7 +2,6 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
@@ -12,7 +11,6 @@ import com.google.android.gms.nearby.connection.Payload;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
 /**
  * A singleton class simulating a data base to store all kinds of necessary information. The data base is

@@ -56,10 +56,11 @@ public class InboxFragment extends Fragment {
 
         Log.i(TAG, "updateInboxFragment()");
         if(title!=null) {
-            if (ImageSliderActivity.images == null || ImageSliderActivity.images.size() == 0)
+            if (ImageSliderActivity.images == null || ImageSliderActivity.images.size() == 0) {
                 title.setText(R.string.no_pictures);
-            else
-                title.setText("<Bilder: " + ImageSliderActivity.images.size() + ">");
+            }else {
+                title.setText(getString(R.string.images_count_title, ImageSliderActivity.images.size()));
+            }
         }
 
     }

@@ -20,7 +20,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
@@ -30,7 +29,6 @@ import com.google.android.gms.nearby.connection.Payload;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 
-import static android.content.Context.INPUT_METHOD_SERVICE;
 import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
 
 /**
@@ -133,8 +131,8 @@ public class ShareFragment extends Fragment {
         String filename = uri.getLastPathSegment().toString();
         int divider = filename.lastIndexOf("/");
         filename = "\""+filename.substring(divider+1)+"\"";
-        builder.setTitle(String.format("%s wirklich senden?",filename));
-        builder.setMessage("Bist du sicher, dass du diese Datei an all deine Zuschauer versenden willst?");
+        builder.setTitle(getString(R.string.confirm_send_title,filename));
+        builder.setMessage(getString(R.string.confirm_send_body));
         builder.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -162,7 +160,7 @@ public class ShareFragment extends Fragment {
             sendDataToEndpoint(endpointId,uri);
         }
         //Display Toast
-        Toast.makeText(getContext(),"Datei wurde versendet",Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(),R.string.image_sent,Toast.LENGTH_SHORT).show();
     }
 
     public void sendDataToEndpoint(String endpointId,Uri uri) throws FileNotFoundException{

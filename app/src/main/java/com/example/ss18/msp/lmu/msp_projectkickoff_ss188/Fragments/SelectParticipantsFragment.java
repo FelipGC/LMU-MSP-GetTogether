@@ -26,10 +26,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters.ViewerAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters.ViewerAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission;
 
 import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
@@ -119,7 +119,7 @@ public class SelectParticipantsFragment extends Fragment {
             public boolean onTouch(View v, MotionEvent event) {
                 if(event.getAction() == MotionEvent.ACTION_DOWN){
                     final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle(R.string.distance);
+                    builder.setTitle(R.string.distances);
                     String[] list;
                     int index = 0;
                     if(connectionManager.getEstablishedConnections().size() == 0){
@@ -273,7 +273,7 @@ public class SelectParticipantsFragment extends Fragment {
     private void startRecordingVoice(){
         //TODO: Display something
         voiceTransmission.startRecordingVoice();
-        Toast.makeText(getContext(), "Zeichnet auf...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), R.string.voice_start, Toast.LENGTH_SHORT).show();
 
     }
 
@@ -283,7 +283,7 @@ public class SelectParticipantsFragment extends Fragment {
     private void stopRecordingVoice(){
         //TODO: Display something
         voiceTransmission.stopRecordingVoice();
-        Toast.makeText(getContext(), "Aufzeichnung beendet.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), R.string.voice_stop, Toast.LENGTH_SHORT).show();
 
     }
     /**
@@ -291,7 +291,7 @@ public class SelectParticipantsFragment extends Fragment {
      */
     private void startPoking(){
         connectionManager.getPayloadSender().sendPokeMessage();
-        Toast.makeText(getContext(), "[VIBRIREREN]", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), R.string.poke_start, Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -299,7 +299,7 @@ public class SelectParticipantsFragment extends Fragment {
      */
     private void endPoking(){
         connectionManager.getPayloadSender().sendStopPokingMessage();
-        Toast.makeText(getContext(), "[ENDE]", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), R.string.poke_stop, Toast.LENGTH_SHORT).show();
     }
     public void updateParticipantsAvatar() {
         viewerAdapter.notifyDataSetChanged();

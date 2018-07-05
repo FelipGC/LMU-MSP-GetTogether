@@ -1,7 +1,6 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl;
 
 import android.location.Location;
-import android.nfc.FormatException;
 
 import java.math.BigDecimal;
 

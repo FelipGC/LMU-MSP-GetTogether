@@ -19,7 +19,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
@@ -140,9 +139,8 @@ public class PresenterAdapter extends BaseAdapter {
     private void clickedItemInAvailable(final ConnectionEndpoint endpoint) {
 
         AlertDialog.Builder dialog = new AlertDialog.Builder(context);
-        dialog.setTitle("Gruppe beitreten");
-        dialog.setMessage(String.format("Warte darauf, dass \"%s\" Deine Anfrage bestätigt.",
-                endpoint.getName()));
+        dialog.setTitle(context.getResources().getString(R.string.join_group));
+        dialog.setMessage(context.getResources().getString(R.string.wait_for_accept, endpoint.getName()));
         dialog.setNeutralButton(R.string.okay, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -154,8 +152,9 @@ public class PresenterAdapter extends BaseAdapter {
             @Override
             public void onDismiss(DialogInterface dialog) {
                 //OnClick: Add to pending list
-                Toast.makeText(context, String.format(String.format("Anfrage an %s verschickt",
-                        endpoint.getName())), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context,
+                        context.getResources().getString(R.string.request_sent, endpoint.getName()),
+                        Toast.LENGTH_SHORT).show();
                 cM.getPendingConnections().put(endpoint.getId(), endpoint);
                 cM.requestConnection(endpoint);
                 cM.updatePresenters(endpoint);
@@ -170,9 +169,8 @@ public class PresenterAdapter extends BaseAdapter {
      */
     private void clickedItemInEstablished(final ConnectionEndpoint connectionEndpoint) {
         AlertDialog.Builder dialog = new AlertDialog.Builder(context);
-        dialog.setTitle(R.string.leave_presentation);
-        dialog.setMessage(String.format("Bist Du sicher, dass du die Gruppe von \"%s\" verlassen willst?" +
-                        "\nDu wirst keine Nachrichten mehr von diesem Moderator bekommen.",
+        dialog.setTitle(R.string.leave_presentation_title);
+        dialog.setMessage(context.getResources().getString(R.string.leave_presentation_body,
                 connectionEndpoint.getName()));
         dialog.setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
@@ -184,9 +182,6 @@ public class PresenterAdapter extends BaseAdapter {
         dialog.setPositiveButton(R.string.leave, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //Click and ticked
-                Toast.makeText(context, String.format(String.format("Gruppe von %s verlassen",
-                        connectionEndpoint.getName())), Toast.LENGTH_SHORT).show();
                 //Disconnect from endpoint
                 cM.disconnectFromEndpoint(connectionEndpoint.getId());
                 cM.updatePresenters(connectionEndpoint);

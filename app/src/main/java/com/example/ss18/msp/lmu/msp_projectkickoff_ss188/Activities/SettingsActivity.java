@@ -17,7 +17,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -80,7 +79,7 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
             getSupportActionBar().setDisplayShowHomeEnabled(false);
         } else {
             settingsText.setVisibility(View.GONE);
-            signUpButton.setText("Speichern");
+            signUpButton.setText(R.string.save);
             getSupportActionBar().setTitle(R.string.settings_user);
             enteredUsername.setText(preferences.getUsername());
             Bitmap bitmap = preferences.getUserImageBitmap();
@@ -300,9 +299,9 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
 
         final String username = RandomNameGenerator.generate(getApplicationContext());
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Wie wäre es mit...?");
+        builder.setTitle(R.string.random_name_suggestion);
         builder.setMessage(username);
-        builder.setNegativeButton("Generieren", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.generate, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 displayRandomName();
@@ -332,7 +331,7 @@ public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuIt
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.no_name_entered);
         builder.setMessage(R.string.generate_random_name);
-        builder.setNegativeButton("Generieren", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.generate, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 displayRandomName();

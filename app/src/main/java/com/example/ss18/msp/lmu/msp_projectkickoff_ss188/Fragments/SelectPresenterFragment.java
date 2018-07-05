@@ -21,11 +21,10 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters.PresenterAdapter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Adapters.PresenterAdapter;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -155,8 +154,9 @@ public class SelectPresenterFragment extends Fragment {
         ((PresenterAdapter) establishedPresenters.getAdapter()).remove(connectionEndpoint);
         if (cM == null || cM.getPendingConnections().size() == 0) {
             pendingButton.setVisibility(View.GONE);
-        } else
-            pendingButton.setText(String.format("Ausstehende Anfragen: %d", cM.getPendingConnections().size()));
+        } else{
+            pendingButton.setText(getString(R.string.requests_pending_count,cM.getPendingConnections().size()));
+        }
     }
 
     /**
@@ -238,8 +238,7 @@ public class SelectPresenterFragment extends Fragment {
             if (cM.getPendingConnections().size() == 0)
                 pendingButton.setVisibility(View.GONE);
             else {
-
-                pendingButton.setText(String.format("Ausstehende Anfragen: %d", cM.getPendingConnections().size()));
+                pendingButton.setText(getString(R.string.requests_pending_count,cM.getPendingConnections().size()));
             }
         }
     }

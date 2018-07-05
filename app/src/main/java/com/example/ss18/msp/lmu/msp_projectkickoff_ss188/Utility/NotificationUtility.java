@@ -3,7 +3,6 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -11,12 +10,6 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
-
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
 
@@ -55,7 +48,7 @@ public class NotificationUtility {
         //Notify the progress of the sent document
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getAppLogicActivity(), PROGRESS_ID)
                 .setSmallIcon(R.drawable.file_icon)
-                .setContentTitle("Datei wird empfangen...")
+                .setContentTitle(getAppLogicActivity().getResources().getString(R.string.file_receiving))
                 .setDefaults(Notification.DEFAULT_LIGHTS)
                 .setPriority(Notification.PRIORITY_MAX)
                 .setVibrate(new long[]{0L});
@@ -73,7 +66,7 @@ public class NotificationUtility {
 
         //IF done, update the notification to remove the progress bar
         if (progress == total) {
-            mBuilder.setContentText("Complete")
+            mBuilder.setContentText(getAppLogicActivity().getResources().getString(R.string.file_receiving_complete))
                     .setProgress(0,0,false);
             mNotificationManager.notify(12, mBuilder.build());
             mNotificationManager.cancel(12);

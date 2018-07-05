@@ -13,7 +13,6 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
-import com.google.android.gms.nearby.messages.Distance;
 
 public abstract class AbstractLocationService extends Service {
 

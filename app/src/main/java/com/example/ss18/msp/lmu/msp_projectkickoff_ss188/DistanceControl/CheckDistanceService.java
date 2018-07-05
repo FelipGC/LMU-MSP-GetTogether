@@ -4,8 +4,8 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.NotificationUtility;
 
 import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.Constants.MAX_GPS_DISTANCE;
@@ -38,8 +38,8 @@ public class CheckDistanceService extends AbstractLocationService {
                 float distance = LocationUtility.getDistanceBetween(location,locationTo);
                 if(distance > MAX_GPS_DISTANCE){
                     //TODO: DISPLAY NOTIFICATION
-                    NotificationUtility.displayNotification("Entfernungswarnung",
-                            String.format("Distanz zum Moderator: %s m.",distance),
+                    NotificationUtility.displayNotification(getString(R.string.distance_warning),
+                            getString(R.string.distance_to_moderator, distance),
                             NotificationCompat.PRIORITY_DEFAULT);
                 }
                 payloadSender.sendDistance(distance);

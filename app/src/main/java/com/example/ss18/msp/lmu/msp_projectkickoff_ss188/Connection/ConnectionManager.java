@@ -11,12 +11,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.CheckDistanceService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DistanceControl.FrequentLocationService;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.NotificationUtility;
 import com.google.android.gms.nearby.Nearby;
@@ -38,9 +38,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
 /**
  * Stores everything we need related to the NearbyConnection process.
@@ -92,8 +90,9 @@ public class ConnectionManager extends Service {
                     ConnectionEndpoint connectionEndpoint = new ConnectionEndpoint(endpointId, info.getEndpointName());
                     //Create and define a new ConnectionEndpoint
                     discoveredEndpoints.put(connectionEndpoint.getId(), connectionEndpoint);
-                    NotificationUtility.displayNotification("Gruppe gefunden",
-                            String.format("Du kannst der Gruppe von %s beitreten.",info.getEndpointName()),
+
+                    NotificationUtility.displayNotification(getResources().getString(R.string.notif_group_found_title),
+                            getResources().getString(R.string.notif_group_found_body,info.getEndpointName()),
                             NotificationCompat.PRIORITY_LOW);
                     updatePresenters(connectionEndpoint);
                 }
@@ -139,14 +138,14 @@ public class ConnectionManager extends Service {
                                     new ConnectionEndpoint(endpointId, connectionInfo.getEndpointName());
                             discoveredEndpoints.put(endpointId, connectionEndpoint);
                             if (!LocalDataBase.isAutoConnect()) {
-                                NotificationUtility.displayNotification("Teilnehmer gefunden", connectionInfo.getEndpointName()
-                                        + " möchte Deiner Gruppe beitreten", NotificationCompat.PRIORITY_DEFAULT);
+                                NotificationUtility.displayNotification(
+                                        getResources().getString(R.string.notif_participant_found_title),
+                                        getResources().getString(R.string.notif_participant_found_body, connectionInfo.getEndpointName()),
+                                        NotificationCompat.PRIORITY_DEFAULT);
                             } else {
                                 acceptConnection(true, connectionEndpoint);
                             }
                             updateParticipantsCount(connectionEndpoint);
-                            Toast.makeText(getAppLogicActivity(), String.format(String.format("Teilnehmer %s gefunden",
-                                    connectionEndpoint.getName())), Toast.LENGTH_SHORT).show();
                             break;
                     }
                 }
@@ -160,7 +159,7 @@ public class ConnectionManager extends Service {
                             Log.i(TAG, "WE ARE CONNECTED");
                             //Display system message inside the chat window
                             appLogicActivity.getChatFragment().displaySystemNotification(
-                                    String.format("%s ist der Gruppe beigetreten.", endpoint.getName()));
+                                    getResources().getString(R.string.chat_user_joined, endpoint.getName()));
                             // We're connected! Can now start sending and receiving data.
                             establishedConnections.put(endpointId, endpoint);
                             if (pendingConnections.containsKey(endpointId))
@@ -235,8 +234,6 @@ public class ConnectionManager extends Service {
                             Log.i(TAG, "CONNECTION REJECTED");
                             // The connection was rejected by one or both sides.
                             pendingConnections.remove(endpointId);
-                            Toast.makeText(appLogicActivity, String.format(String.format("Anfrage von %s abgelehnt",
-                                    endpoint.getName())), Toast.LENGTH_SHORT).show();
                             break;
                         case ConnectionsStatusCodes.STATUS_ERROR:
                             Log.i(TAG, "CONNECTION ERROR BEFORE ESTABLISHING");
@@ -281,7 +278,7 @@ public class ConnectionManager extends Service {
         if (appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR)
             appLogicActivity.getSelectPresenterFragment().removeEndpointFromAdapters(endpoint);
         appLogicActivity.getChatFragment().displaySystemNotification(
-                String.format("%s hat die Gruppe verlassen.", endpoint.getName()));
+                getResources().getString(R.string.chat_user_left, endpoint.getName()));
         //Update the GUI finally
         updateGUI(endpoint);
 

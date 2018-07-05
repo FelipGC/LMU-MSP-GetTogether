@@ -1,12 +1,9 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
-import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -27,10 +24,6 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.Presenter;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.Spectator;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
-
-import java.io.FileNotFoundException;
-
-import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
 
 public class MainActivity extends BaseActivity {
 
@@ -106,8 +99,8 @@ public class MainActivity extends BaseActivity {
      */
     public void endApplication(MenuItem item) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("App beenden?");
-        builder.setMessage("Wollen sie die App wirklich beenden?");
+        builder.setTitle(R.string.exit_app_title);
+        builder.setMessage(R.string.exit_app_body);
         builder.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -130,7 +123,7 @@ public class MainActivity extends BaseActivity {
 
         Log.i(TAG, "About option clicked");
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle("About");
+        dialog.setTitle(R.string.about);
         dialog.setMessage(R.string.aboutTextCredits);
         dialog.setNeutralButton(R.string.dismiss, new DialogInterface.OnClickListener() {
             @Override
@@ -150,7 +143,7 @@ public class MainActivity extends BaseActivity {
     public void onClickHelp(MenuItem item) {
         Log.i(TAG, "Help option clicked");
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle("Help & Feedback");
+        dialog.setTitle(R.string.help);
         dialog.setMessage(R.string.help_feedback);
         dialog.setNeutralButton(R.string.dismiss, new DialogInterface.OnClickListener() {
             @Override

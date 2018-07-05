@@ -16,6 +16,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.google.android.gms.nearby.connection.Payload;
 
 import java.io.IOException;
@@ -206,6 +207,6 @@ public final class VoiceTransmission implements IVoice {
             Thread.currentThread().interrupt();
         }
         //Track finished playing
-        Toast.makeText(ConnectionManager.getAppLogicActivity(), "Ende der Sprachnachricht.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(ConnectionManager.getAppLogicActivity(), R.string.voice_end, Toast.LENGTH_SHORT).show();
     }
 }

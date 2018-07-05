@@ -28,6 +28,7 @@
     <string name="help">Hilfe</string>
     <string name="welcome">Willkommen</string>
     <string name="welcomeUser">Willkommen %1$s!</string>
+    <string name="welcome_back">Willkommen zurück %1$s!</string>
     <string name="dismiss">Ausblenden</string>
     <string name="selectDevices">Wähle deine Zuschauer:</string>
     <string name="deselectAll">Keiner</string>
@@ -36,8 +37,6 @@
     <string name="okay">Okay</string>
     <string name="joined_presenters">Verbunden:</string>
     <string name="available_presenters">Verfügbar:</string>
-    <string name="channel_name">CHANNEL</string>
-    <string name="channel_description">CHANNEL_NOTIFICATIONS</string>
 
     <string name="no_devices_found">Es wurden noch keine Gruppen gefunden</string>
     <string name="help_feedback">Get Together ist eine App, die eine einfache und komfortable Kommunikation über Bluetooth innerhalb einer Reichweite von ca. 100m ermöglicht.
@@ -46,8 +45,10 @@
         \nModeratoren können Dateien an ihre Zuschauer verteilen. Zuschauer stellen dafür eine Anfrage an ihren gewünschen Moderator.
 <!--        \n\nFür Fragen oder Feedback wenden Sie sich bitte an uns unter xxxxxx@campus.lmu.de"-->
 </string>
-    <string name="leave_presentation">Präsentation wirklich verlassen?</string>
+    <string name="leave_presentation_title">Präsentation wirklich verlassen?</string>
+    <string name="leave_presentation_body">Bist Du sicher, dass du die Gruppe von %1$s verlassen willst?\nDu wirst keine Nachrichten mehr von diesem Moderator bekommen.</string>
     <string name="cancel">Abbrechen</string>
+    <string name="save">Speichern</string>
     <string name="pending_devices">Erwarte Antwort von:</string>
     <string name="leave">Verlassen</string>
     <string name="chat_input_field">Schreibe eine Nachricht:</string>
@@ -65,7 +66,65 @@
     <string name="presentation_imageContent">Die geladene Präsentation</string>
     <string name="tap_start">Tippe um zu starten...</string>
     <string name="no_participants_connected">Derzeit sind keine Zuschauer verbunden...</string>
-    <string name="distance">GPS Entfernungen:</string>
     <string name="no_pictures">Keine Bilder erhalten.</string>
+    <string name="random_name_suggestion">Wie wäre es mit..?</string>
+    <string name="generate">Generieren</string>
+    <string name="anonymous">Anonymer Nutzer</string>
+    <string name="images_count_title">Bilder: %1$d</string>
+    <string name="image_sent">Bild wurde versendet</string>
+    <string name="file_receiving">Datei wird empfangen...</string>
+    <string name="file_receiving_complete">Empfangen</string>
+
+    <string name="voice_start">Zeichnet auf...</string>
+    <string name="voice_stop">Aufzeichnung beendet</string>
+    <string name="voice_end">Ende der Sprachnachricht</string>
+
+    <string name="poke_start">Vibration gestartet</string>
+    <string name="poke_stop">Vibration beendet</string>
+
+    <string name="exit_app_title">App beenden?</string>
+    <string name="exit_app_body">Wollen sie die App wirklich beenden?</string>
+
+    <string name="chat_user_joined">%1$s ist der Gruppe beigetreten.</string>
+    <string name="chat_user_left">%1$s hat die Gruppe verlassen.</string>
+
+    <string name="distances">Entfernungen:</string>
+    <string name="distance_to_moderator">Distanz zum Moderator: %1$fm.</string>
     <string name="distance_unknown">derzeit unbekannt</string>
+    <string name="distance_warning">Entfernungswarnung</string>
+    <string name="notif_distance_body_presenter">Teilnehmer %1$s ist %2$s Meter entfernt.</string>
+
+    <string name="requests_pending_count">Ausstehende Anfragen: %1$d</string>
+    <string name="request_sent">Anfrage an %s verschickt</string>
+    <string name="join_group">Gruppe beitreten</string>
+    <string name="wait_for_accept">Warte darauf, dass %1$s Deine Anfrage bestätigt.</string>
+
+    <string name="confirm_send_title">%1$s wirklich senden?</string>
+    <string name="confirm_send_body">Bist du sicher, dass du diese Datei an all deine Zuschauer versenden willst?</string>
+
+    <string name="notif_chat_title">Chat-Nachricht empfangen</string>
+    <string name="notif_chat_body">%1$s hat eine Nachricht geschickt.</string>
+
+    <string name="notif_picture_title">Bild empfangen</string>
+    <string name="notif_picture_body">%1$s hat Dir ein Bild geschickt.</string>
+
+    <string name="notif_file_title">Dokument empfangen</string>
+    <string name="notif_file_body">%1$s hat Dir ein Dokument geschickt.</string>
+
+    <string name="notif_group_found_title">Gruppe gefunden</string>
+    <string name="notif_group_found_body">Du kannst der Gruppe von %1$s beitreten.</string>
+
+    <string name="notif_participant_found_title">Teilnehmer gefunden</string>
+    <string name="notif_participant_found_body">%1$s möchte Deiner Gruppe beitreten.</string>
+
+    <string name="settings_more_automatic_connect">Autom. Verbindung</string>
+    <string name="settings_more_anonymize">Chat anonymisieren</string>
+    <string name="settings_more_missing_chat">Fehlenden Chatverlauf zusenden</string>
+    <string name="settings_more_missing_images">Fehlende Bilder zusenden</string>
+
+    <string name="tab_group">Gruppen</string>
+    <string name="tab_live">Live</string>
+    <string name="tab_images">Bilder</string>
+    <string name="tab_chat">Chat</string>
+    <string name="tab_participants">Teilnehmer</string>
 </resources>

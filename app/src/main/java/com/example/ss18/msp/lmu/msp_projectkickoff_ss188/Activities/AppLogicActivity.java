@@ -1,7 +1,6 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -14,22 +13,21 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.InboxFragment;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.LiveViewFragment;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.SelectParticipantsFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.SelectPresenterFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ShareFragment;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.InboxFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.TabPageAdapter;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.SelectParticipantsFragment;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.LiveViewFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Presentation.PresentationFragment;
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.AppContext;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission;
 
@@ -85,19 +83,19 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
                 case SPECTATOR:
                     startDiscovering();
                     //Add tabs for spectator
-                    tabPageAdapter.addFragment(selectPresenterFragment = new SelectPresenterFragment(), "Gruppen");
-                    tabPageAdapter.addFragment(new LiveViewFragment(), "Live");
-                    tabPageAdapter.addFragment(inboxFragment = new InboxFragment(), "Bilder");
-                    tabPageAdapter.addFragment(chatFragment = new ChatFragment(), "Chat");
+                    tabPageAdapter.addFragment(selectPresenterFragment = new SelectPresenterFragment(), getString(R.string.tab_group));
+                    tabPageAdapter.addFragment(new LiveViewFragment(), getString(R.string.tab_live));
+                    tabPageAdapter.addFragment(inboxFragment = new InboxFragment(), getString(R.string.tab_images));
+                    tabPageAdapter.addFragment(chatFragment = new ChatFragment(), getString(R.string.tab_chat));
                     selectPresenterFragment.reset();
                     break;
                 case PRESENTER:
                     startAdvertising();
                     //Add tabs for presenter
-                    tabPageAdapter.addFragment(selectParticipantsFragment = new SelectParticipantsFragment(), "Teilnehmer");
-                    tabPageAdapter.addFragment(new PresentationFragment(), getString(R.string.presentation_tabName));
-                    tabPageAdapter.addFragment(shareFragment = new ShareFragment(), "Bilder");
-                    tabPageAdapter.addFragment(chatFragment = new ChatFragment(), "Chat");
+                    tabPageAdapter.addFragment(selectParticipantsFragment = new SelectParticipantsFragment(), getString(R.string.tab_participants));
+                    tabPageAdapter.addFragment(new PresentationFragment(), getString(R.string.tab_live));
+                    tabPageAdapter.addFragment(shareFragment = new ShareFragment(), getString(R.string.tab_images));
+                    tabPageAdapter.addFragment(chatFragment = new ChatFragment(), getString(R.string.tab_chat));
                     selectParticipantsFragment.reset();
                     break;
                 default:
@@ -256,10 +254,10 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.settings);
 
-        final String[] deviceNicknames = {"Autom. Verbindung",
-                "Chat anonymisieren",
-                "Fehlender Chatverlauf zusenden" ,
-                "Fehlende Bilder zusenden",};
+        final String[] deviceNicknames = {getString(R.string.settings_more_automatic_connect),
+                getString(R.string.settings_more_anonymize),
+                getString(R.string.settings_more_missing_chat),
+                getString(R.string.settings_more_missing_images)};
 
         DialogInterface.OnMultiChoiceClickListener dialogInterface = new DialogInterface.OnMultiChoiceClickListener() {
             @Override

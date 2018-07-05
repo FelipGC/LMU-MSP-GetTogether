@@ -1,8 +1,6 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments;
 
-import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,20 +15,16 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
-
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.Message;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Chat.MessageAdapter;
-import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.PayloadSender;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import static android.content.Context.INPUT_METHOD_SERVICE;
+import static com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager.getAppLogicActivity;
 
 public class ChatFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "ChatFragment";
@@ -134,7 +128,7 @@ public class ChatFragment extends Fragment implements View.OnClickListener {
         int substringDividerIndex = receivedMessage.indexOf(':');
         String payloadSender;
         if(anonymous)
-            payloadSender = "Anonymous";
+            payloadSender = getString(R.string.anonymous);
         else
             payloadSender = receivedMessage.substring(0, substringDividerIndex);
         String message = receivedMessage.substring(substringDividerIndex + 1);
