@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 27
     defaultConfig {
-        applicationId "com.example.ss18.msp.lmu.msp_projectkickoff_ss188"
+        applicationId "de.lmu.msp.gettogether"
         minSdkVersion 21
         targetSdkVersion 27
         versionCode 1
