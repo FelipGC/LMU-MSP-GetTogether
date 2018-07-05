@@ -22,15 +22,19 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
     @Override
     public boolean onSupportNavigateUp() {
+        terminateService();
         onBackPressed();
         return true;
     }
 
-    @Override
-    protected void onDestroy() {
-        Log.i(TAG, "onDestroy() -> terminating nearby connection");
+    private void terminateService(){
+        Log.i(TAG, "onDestroy() -> stopService()");
         Intent intent = new Intent(getApplicationContext(), ConnectionManager.class);
         stopService(intent);
+    }
+    @Override
+    protected void onDestroy() {
+        terminateService();
         super.onDestroy();
     }
 }

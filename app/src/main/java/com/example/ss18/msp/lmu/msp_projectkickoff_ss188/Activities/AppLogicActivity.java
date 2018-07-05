@@ -126,7 +126,6 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     @Override
     protected void onStart() {
         super.onStart();
-
         appLogicActivity = this;
 
         getSupportActionBar().setTitle(LocalDataBase.getUserName()); //TODO
@@ -220,7 +219,12 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     @Override
     protected void onDestroy() {
         Log.i(TAG, "onDestroy() -> terminating nearby connection");
-        for (ServiceConnection s: serviceConnections) {
+        terminateService();
+        super.onDestroy();
+    }
+    private void terminateService(){
+        ArrayList<ServiceConnection> connections = (ArrayList<ServiceConnection>) serviceConnections.clone();
+        for (ServiceConnection s: connections) {
             try {
                 unbindService(s);
             }
@@ -229,13 +233,12 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
             }
         }
         serviceConnections.clear();
-        connectionManager.terminateConnection();
+        if(connectionManager != null)
+            connectionManager.terminateConnection();
         if (chatFragment != null) {
             chatFragment.clearContent();
         }
-        super.onDestroy();
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if(getUserRole().getRoleType() == User.UserRole.PRESENTER)
