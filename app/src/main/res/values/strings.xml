@@ -89,7 +89,7 @@
     <string name="chat_user_left">%1$s hat die Gruppe verlassen.</string>
 
     <string name="distances">Entfernungen:</string>
-    <string name="distance_to_moderator">Distanz zum Moderator: %1$fm.</string>
+    <string name="distance_to_moderator">Distanz zum Moderator: %1$sm</string>
     <string name="distance_unknown">derzeit unbekannt</string>
     <string name="distance_warning">Entfernungswarnung</string>
     <string name="notif_distance_body_presenter">Teilnehmer %1$s ist %2$s Meter entfernt.</string>
