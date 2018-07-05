@@ -12,7 +12,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import de.lmu.msp.gettogether.R;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
@@ -38,6 +37,7 @@ import de.lmu.msp.gettogether.Activities.AppLogicActivity;
 import de.lmu.msp.gettogether.DataBase.LocalDataBase;
 import de.lmu.msp.gettogether.DistanceControl.CheckDistanceService;
 import de.lmu.msp.gettogether.DistanceControl.FrequentLocationService;
+import de.lmu.msp.gettogether.R;
 import de.lmu.msp.gettogether.Users.User;
 import de.lmu.msp.gettogether.Utility.NotificationUtility;
 

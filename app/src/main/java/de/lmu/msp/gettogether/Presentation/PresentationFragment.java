@@ -19,8 +19,6 @@ import android.widget.ImageView;
 import de.lmu.msp.gettogether.R;
 import de.lmu.msp.gettogether.Utility.AppContext;
 
-import de.lmu.msp.gettogether.Utility.AppContext;
-
 // TODO: Extract ViewModel for surviving configuration changes.
 
 /**

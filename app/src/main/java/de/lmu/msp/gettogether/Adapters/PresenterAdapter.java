@@ -19,11 +19,11 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 import de.lmu.msp.gettogether.Connection.ConnectionEndpoint;
 import de.lmu.msp.gettogether.Connection.ConnectionManager;
 import de.lmu.msp.gettogether.R;
-
-import java.util.ArrayList;
 
 import static de.lmu.msp.gettogether.Connection.ConnectionManager.getAppLogicActivity;
 

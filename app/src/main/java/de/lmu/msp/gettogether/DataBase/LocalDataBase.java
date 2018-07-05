@@ -4,15 +4,13 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
 
-import de.lmu.msp.gettogether.Activities.AppLogicActivity;
-import de.lmu.msp.gettogether.Connection.ConnectionManager;
-import de.lmu.msp.gettogether.Users.User;
 import com.google.android.gms.nearby.connection.Payload;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import de.lmu.msp.gettogether.Activities.AppLogicActivity;
+import de.lmu.msp.gettogether.Connection.ConnectionManager;
 import de.lmu.msp.gettogether.Users.User;
 
 /**

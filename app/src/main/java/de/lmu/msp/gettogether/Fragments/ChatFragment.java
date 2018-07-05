@@ -15,14 +15,14 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+
 import de.lmu.msp.gettogether.Chat.Message;
 import de.lmu.msp.gettogether.Chat.MessageAdapter;
 import de.lmu.msp.gettogether.Connection.PayloadSender;
 import de.lmu.msp.gettogether.DataBase.LocalDataBase;
 import de.lmu.msp.gettogether.R;
-
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 
 import static de.lmu.msp.gettogether.Connection.ConnectionManager.getAppLogicActivity;
 

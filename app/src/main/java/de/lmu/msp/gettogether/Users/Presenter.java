@@ -4,8 +4,6 @@ import android.util.Log;
 
 import de.lmu.msp.gettogether.Activities.AppLogicActivity;
 
-import de.lmu.msp.gettogether.Activities.AppLogicActivity;
-
 /**
  * Sends data to spectators who subscribed.
  */

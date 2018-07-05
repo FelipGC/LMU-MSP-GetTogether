@@ -13,19 +13,9 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
 
-import de.lmu.msp.gettogether.Activities.AppLogicActivity;
-import de.lmu.msp.gettogether.DataBase.LocalDataBase;
-import de.lmu.msp.gettogether.DistanceControl.CheckDistanceService;
-import de.lmu.msp.gettogether.Fragments.ChatFragment;
-import de.lmu.msp.gettogether.Fragments.InboxFragment;
-import de.lmu.msp.gettogether.R;
-import de.lmu.msp.gettogether.Users.User;
-import de.lmu.msp.gettogether.Utility.FixedSizeList;
-import de.lmu.msp.gettogether.Utility.NotificationUtility;
 import com.google.android.gms.nearby.connection.Payload;
 import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
-import de.lmu.msp.gettogether.Utility.Constants;
 
 import java.io.File;
 import java.io.InputStream;
@@ -36,6 +26,7 @@ import de.lmu.msp.gettogether.DataBase.LocalDataBase;
 import de.lmu.msp.gettogether.DistanceControl.CheckDistanceService;
 import de.lmu.msp.gettogether.Fragments.ChatFragment;
 import de.lmu.msp.gettogether.Fragments.InboxFragment;
+import de.lmu.msp.gettogether.R;
 import de.lmu.msp.gettogether.Users.User;
 import de.lmu.msp.gettogether.Utility.Constants;
 import de.lmu.msp.gettogether.Utility.FixedSizeList;

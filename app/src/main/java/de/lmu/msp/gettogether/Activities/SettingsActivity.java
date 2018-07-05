@@ -20,15 +20,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import de.lmu.msp.gettogether.DataBase.AppPreferences;
-import de.lmu.msp.gettogether.DataBase.LocalDataBase;
-import de.lmu.msp.gettogether.R;
-import de.lmu.msp.gettogether.Utility.RandomNameGenerator;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
+import de.lmu.msp.gettogether.DataBase.AppPreferences;
+import de.lmu.msp.gettogether.DataBase.LocalDataBase;
+import de.lmu.msp.gettogether.R;
+import de.lmu.msp.gettogether.Utility.RandomNameGenerator;
 
 
 public class SettingsActivity extends BaseActivity implements PopupMenu.OnMenuItemClickListener {

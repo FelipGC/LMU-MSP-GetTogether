@@ -8,7 +8,6 @@ import android.location.Location;
 import android.os.IBinder;
 import android.util.Log;
 
-import de.lmu.msp.gettogether.DataBase.LocalDataBase;
 import com.google.android.gms.nearby.connection.Payload;
 
 import java.io.UnsupportedEncodingException;

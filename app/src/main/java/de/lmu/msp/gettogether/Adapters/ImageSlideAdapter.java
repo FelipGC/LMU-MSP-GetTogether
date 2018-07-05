@@ -9,9 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import de.lmu.msp.gettogether.R;
-
 import java.util.ArrayList;
+
+import de.lmu.msp.gettogether.R;
 
 public class ImageSlideAdapter extends PagerAdapter {
 

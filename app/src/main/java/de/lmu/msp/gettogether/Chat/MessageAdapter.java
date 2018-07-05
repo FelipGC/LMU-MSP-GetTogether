@@ -11,10 +11,11 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import de.lmu.msp.gettogether.DataBase.LocalDataBase;
-import de.lmu.msp.gettogether.R;
 import java.util.ArrayList;
 import java.util.List;
+
+import de.lmu.msp.gettogether.DataBase.LocalDataBase;
+import de.lmu.msp.gettogether.R;
 
 public class MessageAdapter extends BaseAdapter {
 

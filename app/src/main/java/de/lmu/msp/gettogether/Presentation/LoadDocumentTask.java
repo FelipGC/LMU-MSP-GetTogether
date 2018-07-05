@@ -4,8 +4,6 @@ import android.content.ContentResolver;
 import android.net.Uri;
 import android.os.AsyncTask;
 
-import de.lmu.msp.gettogether.Utility.AsyncTaskResult;
-
 import java.io.IOException;
 
 import de.lmu.msp.gettogether.Utility.AsyncTaskResult;

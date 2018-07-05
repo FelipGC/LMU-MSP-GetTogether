@@ -10,8 +10,6 @@ import android.util.Log;
 
 import de.lmu.msp.gettogether.DataBase.LocalDataBase;
 
-import de.lmu.msp.gettogether.DataBase.LocalDataBase;
-
 import static de.lmu.msp.gettogether.Connection.ConnectionManager.getAppLogicActivity;
 
 /**

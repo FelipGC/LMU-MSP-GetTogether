@@ -11,8 +11,6 @@ import android.os.AsyncTask;
 import de.lmu.msp.gettogether.R;
 import de.lmu.msp.gettogether.Utility.AsyncTaskResult;
 
-import de.lmu.msp.gettogether.Utility.AsyncTaskResult;
-
 public class PresentationViewModel extends ViewModel implements IDocumentViewer {
     private MutableLiveData<Bitmap> activePage;
     private MutableLiveData<Integer> message;

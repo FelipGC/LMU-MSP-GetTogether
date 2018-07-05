@@ -5,11 +5,10 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
-import de.lmu.msp.gettogether.Adapters.ImageSlideAdapter;
-import de.lmu.msp.gettogether.R;
-
 import java.util.ArrayList;
 
+import de.lmu.msp.gettogether.Adapters.ImageSlideAdapter;
+import de.lmu.msp.gettogether.R;
 import me.relex.circleindicator.CircleIndicator;
 
 public class ImageSliderActivity extends AppCompatActivity {

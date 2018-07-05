@@ -21,13 +21,13 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.util.Arrays;
+import java.util.HashSet;
+
 import de.lmu.msp.gettogether.Adapters.PresenterAdapter;
 import de.lmu.msp.gettogether.Connection.ConnectionEndpoint;
 import de.lmu.msp.gettogether.Connection.ConnectionManager;
 import de.lmu.msp.gettogether.R;
-
-import java.util.Arrays;
-import java.util.HashSet;
 
 import static de.lmu.msp.gettogether.Connection.ConnectionManager.getAppLogicActivity;
 

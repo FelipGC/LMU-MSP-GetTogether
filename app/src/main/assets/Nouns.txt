@@ -7,7 +7,7 @@ Horse
 Apple
 Banana
 Pineapple
-Turky
+Turkey
 Fish
 Car
 Smartphone

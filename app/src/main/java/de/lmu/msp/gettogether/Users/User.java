@@ -1,8 +1,8 @@
 package de.lmu.msp.gettogether.Users;
 
-import de.lmu.msp.gettogether.DataBase.LocalDataBase;
-
 import java.io.Serializable;
+
+import de.lmu.msp.gettogether.DataBase.LocalDataBase;
 
 /**
  * Represents a user using this software. A user can either be a spectator or a presenter.

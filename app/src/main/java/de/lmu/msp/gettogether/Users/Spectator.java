@@ -4,8 +4,6 @@ import android.util.Log;
 
 import de.lmu.msp.gettogether.Activities.AppLogicActivity;
 
-import de.lmu.msp.gettogether.Activities.AppLogicActivity;
-
 /**
  * A user who (mainly) subscribes and receives data from a spectator.
  */

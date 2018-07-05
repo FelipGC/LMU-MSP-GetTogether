@@ -20,14 +20,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import de.lmu.msp.gettogether.Connection.ConnectionManager;
-import de.lmu.msp.gettogether.Connection.PayloadSender;
-import de.lmu.msp.gettogether.DataBase.LocalDataBase;
-import de.lmu.msp.gettogether.R;
 import com.google.android.gms.nearby.connection.Payload;
 
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
+
+import de.lmu.msp.gettogether.Connection.ConnectionManager;
+import de.lmu.msp.gettogether.Connection.PayloadSender;
+import de.lmu.msp.gettogether.DataBase.LocalDataBase;
+import de.lmu.msp.gettogether.R;
 
 import static de.lmu.msp.gettogether.Connection.ConnectionManager.getAppLogicActivity;
 

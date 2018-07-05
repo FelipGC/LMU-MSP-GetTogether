@@ -11,10 +11,10 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 import de.lmu.msp.gettogether.Connection.ConnectionEndpoint;
 import de.lmu.msp.gettogether.R;
-
-import java.util.ArrayList;
 
 /**
  * Adapter for storing/handling (available) presenters for the "SelectPresenterFragment"

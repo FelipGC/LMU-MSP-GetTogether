@@ -15,8 +15,6 @@ import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.widget.Toast;
 
-import de.lmu.msp.gettogether.Connection.ConnectionManager;
-import de.lmu.msp.gettogether.R;
 import com.google.android.gms.nearby.connection.Payload;
 
 import java.io.IOException;
@@ -25,6 +23,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 
 import de.lmu.msp.gettogether.Connection.ConnectionManager;
+import de.lmu.msp.gettogether.R;
 
 import static android.os.Process.THREAD_PRIORITY_AUDIO;
 import static android.os.Process.setThreadPriority;
