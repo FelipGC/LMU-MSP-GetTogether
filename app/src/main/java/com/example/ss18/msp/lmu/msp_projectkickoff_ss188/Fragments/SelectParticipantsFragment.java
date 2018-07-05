@@ -119,12 +119,12 @@ public class SelectParticipantsFragment extends Fragment {
             public boolean onTouch(View v, MotionEvent event) {
                 if(event.getAction() == MotionEvent.ACTION_DOWN){
                     final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle(R.string.gps_entfernung);
+                    builder.setTitle(R.string.distance);
                     String[] list;
                     int index = 0;
                     if(connectionManager.getEstablishedConnections().size() == 0){
                         list = new String[1];
-                        list[0] = getString(R.string.keine_zuschauer_verbunden);
+                        list[0] = getString(R.string.no_participants_connected);
                     }else {
                         list = new String[connectionManager.getEstablishedConnections().size()];
                         for (ConnectionEndpoint e : connectionManager.getEstablishedConnections().values()) {
@@ -150,7 +150,7 @@ public class SelectParticipantsFragment extends Fragment {
             return;
         TextView textView = mainView.findViewById(R.id.numberOfParticipants);
         if(maxSize == 0) {
-            textView.setText(R.string.leer);
+            textView.setText(R.string.search_participants);
             progressBar.setVisibility(View.VISIBLE);
             progressBar.getIndeterminateDrawable()
                     .setColorFilter(ContextCompat.getColor(getContext(), R.color.colorAccent), PorterDuff.Mode.SRC_IN );
@@ -190,7 +190,7 @@ public class SelectParticipantsFragment extends Fragment {
 
         //We found no device
         if(discoveredDevices.length == 0){
-            builder.setMessage(R.string.noDevicesFound);
+            builder.setMessage(R.string.no_requests);
             builder.setNeutralButton(R.string.okay, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {

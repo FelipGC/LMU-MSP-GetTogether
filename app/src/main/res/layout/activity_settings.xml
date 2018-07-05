@@ -23,7 +23,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:fontFamily="sans-serif-smallcaps"
-                android:hint="@string/username"
+                android:hint="@string/choose_username"
                 android:gravity="center"
                 android:inputType="text"
                 android:maxLines="1" />

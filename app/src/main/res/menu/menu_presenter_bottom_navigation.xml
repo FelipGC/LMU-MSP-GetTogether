@@ -10,14 +10,14 @@
     <item
         android:id="@+id/voiceChat"
         android:enabled="true"
-        android:title="@string/sprechen"
+        android:title="@string/voice"
         android:icon="@drawable/voice_icon"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/vibrieren"
         android:enabled="true"
-        android:title="@string/stupsen"
+        android:title="@string/poke"
         android:icon="@drawable/vibrate_icon"
         app:showAsAction="ifRoom"/>
 </menu>

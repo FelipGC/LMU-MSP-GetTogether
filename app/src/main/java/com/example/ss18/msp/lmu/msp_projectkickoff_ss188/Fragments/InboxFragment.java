@@ -16,9 +16,6 @@ import android.widget.TextView;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.ImageSliderActivity;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 
-import java.util.ArrayList;
-import java.util.List;
-
 
 public class InboxFragment extends Fragment {
     private static final String TAG = "InboxFragment";
@@ -60,7 +57,7 @@ public class InboxFragment extends Fragment {
         Log.i(TAG, "updateInboxFragment()");
         if(title!=null) {
             if (ImageSliderActivity.images == null || ImageSliderActivity.images.size() == 0)
-                title.setText(R.string.keine_bilder);
+                title.setText(R.string.no_pictures);
             else
                 title.setText("<Bilder: " + ImageSliderActivity.images.size() + ">");
         }

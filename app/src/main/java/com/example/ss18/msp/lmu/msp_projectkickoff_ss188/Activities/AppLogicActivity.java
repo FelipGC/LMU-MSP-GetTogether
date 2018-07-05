@@ -161,7 +161,6 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
      * Calls startAdvertising() on the connectionManager
      */
     private void startAdvertising() {
-        Toast.makeText(this, R.string.startDiscovering, Toast.LENGTH_LONG).show();
         connectionManager.startAdvertising();
     }
 
@@ -176,7 +175,6 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
      * Calls startDiscovering() on the connectionManager
      */
     private void startDiscovering() {
-        Toast.makeText(this, R.string.startAdvertising, Toast.LENGTH_LONG).show();
         connectionManager.startDiscovering();
     }
 
