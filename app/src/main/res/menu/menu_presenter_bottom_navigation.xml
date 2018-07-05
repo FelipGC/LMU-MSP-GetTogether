@@ -21,5 +21,3 @@
         android:icon="@drawable/vibrate_icon"
         app:showAsAction="ifRoom"/>
 </menu>
-
-    <!--android:icon="@drawable/ic_favorite_white_24dp"-->

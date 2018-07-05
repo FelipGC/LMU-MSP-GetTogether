@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/menu_main_setting"
-        android:icon="?android:attr/actionModePasteDrawable"
+        android:icon="@drawable/baseline_settings_white_24dp"
         android:title="Settings"
         android:onClick="DisplayExtendedSettings"
         app:showAsAction="always" />
