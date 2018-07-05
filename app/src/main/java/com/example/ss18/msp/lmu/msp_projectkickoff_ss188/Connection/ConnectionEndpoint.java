@@ -30,7 +30,7 @@ public final class ConnectionEndpoint {
 
     private final static String TAG = "ConnectionEndpoint";
 
-    private String lastKnownDistance = "Derzeit unbekannt.";
+    private float lastKnownDistance = -1f;
 
     private static ConnectionManager cM;
 
@@ -126,11 +126,11 @@ public final class ConnectionEndpoint {
         return uri;
     }
 
-    public void setLastKnownDistance(String lastKnownDistance) {
+    public void setLastKnownDistance(float lastKnownDistance) {
         this.lastKnownDistance = lastKnownDistance;
     }
 
-    public String getLastKnownDistance(){
+    public float getLastKnownDistance(){
         return lastKnownDistance;
     }
 

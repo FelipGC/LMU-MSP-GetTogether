@@ -128,7 +128,8 @@ public class SelectParticipantsFragment extends Fragment {
                     }else {
                         list = new String[connectionManager.getEstablishedConnections().size()];
                         for (ConnectionEndpoint e : connectionManager.getEstablishedConnections().values()) {
-                            list[index++] = e.getName() + ": " + e.getLastKnownDistance() + "m";
+                            float distance = e.getLastKnownDistance();
+                            list[index++] = e.getName() + ": " + (distance>=0? distance + "m": getString(R.string.distance_unknown));
                         }
                     }
                     builder.setItems(list,null);

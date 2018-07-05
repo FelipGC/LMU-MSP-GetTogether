@@ -77,4 +77,5 @@ Get Together "ist eine App, die eine einfache und komfortable Übertragung von D
     <string name="keine_zuschauer_verbunden">Derzeit sind keine Zuschauer verbunden...</string>
     <string name="gps_entfernung">GPS Entfernungen:</string>
     <string name="keine_bilder">Keine Bilder erhalten.</string>
+    <string name="distance_unknown">derzeit unbekannt</string>
 </resources>
