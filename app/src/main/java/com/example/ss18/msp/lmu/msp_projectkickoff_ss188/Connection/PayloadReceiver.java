@@ -97,8 +97,6 @@ public final class PayloadReceiver extends PayloadCallback {
                         String newEndpointID = fileContent.substring(0, substringDividerIndex);
                         String newEndpointName = fileContent.substring(substringDividerIndex + 1);
                         LocalDataBase.otherUsersNameToID.put(newEndpointName,newEndpointID);
-                        //TODO how to discover if it is presenter
-                        //cM.getDiscoveredEndpoints().put(newEndpointID, new ConnectionEndpoint(endpointId, newEndpointName));
                         break;
                     case "A_CHAT":
                         //If we already received it quit
@@ -274,8 +272,8 @@ public final class PayloadReceiver extends PayloadCallback {
         Log.i(TAG, "To trim: " + fileName);
         String[] parts = fileName.split(":");
         Log.i(TAG, "Parts: " + parts.toString());
-
-        String payLoadTag = parts[0]; //TODO check if 3 parts available
+        if(parts.length<1) return;
+        String payLoadTag = parts[0];
         String bitMapSender = endpointId;
         if (parts.length >= 2) {
             bitMapSender = parts[1];

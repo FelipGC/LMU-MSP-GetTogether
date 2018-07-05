@@ -152,8 +152,8 @@ public class SplashActivity extends AppCompatActivity {
         } else {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
-            LocalDataBase.setUserName(username); //TODO Laureen! Das hier nicht vergessen sonst bugt alles rum ;)
-            LocalDataBase.setProfilePictureUri(preferences.getUserImage()); //TODO Laureen! Das hier nicht vergessen sonst bugt alles rum ;)
+            LocalDataBase.setUserName(username);
+            LocalDataBase.setProfilePictureUri(preferences.getUserImage()); 
 
             Toast.makeText(getApplicationContext(),
                     getString(R.string.welcome_back, preferences.getUsername()),

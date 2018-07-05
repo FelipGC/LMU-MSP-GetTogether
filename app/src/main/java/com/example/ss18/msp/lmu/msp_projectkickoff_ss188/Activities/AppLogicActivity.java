@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionManager;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.AppPreferences;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.LocalDataBase;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.ChatFragment;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Fragments.InboxFragment;
@@ -126,7 +127,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
         super.onStart();
         appLogicActivity = this;
 
-        getSupportActionBar().setTitle(LocalDataBase.getUserName()); //TODO
+        getSupportActionBar().setTitle(AppPreferences.getInstance(this).getUsername());
 
         //Get object from intent
         setUserRole((User) getIntent().getSerializableExtra("UserRole"));

@@ -56,8 +56,9 @@ public abstract class AbstractLocationService extends Service {
     protected void checkLocation(){
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
-            //ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},);
-            // TODO handling missing permission
+            // should not be possible to get here, since permission is checked on startup
+            // though needed for compiling
+            Log.i(TAG,"Checking Location not possible - Permission missing");
             return;
         }
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {

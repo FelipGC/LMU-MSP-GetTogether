@@ -37,7 +37,6 @@ public class CheckDistanceService extends AbstractLocationService {
                     return;
                 float distance = LocationUtility.getDistanceBetween(location,locationTo);
                 if(distance > MAX_GPS_DISTANCE){
-                    //TODO: DISPLAY NOTIFICATION
                     NotificationUtility.displayNotification(getString(R.string.distance_warning),
                             getString(R.string.distance_to_moderator, String.valueOf(distance)),
                             NotificationCompat.PRIORITY_DEFAULT);

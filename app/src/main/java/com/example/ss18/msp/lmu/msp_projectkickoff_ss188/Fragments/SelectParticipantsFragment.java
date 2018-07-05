@@ -271,7 +271,6 @@ public class SelectParticipantsFragment extends Fragment {
      * Starts sending voice
      */
     private void startRecordingVoice(){
-        //TODO: Display something
         voiceTransmission.startRecordingVoice();
         Toast.makeText(getContext(), R.string.voice_start, Toast.LENGTH_SHORT).show();
 
@@ -281,7 +280,6 @@ public class SelectParticipantsFragment extends Fragment {
      * Ends recording voice
      */
     private void stopRecordingVoice(){
-        //TODO: Display something
         voiceTransmission.stopRecordingVoice();
         Toast.makeText(getContext(), R.string.voice_stop, Toast.LENGTH_SHORT).show();
 
