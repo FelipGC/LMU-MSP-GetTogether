@@ -125,13 +125,6 @@ public class ShareFragment extends Fragment {
             uri = resultData.getData();
             Log.i(TAG, "Uri: " + uri.toString());
 
-            try {
-                final Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
-                compressImage(bitmap);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
             displayConfirmationDialog(uri);
         }
         //Calling super is mandatory!
@@ -184,6 +177,12 @@ public class ShareFragment extends Fragment {
         }
 
         uri = Uri.fromFile(file);
+
+        try {
+            sendDataToEndpoint(uri);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     //Calculates the compression as not all images are the same size
@@ -228,8 +227,13 @@ public class ShareFragment extends Fragment {
             public void onClick(DialogInterface dialog, int which) {
                 //dataToPayload
                 try {
-                    sendDataToEndpoint(uri);
-                } catch (FileNotFoundException e) {
+                    final Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
+                    new Thread(new Runnable() {
+                        public void run() {
+                            compressImage(bitmap);
+                        }
+                    }).start();
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -244,13 +248,13 @@ public class ShareFragment extends Fragment {
      * @param uri
      */
     private void sendDataToEndpoint(Uri uri) throws FileNotFoundException {
-        Log.i(TAG,"START PALOAD SENDING");
+        Log.i(TAG,"START PAYLOAD SENDING");
         LocalDataBase.urisSent.add(uri);
         for (final String endpointId : cM.getEstablishedConnections().keySet()) {
             sendDataToEndpoint(endpointId,uri);
         }
         //Display Toast
-        Toast.makeText(getContext(),R.string.image_sent,Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getContext(),R.string.image_sent,Toast.LENGTH_SHORT).show();
     }
 
     public void sendDataToEndpoint(String endpointId,Uri uri) throws FileNotFoundException{
