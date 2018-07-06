@@ -1,6 +1,7 @@
 package de.lmu.msp.gettogether.Activities;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Menu;
@@ -22,14 +24,14 @@ import de.lmu.msp.gettogether.Connection.ConnectionManager;
 import de.lmu.msp.gettogether.DataBase.AppPreferences;
 import de.lmu.msp.gettogether.DataBase.LocalDataBase;
 import de.lmu.msp.gettogether.Fragments.ChatFragment;
+import de.lmu.msp.gettogether.R;
 import de.lmu.msp.gettogether.Fragments.InboxFragment;
-import de.lmu.msp.gettogether.Fragments.LiveViewFragment;
 import de.lmu.msp.gettogether.Fragments.SelectParticipantsFragment;
 import de.lmu.msp.gettogether.Fragments.SelectPresenterFragment;
 import de.lmu.msp.gettogether.Fragments.ShareFragment;
 import de.lmu.msp.gettogether.Fragments.TabPageAdapter;
-import de.lmu.msp.gettogether.Presentation.PresentationFragment;
-import de.lmu.msp.gettogether.R;
+import de.lmu.msp.gettogether.Presentation.Fragments.PresentationFragment;
+import de.lmu.msp.gettogether.Presentation.Fragments.LiveViewFragment;
 import de.lmu.msp.gettogether.Users.User;
 import de.lmu.msp.gettogether.Utility.AppContext;
 import de.lmu.msp.gettogether.Voice.VoiceTransmission;
@@ -127,7 +129,10 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
         super.onStart();
         appLogicActivity = this;
 
-        getSupportActionBar().setTitle(AppPreferences.getInstance(this).getUsername());
+        ActionBar supportActionBar = getSupportActionBar();
+        if (supportActionBar != null) {
+            supportActionBar.setTitle(AppPreferences.getInstance(this).getUsername());
+        }
 
         //Get object from intent
         setUserRole((User) getIntent().getSerializableExtra("UserRole"));
@@ -135,7 +140,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
         //Connection
         final Intent intent = new Intent(this, ConnectionManager.class);
         startService(intent);
-        bindService(intent, mServiceConnection, this.BIND_AUTO_CREATE);
+        bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
         serviceConnections.add(mServiceConnection);
     }
 
@@ -197,8 +202,6 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     /**
      * Displays options to manage (allow/deny) file sharing with devices.
      * That is selecting devices you want to enable file sharing
-     *
-     * @param view
      */
     public void manageParticipants(View view) {
         selectParticipantsFragment.manageParticipants(view);

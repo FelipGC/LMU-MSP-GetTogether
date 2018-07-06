@@ -1,0 +1,10 @@
+package de.lmu.msp.gettogether.Messages;
+
+public enum MessageType {
+    PRESENTATION_FILE_NAME_REQUEST,
+    PRESENTATION_STOP,
+    PRESENTATION_FILE_NAME,
+    PRESENTATION_PAGE_NR_REQUEST,
+    PRESENTATION_NO_ACTIVE,
+    PRESENTATION_STATE
+}

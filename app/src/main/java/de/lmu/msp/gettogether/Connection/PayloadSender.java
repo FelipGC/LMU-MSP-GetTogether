@@ -11,6 +11,8 @@ import android.util.Log;
 import com.google.android.gms.nearby.connection.Payload;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.lmu.msp.gettogether.DataBase.LocalDataBase;
 
@@ -58,8 +60,12 @@ public class PayloadSender {
      * Sends a Payload object out to ALL endPoints but a specific one
      */
     public void sendPayloadBytesBut(String idToExclude, Payload payload) {
+        byte[] bytes = payload.asBytes();
+        if (bytes == null) {
+            return;
+        }
         for (String endpointId : cM.getEstablishedConnectionsCloned().keySet()) {
-            Payload payloadToSend = Payload.fromBytes(payload.asBytes());
+            Payload payloadToSend = Payload.fromBytes(bytes);
             if (!endpointId.equals(idToExclude)) {
                 Log.i(TAG, "sendPayloadBytes to: " + endpointId);
                 cM.getConnectionsClient().sendPayload(endpointId, payloadToSend);
@@ -68,21 +74,32 @@ public class PayloadSender {
     }
 
     private Payload anonymizePayload(Payload payload){
-            String message = new String(payload.asBytes());
+        byte[] bytes = payload.asBytes();
+        if (bytes == null) {
+            return null;
+        }
+        String message = new String(bytes);
             message = "A_"+message;
             Log.i(TAG,message);
-            Payload payloadAnonym = Payload.fromBytes(message.getBytes());
-            return payloadAnonym;
+            return Payload.fromBytes(message.getBytes());
     }
     /**
      * Sends a Payload object out to ALL endPoints but a specific one but anonymizes the name
      */
     public void sendPayloadBytesAnonymizedBut(String endpointId, Payload chatPayload) {
-        sendPayloadBytesBut(endpointId,anonymizePayload(chatPayload));
+        Payload anonymizedPayload = anonymizePayload(chatPayload);
+        if (anonymizedPayload == null) {
+            return;
+        }
+        sendPayloadBytesBut(endpointId, anonymizedPayload);
     }
 
     public void sendPayloadBytesAnonymizedToSpecific(String endpointId, Payload chatPayload) {
-            sendPayloadBytesToSpecific(endpointId,anonymizePayload(chatPayload));
+        Payload anonymizedPayload = anonymizePayload(chatPayload);
+        if (anonymizedPayload == null) {
+            return;
+        }
+        sendPayloadBytesToSpecific(endpointId, anonymizedPayload);
     }
 
     public void sendPayloadBytesToSpecific(String recipient, Payload payload) {
@@ -93,9 +110,15 @@ public class PayloadSender {
      * Sends a Payload object out to ALL endPoints
      */
     private void sendPayloadBytes(final Payload payload) {
-        if(cM==null)return;
+        if(cM==null) {
+            return;
+        }
+        byte[] bytes = payload.asBytes();
+        if (bytes == null) {
+            return;
+        }
         for (final String endpointId : cM.getEstablishedConnectionsCloned().keySet()) {
-            Payload payloadToSend = Payload.fromBytes(payload.asBytes());
+            Payload payloadToSend = Payload.fromBytes(bytes);
             Log.i(TAG, "sendPayloadBytes to: " + endpointId);
             cM.getConnectionsClient().sendPayload(endpointId, payloadToSend);
         }
@@ -172,4 +195,17 @@ public class PayloadSender {
         sendPayloadStream(id,payload);
     }
 
+    public void sendMessage(String message) {
+        if (cM == null) {
+            return;
+        }
+        try {
+            byte[] bytes = message.getBytes("UTF-8");
+            Payload payload = Payload.fromBytes(bytes);
+            List<String> receivers = new ArrayList<>(cM.getEstablishedConnections().keySet());
+            cM.getConnectionsClient().sendPayload(receivers, payload);
+        } catch (UnsupportedEncodingException e) {
+            Log.i(TAG, e.getMessage());
+        }
+    }
 }

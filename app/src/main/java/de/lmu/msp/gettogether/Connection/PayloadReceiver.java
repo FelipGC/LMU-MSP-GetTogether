@@ -1,6 +1,7 @@
 package de.lmu.msp.gettogether.Connection;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Resources;
@@ -9,6 +10,7 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
@@ -20,6 +22,8 @@ import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import java.io.File;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Collection;
+import java.util.LinkedList;
 
 import de.lmu.msp.gettogether.Activities.AppLogicActivity;
 import de.lmu.msp.gettogether.DataBase.LocalDataBase;
@@ -41,6 +45,7 @@ public final class PayloadReceiver extends PayloadCallback {
     //SimpleArrayMap is a more efficient data structure when lots of changes occur (in comparision to hash map)
     private final SimpleArrayMap<Long, Payload> incomingPayloads = new SimpleArrayMap<>();
     private final SimpleArrayMap<Long, String> filePayloadFilenames = new SimpleArrayMap<>();
+    private final Collection<IMessageListener> messageListeners = new LinkedList<>();
 
     private ConnectionManager cM;
 
@@ -62,8 +67,16 @@ public final class PayloadReceiver extends PayloadCallback {
     PayloadReceiver() {
         Log.i(TAG, "new PayloadReceiver()");
         Intent intent = new Intent(getAppLogicActivity(), ConnectionManager.class);
-        getAppLogicActivity().bindService(intent, mServiceConnection, getAppLogicActivity().BIND_AUTO_CREATE);
+        getAppLogicActivity().bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
         getAppLogicActivity().serviceConnections.add(mServiceConnection);
+    }
+
+    public void register(IMessageListener listener) {
+        messageListeners.add(listener);
+    }
+
+    public void unregister(IMessageListener listener) {
+        messageListeners.remove(listener);
     }
 
     //Note: onPayloadReceived() is called when the first byte of a Payload is received;
@@ -74,12 +87,21 @@ public final class PayloadReceiver extends PayloadCallback {
         //We will be receiving data
         Log.i(TAG, String.format("onPayloadReceived(endpointId=%s, payload=%s)", endpointId, payload));
         if (payload.getType() == Payload.Type.BYTES) {
-            String payloadFilenameMessage = null;
+            byte[] bytes = payload.asBytes();
+            if (bytes == null) {
+                return;
+            }
 
+            String payloadFilenameMessage;
             try {
-                payloadFilenameMessage = new String(payload.asBytes(), "UTF-8");
+                payloadFilenameMessage = new String(bytes, "UTF-8");
+                for (IMessageListener listener :
+                        messageListeners) {
+                    listener.onMessageReceived(payloadFilenameMessage);
+                }
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
+                return;
             }
 
             //Extracts the payloadId and filename from the message and stores it in the
@@ -97,7 +119,7 @@ public final class PayloadReceiver extends PayloadCallback {
                         substringDividerIndex = fileContent.indexOf(':');
                         String newEndpointID = fileContent.substring(0, substringDividerIndex);
                         String newEndpointName = fileContent.substring(substringDividerIndex + 1);
-                        LocalDataBase.otherUsersNameToID.put(newEndpointName,newEndpointID);
+                        LocalDataBase.otherUsersNameToID.put(newEndpointName, newEndpointID);
                         break;
                     case "A_CHAT":
                         //If we already received it quit
@@ -154,7 +176,7 @@ public final class PayloadReceiver extends PayloadCallback {
                         onLocationReceived(location);
                         break;
                     case "NULL_PROF_PIC":
-                        Log.i(TAG,"NULL_PROF_PIC received.");
+                        Log.i(TAG, "NULL_PROF_PIC received.");
                         sendEndpointsProfilePictureTo(endpointId);
                         break;
                     default:
@@ -172,7 +194,11 @@ public final class PayloadReceiver extends PayloadCallback {
         } else if (payload.getType() == Payload.Type.STREAM) {
             Log.i(TAG, "Received STREAM: ID=" + payload.getId());
             //We received a stream. i.e Voice stream
-            receivedVoiceStream(payload.asStream().asInputStream());
+            Payload.Stream payloadStream = payload.asStream();
+            if (payloadStream == null) {
+                return;
+            }
+            receivedVoiceStream(payloadStream.asInputStream());
         }
     }
 
@@ -245,7 +271,11 @@ public final class PayloadReceiver extends PayloadCallback {
      */
     private void receivedFileParser(Payload payload, PayloadTransferUpdate update, String endpointId) {
         // Retrieve the filename and corresponding payload.
-        File payloadFile = payload.asFile().asJavaFile();
+        Payload.File fileInPayload = payload.asFile();
+        if (fileInPayload == null) {
+            return;
+        }
+        File payloadFile = fileInPayload.asJavaFile();
         String fileName = filePayloadFilenames.remove(update.getPayloadId());
         if (fileName != null) {
             //Did we receive a Profile Picture?
@@ -272,8 +302,12 @@ public final class PayloadReceiver extends PayloadCallback {
     private void profilePictureReceived(String fileName, File payloadFile, String endpointId) {
         Log.i(TAG, "To trim: " + fileName);
         String[] parts = fileName.split(":");
-        Log.i(TAG, "Parts: " + parts.toString());
-        if(parts.length<1) return;
+        Log.i(TAG, "Parts: ");
+        for (String part :
+                parts) {
+            Log.i(TAG, "-" + part);
+        }
+        if (parts.length < 1) return;
         String payLoadTag = parts[0];
         String bitMapSender = endpointId;
         if (parts.length >= 2) {
@@ -295,7 +329,7 @@ public final class PayloadReceiver extends PayloadCallback {
                 Log.i(TAG, "<<PROF_PIC_V>>");
                 try {
                     //Uri uri = LocalDataBase.getProfilePictureUri(bitMapSender);
-                    profilePictureToEndpoints(bitMapSender,payloadFile);
+                    profilePictureToEndpoints(bitMapSender, payloadFile);
                     sendEndpointsProfilePictureTo(bitMapSender);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -308,9 +342,11 @@ public final class PayloadReceiver extends PayloadCallback {
         }
     }
 
-    /**Sends a profile picture to all other endpoints     */
+    /**
+     * Sends a profile picture to all other endpoints
+     */
     private void profilePictureToEndpoints(String bitMapSender, File payloadFile) throws Exception {
-        Log.i(TAG,"profilePictureToEndpoints("+bitMapSender+")");
+        Log.i(TAG, "profilePictureToEndpoints(" + bitMapSender + ")");
         //Send bitmap to all other endpoints
         for (String id : cM.getEstablishedConnectionsCloned().keySet()) {
             if (!id.equals(bitMapSender)) {
@@ -320,19 +356,26 @@ public final class PayloadReceiver extends PayloadCallback {
             }
         }
     }
-    /**Send all other endpoint`s profile picture to the endpoint*/
+
+    /**
+     * Send all other endpoint`s profile picture to the endpoint
+     */
     private void sendEndpointsProfilePictureTo(String bitMapSender) throws Exception {
-        Log.i(TAG,"sendEndpointsProfilePictureTo("+bitMapSender+")");
+        Log.i(TAG, "sendEndpointsProfilePictureTo(" + bitMapSender + ")");
         //Send all other endpoint`s bitmap to the endpoint
         for (String id : cM.getEstablishedConnectionsCloned().keySet()) {
             Uri uri = LocalDataBase.getProfilePictureUri(id);
             if (id.equals(bitMapSender) || uri == null)
                 continue;
             ParcelFileDescriptor file = getAppLogicActivity().getContentResolver().openFileDescriptor(uri, "r");
+            if (file == null) {
+                return;
+            }
             Payload profilePic = Payload.fromFile(file);
             cM.payloadSender.sendPayloadFile(bitMapSender, profilePic, profilePic.getId() + ":PROF_PIC:" + id + ":");
         }
     }
+
     private void receivedImageFully(File payloadFile, String endpointId) {
         if (cM.getEstablishedConnections().get(endpointId) == null)
             return;
@@ -350,7 +393,10 @@ public final class PayloadReceiver extends PayloadCallback {
         inboxFragment.addPicture(uri);
     }
 
-    private void receivedFileFully(File payloadFile, String endpointId) {
+    private void receivedFileFully(@Nullable File payloadFile, String endpointId) {
+        if (payloadFile == null) {
+            return;
+        }
         //TODO: RenameFile
         //Display a notification.
         Resources resources = getAppLogicActivity().getResources();
