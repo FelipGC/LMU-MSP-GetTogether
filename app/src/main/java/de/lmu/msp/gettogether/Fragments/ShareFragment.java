@@ -163,7 +163,7 @@ public class ShareFragment extends Fragment {
     }
 
     /*
-     **Saves the compressed bitmap and generates a new uri to be saved to the preferences
+     **Saves the compressed bitmap and generates a new uri to be sent to the endpoint
      */
     private void saveImage(Bitmap finalBitmap, String imageName) {
 
