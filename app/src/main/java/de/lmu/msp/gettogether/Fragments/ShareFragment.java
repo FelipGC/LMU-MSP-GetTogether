@@ -123,19 +123,15 @@ public class ShareFragment extends Fragment {
             // provided to this method as a parameter.
             // Pull that URI using resultData.getUserName().
             uri = resultData.getData();
+            Log.i(TAG, "Uri: " + uri.toString());
 
             try {
                 final Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
-                new Thread(new Runnable() {
-                    public void run() {
-                        compressImage(bitmap);
-                    }
-                }).start();
+                compressImage(bitmap);
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            Log.i(TAG, "Uri: " + uri.toString());
             displayConfirmationDialog(uri);
         }
         //Calling super is mandatory!
@@ -157,7 +153,7 @@ public class ShareFragment extends Fragment {
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length, options);
         //Calculate the compression
-        options.inSampleSize = calculateInSampleSize(options, 34, 34);
+        options.inSampleSize = calculateInSampleSize(options, 200, 200);
         //Compress the image
         options.inJustDecodeBounds = false;
         Bitmap compressedBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length, options);
@@ -260,7 +256,7 @@ public class ShareFragment extends Fragment {
     public void sendDataToEndpoint(String endpointId,Uri uri) throws FileNotFoundException{
         Payload payload = dataToPayload(uri);
         // Mapping the ID of the file payload to the filename
-        String payloadStoringName = payload.getId() + ":IMAGE_PIC:" + uri.getLastPathSegment();
+        String payloadStoringName = payload.getId() + ":IMAGE_PIC:" + uri.getLastPathSegment() + "uri :" + uri;
         try {
             Log.i(TAG, "sendPayloadFile :"+ payloadStoringName +" + to: " + endpointId);
             payloadSender.sendPayloadFile(endpointId, payload, payloadStoringName);
