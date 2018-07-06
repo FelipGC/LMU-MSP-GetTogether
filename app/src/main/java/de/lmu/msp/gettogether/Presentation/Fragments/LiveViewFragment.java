@@ -1,12 +1,20 @@
 package de.lmu.msp.gettogether.Presentation.Fragments;
 
 import android.arch.lifecycle.Observer;
+import android.content.ComponentName;
+import android.content.ServiceConnection;
 import android.net.Uri;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
 
+import java.io.File;
+
 import de.lmu.msp.gettogether.Connection.IMessageListener;
+import de.lmu.msp.gettogether.DataBase.FileService;
+import de.lmu.msp.gettogether.DataBase.IFileService;
+import de.lmu.msp.gettogether.DataBase.IFileServiceBinder;
 import de.lmu.msp.gettogether.Messages.BaseMessage;
 import de.lmu.msp.gettogether.Presentation.IDocument;
 import de.lmu.msp.gettogether.Presentation.Messages.JsonPresentationFileNameMessage;
@@ -19,6 +27,8 @@ import de.lmu.msp.gettogether.R;
 
 public class LiveViewFragment extends AbstractPresentationFragment {
     private IMessageListener messageListener = new MessageListener();
+    private ServiceConnection fileServiceConnection = new FileServiceConnection();
+    private IFileService fileService = null;
 
     @Override
     public int getFragmentLayoutId() {
@@ -39,6 +49,18 @@ public class LiveViewFragment extends AbstractPresentationFragment {
                 stopPresentation();
             }
         });
+    }
+
+    @Override
+    protected void bindServices() {
+        super.bindServices();
+        bindService(FileService.class, fileServiceConnection);
+    }
+
+    @Override
+    protected void unbindServices() {
+        super.unbindServices();
+        unbindService(fileServiceConnection);
     }
 
     @Override
@@ -63,11 +85,17 @@ public class LiveViewFragment extends AbstractPresentationFragment {
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+    public void onDestroy() {
         if (connectionManager != null) {
             connectionManager.getPayloadReceiver().unregister(messageListener);
         }
+        super.onDestroy();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        model.getDocument().removeObservers(this);
     }
 
     @Override
@@ -81,8 +109,6 @@ public class LiveViewFragment extends AbstractPresentationFragment {
         public void onChanged(@Nullable IDocument document) {
             if (document != null) {
                 requestActualPageNr();
-            } else {
-                fileName = null;
             }
         }
 
@@ -118,6 +144,9 @@ public class LiveViewFragment extends AbstractPresentationFragment {
         private void loadFile(@NonNull JsonPresentationFileNameMessage fileNameMessage) {
             String fileName = fileNameMessage.getFileName();
             Uri uri = fileNameToUri(fileName);
+            if (uri == null) {
+                return;
+            }
             model.loadDocument(uri, context.getContentResolver());
         }
 
@@ -126,9 +155,32 @@ public class LiveViewFragment extends AbstractPresentationFragment {
             model.goToPage(pageNr);
         }
 
+        @Nullable
         private Uri fileNameToUri(String fileName) {
-            // TODO: Get Uri from fileName
-            return null;
+            File file = fileService.getFileFor(fileName);
+            if (file == null) {
+                context.displayShortMessage(getString(R.string.presentation_presentationNotReceived));
+                return null;
+            }
+            Uri uri = Uri.fromFile(file);
+            if (uri == null) {
+                context.displayShortMessage(getString(R.string.presentation_presentationNotReceived));
+                return null;
+            }
+            return uri;
+        }
+    }
+
+    private class FileServiceConnection implements ServiceConnection {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            IFileServiceBinder binder = (IFileServiceBinder) service;
+            fileService = binder.getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            fileService = null;
         }
     }
 }

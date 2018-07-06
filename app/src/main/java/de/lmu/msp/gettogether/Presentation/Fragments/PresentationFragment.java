@@ -4,9 +4,12 @@ import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
+
+import java.io.FileNotFoundException;
 
 import de.lmu.msp.gettogether.Connection.IMessageListener;
 import de.lmu.msp.gettogether.Messages.BaseMessage;
@@ -21,6 +24,7 @@ import de.lmu.msp.gettogether.Presentation.ShowViewObserver;
 import de.lmu.msp.gettogether.R;
 
 public class PresentationFragment extends AbstractPresentationFragment {
+    private String fileName = null;
     private View nextPageButton;
     private View previousPageButton;
     private IMessageListener messageListener = new MessageListener();
@@ -89,8 +93,11 @@ public class PresentationFragment extends AbstractPresentationFragment {
             return;
         }
         Uri documentUri = data.getData();
+        if (documentUri == null) {
+            context.displayShortMessage(getString(R.string.presentation_couldNotOpenFile));
+            return;
+        }
         model.loadDocument(documentUri, context.getContentResolver());
-        // TODO: Send File with fileName.
     }
 
     @Override
@@ -124,11 +131,20 @@ public class PresentationFragment extends AbstractPresentationFragment {
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+    public void onDestroy() {
         if (connectionManager != null) {
             connectionManager.getPayloadReceiver().unregister(messageListener);
         }
+        super.onDestroy();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        model.getShowNextButton().removeObservers(this);
+        model.getShowPreviousButton().removeObservers(this);
+        model.getDocument().removeObservers(this);
+        model.getActivePageNr().removeObservers(this);
     }
 
     private void sendPageNrMessage(@NonNull Integer pageNr) {
@@ -153,6 +169,8 @@ public class PresentationFragment extends AbstractPresentationFragment {
         @Override
         public void onChanged(@Nullable IDocument document) {
             if (document != null) {
+                fileName = document.getFileName();
+                sendFile(document);
                 return;
             }
             if (connectionManager == null) {
@@ -160,6 +178,21 @@ public class PresentationFragment extends AbstractPresentationFragment {
             }
             BaseMessage stopMessage = new JsonPresentationStopMessage();
             connectionManager.getPayloadSender().sendMessage(stopMessage.toJsonString());
+        }
+
+        private void sendFile(@NonNull IDocument document) {
+            if (connectionManager == null) {
+                return;
+            }
+            String fileName = document.getFileName();
+            Uri uri = document.getUri();
+            try {
+                ParcelFileDescriptor fileDescriptor =
+                        context.getContentResolver().openFileDescriptor(uri, "r");
+                connectionManager.getPayloadSender().sendFile(fileName, fileDescriptor);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -26,10 +26,12 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import de.lmu.msp.gettogether.Activities.AppLogicActivity;
+import de.lmu.msp.gettogether.DataBase.IFileService;
 import de.lmu.msp.gettogether.DataBase.LocalDataBase;
 import de.lmu.msp.gettogether.DistanceControl.CheckDistanceService;
 import de.lmu.msp.gettogether.Fragments.ChatFragment;
 import de.lmu.msp.gettogether.Fragments.InboxFragment;
+import de.lmu.msp.gettogether.Messages.BaseMessage;
 import de.lmu.msp.gettogether.R;
 import de.lmu.msp.gettogether.Users.User;
 import de.lmu.msp.gettogether.Utility.Constants;
@@ -46,6 +48,7 @@ public final class PayloadReceiver extends PayloadCallback {
     private final SimpleArrayMap<Long, Payload> incomingPayloads = new SimpleArrayMap<>();
     private final SimpleArrayMap<Long, String> filePayloadFilenames = new SimpleArrayMap<>();
     private final Collection<IMessageListener> messageListeners = new LinkedList<>();
+    private IFileService fileService = null;
 
     private ConnectionManager cM;
 
@@ -101,6 +104,15 @@ public final class PayloadReceiver extends PayloadCallback {
                 }
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
+                return;
+            }
+
+            BaseMessage baseMessage = BaseMessage.fromJsonString(payloadFilenameMessage);
+            if (baseMessage instanceof JsonFileTransferData) {
+                JsonFileTransferData fileTransferData = (JsonFileTransferData) baseMessage;
+                filePayloadFilenames.put(fileTransferData.getPayloadId(), fileTransferData.getFileName());
+            }
+            if (baseMessage != null) {
                 return;
             }
 
@@ -291,6 +303,9 @@ public final class PayloadReceiver extends PayloadCallback {
             //We received a document which is not an image nor an profile picture
             else {
                 Log.i(TAG, "Received document file");
+                if (fileService != null) {
+                    fileService.put(fileName, payloadFile);
+                }
                 receivedFileFully(payloadFile, endpointId);
             }
         } else {
@@ -414,4 +429,11 @@ public final class PayloadReceiver extends PayloadCallback {
         AppLogicActivity.getVoiceTransmission().playAudio(inputStream);
     }
 
+    public void register(IFileService fileService) {
+        this.fileService = fileService;
+    }
+
+    public void unregister(IFileService fileService) {
+        this.fileService = null;
+    }
 }

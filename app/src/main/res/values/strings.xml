@@ -128,4 +128,6 @@
     <string name="tab_images">Bilder</string>
     <string name="tab_chat">Chat</string>
     <string name="tab_participants">Teilnehmer</string>
+    <string name="presentation_presentationNotReceived">Die angeforderte Präsentation ist noch nicht übertragen. Bitte versuchen Sie es später.</string>
+    <string name="presentation_couldNotOpenFile">Die angegebene Präsentation konnte nicht geöffnet werden.</string>
 </resources>

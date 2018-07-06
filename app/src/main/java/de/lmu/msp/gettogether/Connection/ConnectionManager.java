@@ -1,6 +1,8 @@
 package de.lmu.msp.gettogether.Connection;
 
 import android.app.Service;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.net.Uri;
@@ -31,6 +33,9 @@ import java.io.FileNotFoundException;
 import java.util.HashMap;
 
 import de.lmu.msp.gettogether.Activities.AppLogicActivity;
+import de.lmu.msp.gettogether.DataBase.FileService;
+import de.lmu.msp.gettogether.DataBase.IFileService;
+import de.lmu.msp.gettogether.DataBase.IFileServiceBinder;
 import de.lmu.msp.gettogether.DataBase.LocalDataBase;
 import de.lmu.msp.gettogether.DistanceControl.CheckDistanceService;
 import de.lmu.msp.gettogether.DistanceControl.FrequentLocationService;
@@ -62,6 +67,8 @@ public class ConnectionManager extends Service {
     private static AppLogicActivity appLogicActivity; // !! See warning .. memory leak ..
 
     private final IBinder binder = new ConnectionManagerBinder();
+    private ServiceConnection fileServiceConnection = new FileServiceConnection();
+    private IFileService fileService = null;
 
     @Nullable
     @Override
@@ -309,6 +316,8 @@ public class ConnectionManager extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        Intent fileServiceIntent = new Intent(this, FileService.class);
+        bindService(fileServiceIntent, fileServiceConnection, Context.BIND_AUTO_CREATE);
         discoveredEndpoints = new HashMap<>();
         establishedConnections = new HashMap<>();
         pendingConnections = new HashMap<>();
@@ -592,6 +601,22 @@ public class ConnectionManager extends Service {
             for (ServiceConnection s : appLogicActivity.serviceConnections) {
                 unbindService(s);
             }
+        }
+        unbindService(fileServiceConnection);
+    }
+
+    private class FileServiceConnection implements ServiceConnection {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            IFileServiceBinder binder = (IFileServiceBinder) service;
+            fileService = binder.getService();
+            getPayloadReceiver().register(fileService);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            getPayloadReceiver().unregister(fileService);
+            fileService = null;
         }
     }
 }

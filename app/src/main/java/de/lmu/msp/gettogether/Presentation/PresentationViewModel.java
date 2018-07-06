@@ -7,6 +7,7 @@ import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 
 import de.lmu.msp.gettogether.R;
 import de.lmu.msp.gettogether.Utility.AsyncTaskResult;
@@ -70,7 +71,7 @@ public class PresentationViewModel extends ViewModel {
         return document.getValue();
     }
 
-    public void loadDocument(Uri documentUri, ContentResolver contentResolver) {
+    public void loadDocument(@NonNull Uri documentUri, ContentResolver contentResolver) {
         AsyncTask<Uri, Void, AsyncTaskResult<IDocument>> loadDocumentTask =
                 new LoadDocumentTask(documentLoadCallback, contentResolver);
         loadDocumentTask.execute(documentUri);

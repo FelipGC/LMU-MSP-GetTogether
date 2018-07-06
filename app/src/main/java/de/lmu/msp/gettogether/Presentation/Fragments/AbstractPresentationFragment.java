@@ -24,7 +24,6 @@ import de.lmu.msp.gettogether.Presentation.ShowViewObserver;
 import de.lmu.msp.gettogether.R;
 
 public abstract class AbstractPresentationFragment extends Fragment {
-    protected String fileName = null;
     private final ConnectionManagerConnection connectionManagerConnection =
             new ConnectionManagerConnection();
 
@@ -52,21 +51,35 @@ public abstract class AbstractPresentationFragment extends Fragment {
         context = null;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        bindServices();
+        initModel();
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container, Bundle savedInstanceState) {
         int fragment_layout_id = getFragmentLayoutId();
         View view = inflater.inflate(fragment_layout_id, container, false);
-        bindServices();
         getComponentsFrom(view);
         initButtons(view);
-        initModel();
         addStateListeners();
         return view;
     }
 
-    private void bindServices() {
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        model.getActivePage().removeObservers(this);
+        model.getMessage().removeObservers(this);
+        model.getShowStartButton().removeObservers(this);
+        model.getShowStopButton().removeObservers(this);
+    }
+
+    protected void bindServices() {
         bindService(ConnectionManager.class, connectionManagerConnection);
     }
 
@@ -115,9 +128,17 @@ public abstract class AbstractPresentationFragment extends Fragment {
     public abstract int getFragmentLayoutId();
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        context.unbindService(connectionManagerConnection);
+    public void onDestroy() {
+        super.onDestroy();
+        unbindServices();
+    }
+
+    protected void unbindServices() {
+        unbindService(connectionManagerConnection);
+    }
+
+    protected void unbindService(ServiceConnection connection) {
+        context.unbindService(connection);
     }
 
     private class ConnectionManagerConnection implements ServiceConnection {
@@ -126,6 +147,7 @@ public abstract class AbstractPresentationFragment extends Fragment {
             ConnectionManager.ConnectionManagerBinder binder =
                     (ConnectionManager.ConnectionManagerBinder) service;
             connectionManager = binder.getService();
+            onConnectionManagerConnected();
         }
 
         @Override

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.location.Location;
 import android.os.IBinder;
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
 import com.google.android.gms.nearby.connection.Payload;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.lmu.msp.gettogether.DataBase.LocalDataBase;
+import de.lmu.msp.gettogether.Messages.BaseMessage;
 
 public class PayloadSender {
 
@@ -146,6 +148,14 @@ public class PayloadSender {
             Log.i(TAG,"SENDING FILE");
             cM.getConnectionsClient().sendPayload(endpointId, payload);
         } else throw new Exception("Payload to send must not be null!");
+    }
+
+    public void sendFile(String fileName, ParcelFileDescriptor fileDescriptor) {
+        List<String> receivers = new ArrayList<>(cM.getEstablishedConnections().keySet());
+        Payload filePayload = Payload.fromFile(fileDescriptor);
+        BaseMessage fileTransferData = new JsonFileTransferData(fileName, filePayload.getId());
+        sendMessage(fileTransferData.toJsonString());
+        cM.getConnectionsClient().sendPayload(receivers, filePayload);
     }
 
     public void sendLocation(Location location) {

@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
+import de.lmu.msp.gettogether.Connection.JsonFileTransferData;
 import de.lmu.msp.gettogether.Presentation.Messages.JsonPresentationFileNameMessage;
 import de.lmu.msp.gettogether.Presentation.Messages.JsonPresentationNoActiveMessage;
 import de.lmu.msp.gettogether.Presentation.Messages.JsonPresentationPageNrMessage;
@@ -52,6 +53,9 @@ public class BaseMessage {
                     break;
                 case PRESENTATION_NO_ACTIVE:
                     c = JsonPresentationNoActiveMessage.class;
+                    break;
+                case CONNECTION_FILE_TRANSFER_DATA:
+                    c = JsonFileTransferData.class;
                     break;
                 default:
                     c = BaseMessage.class;

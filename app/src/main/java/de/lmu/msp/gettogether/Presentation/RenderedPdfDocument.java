@@ -1,10 +1,12 @@
 package de.lmu.msp.gettogether.Presentation;
 
 import android.content.ContentResolver;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.provider.OpenableColumns;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -16,9 +18,11 @@ public class RenderedPdfDocument implements IDocument {
     private final int pageCount;
     private final List<Bitmap> pages;
     private final Uri documentUri;
+    private final String fileName;
 
-    private RenderedPdfDocument(PdfRenderer pdfRenderer, Uri documentUri) {
+    private RenderedPdfDocument(PdfRenderer pdfRenderer, Uri documentUri, String fileName) {
         this.documentUri = documentUri;
+        this.fileName = fileName;
         pages = new ArrayList<>();
         pageCount = pdfRenderer.getPageCount();
         for(int pageNr = 0; pageNr < pageCount; pageNr++) {
@@ -42,11 +46,6 @@ public class RenderedPdfDocument implements IDocument {
     }
 
     @Override
-    public Iterator<Bitmap> getPages() {
-        return pages.iterator();
-    }
-
-    @Override
     public Uri getUri() {
         return documentUri;
     }
@@ -56,13 +55,43 @@ public class RenderedPdfDocument implements IDocument {
         return pages.get(pageNr);
     }
 
+    @Override
+    public String getFileName() {
+        return fileName;
+    }
+
+    private static String getFileName(Uri uri, ContentResolver contentResolver) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = contentResolver.query(uri, null, null, null, null);
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
+    }
+
     public static IDocument load(Uri documentUri, ContentResolver contentResolver) throws IOException {
         ParcelFileDescriptor pdfFd = contentResolver.openFileDescriptor(documentUri, "r");
         if (pdfFd == null) {
             throw new FileNotFoundException(documentUri.toString());
         }
         PdfRenderer pdfRenderer = new PdfRenderer(pdfFd);
-        IDocument renderedPdfDocument = new RenderedPdfDocument(pdfRenderer, documentUri);
+        String fileName = getFileName(documentUri, contentResolver);
+        IDocument renderedPdfDocument = new RenderedPdfDocument(pdfRenderer, documentUri, fileName);
         pdfRenderer.close();
         pdfFd.close();
         return renderedPdfDocument;
