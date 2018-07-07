@@ -21,6 +21,7 @@ public class ImageSliderActivity extends AppCompatActivity {
         setContentView(R.layout.activity_image_slider);
 
         viewPager = (ViewPager) findViewById(R.id.pager);
+        if(images==null) images = new ArrayList<>();
         viewPager.setAdapter(new ImageSlideAdapter(this, (ArrayList<Uri>) images.clone()));
         CircleIndicator indicator = (CircleIndicator) findViewById(R.id.indicator);
         indicator.setViewPager(viewPager);
