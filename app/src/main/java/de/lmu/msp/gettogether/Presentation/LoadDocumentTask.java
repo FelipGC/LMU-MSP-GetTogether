@@ -10,10 +10,10 @@ import de.lmu.msp.gettogether.Utility.AsyncTaskResult;
 
 public class LoadDocumentTask extends AsyncTask<Uri, Void, AsyncTaskResult<IDocument>> {
     private final ContentResolver contentResolver;
-    private IDocumentViewer documentViewer;
+    private IDocumentLoadCallback documentLoadCallback;
 
-    LoadDocumentTask(IDocumentViewer documentViewer, ContentResolver contentResolver) {
-        this.documentViewer = documentViewer;
+    LoadDocumentTask(IDocumentLoadCallback documentLoadCallback, ContentResolver contentResolver) {
+        this.documentLoadCallback = documentLoadCallback;
         this.contentResolver = contentResolver;
     }
 
@@ -33,9 +33,9 @@ public class LoadDocumentTask extends AsyncTask<Uri, Void, AsyncTaskResult<IDocu
     protected void onPostExecute(AsyncTaskResult<IDocument> result) {
         super.onPostExecute(result);
         if (result.getError() != null) {
-            documentViewer.onDocumentLoadFailed();
+            documentLoadCallback.onDocumentLoadFailed();
             return;
         }
-        documentViewer.onDocumentLoaded(result.getResult());
+        documentLoadCallback.onDocumentLoaded(result.getResult());
     }
 }

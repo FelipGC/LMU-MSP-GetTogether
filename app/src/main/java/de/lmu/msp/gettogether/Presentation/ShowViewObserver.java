@@ -7,7 +7,7 @@ import android.view.View;
 public class ShowViewObserver implements Observer<Boolean> {
     private View view;
 
-    ShowViewObserver(View view) {
+    public ShowViewObserver(View view) {
         this.view = view;
     }
 

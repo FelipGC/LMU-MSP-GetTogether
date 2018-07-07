@@ -1,27 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@android:color/transparent"
     android:layout_height="match_parent"
-    tools:context="de.lmu.msp.gettogether.Activities.AppLogicActivity">
+    android:background="@color/backgroundColor"
+    tools:context=".Presentation.Fragments.LiveViewFragment">
 
+    <android.support.design.widget.FloatingActionButton
+        style="@style/AppTheme.FAB"
+        android:id="@+id/presentation_startPresentationButton"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@android:drawable/ic_media_play"
+        android:visibility="visible" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_marginBottom="228dp"
-        android:layout_marginLeft="74dp"
-        android:layout_marginStart="74dp"
-        android:text="FRAGMENT2"
-        android:textSize="40dp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
+    <android.support.design.widget.FloatingActionButton
+        style="@style/AppTheme.FAB"
+        android:id="@+id/presentation_stopPresentationButton"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/ic_baseline_stop_24px"
+        android:visibility="invisible" />
 
-</android.support.constraint.ConstraintLayout>
+    <ImageView
+        android:contentDescription="@string/presentation_imageContent"
+        android:id="@+id/presentation_pdfView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</FrameLayout>

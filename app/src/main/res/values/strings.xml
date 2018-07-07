@@ -4,12 +4,12 @@
     <string name="presenter">Moderator</string>
     <string name="spectator">Zuschauer</string>
     <string name="missingPermission">Ungenügende Erlaubnisse</string>
-    <string name="choose_username">Wähle deinen Nicknamen...</string>
+    <string name="choose_username">Wähle deinen Nicknamen…</string>
     <string name="change_username_setting">Nicknamen ändern</string>
     <string name="change_photo_setting">Profilbild ändern</string>
     <string name="change_username">Bitte wähle deinen neuen Benutzernamen!</string>
     <string name="sign_up">Anmelden</string>
-    <string name="settings_text">Willkommen bei "GetTogether". Um fortzufahren melde dich einfach an...</string>
+    <string name="settings_text">Willkommen bei "GetTogether". Um fortzufahren melde dich einfach an…</string>
     <string name="username_empty">Bitte geben Sie einen Nutzernamen an.</string>
     <string name="changedInfo">Ihre Nutzereinstellungen wurden aktualisiert.</string>
     <string name="settings_user">Nutzereinstellungen</string>
@@ -55,6 +55,7 @@
     <string name="presentation_openDocumentErrorMessage">Bitte wählen sie eine gültige Präsentation aus.</string>
     <string name="presentation_openPresentationRequestCode">1</string>
     <string name="presentation_tabName">Live</string>
+    <string name="presentation_noPresentationAvailable">Zur Zeit ist leider keine Präsentation verfügbar.</string>
     <string name="yes">Ja</string>
     <string name="no_name_entered">Ooooops keinen Namen?</string>
     <string name="generate_random_name">Du hast keinen Benutzernamen eingegeben. Möchtest du vielleicht einen zufälligen erstellen?</string>
@@ -64,18 +65,18 @@
     <string name="voice">SPRECHEN</string>
     <string name="poke">STUPSEN</string>
     <string name="presentation_imageContent">Die geladene Präsentation</string>
-    <string name="tap_start">Tippe um zu starten...</string>
-    <string name="no_participants_connected">Derzeit sind keine Zuschauer verbunden...</string>
+    <string name="tap_start">Tippe um zu starten…</string>
+    <string name="no_participants_connected">Derzeit sind keine Zuschauer verbunden…</string>
     <string name="no_pictures">Keine Bilder erhalten.</string>
     <string name="random_name_suggestion">Wie wäre es mit..?</string>
     <string name="generate">Generieren</string>
     <string name="anonymous">Anonymer Nutzer</string>
     <string name="images_count_title">Bilder: %1$d</string>
     <string name="image_sent">Bild wurde versendet</string>
-    <string name="file_receiving">Datei wird empfangen...</string>
+    <string name="file_receiving">Datei wird empfangen…</string>
     <string name="file_receiving_complete">Empfangen</string>
 
-    <string name="voice_start">Zeichnet auf...</string>
+    <string name="voice_start">Zeichnet auf…</string>
     <string name="voice_stop">Aufzeichnung beendet</string>
     <string name="voice_end">Ende der Sprachnachricht</string>
 
@@ -127,4 +128,6 @@
     <string name="tab_images">Bilder</string>
     <string name="tab_chat">Chat</string>
     <string name="tab_participants">Teilnehmer</string>
+    <string name="presentation_presentationNotReceived">Die angeforderte Präsentation ist noch nicht übertragen. Bitte versuchen Sie es später.</string>
+    <string name="presentation_couldNotOpenFile">Die angegebene Präsentation konnte nicht geöffnet werden.</string>
 </resources>

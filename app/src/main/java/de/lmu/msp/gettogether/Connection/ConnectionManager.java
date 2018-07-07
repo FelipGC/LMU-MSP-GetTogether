@@ -1,6 +1,8 @@
 package de.lmu.msp.gettogether.Connection;
 
 import android.app.Service;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.net.Uri;
@@ -23,17 +25,17 @@ import com.google.android.gms.nearby.connection.DiscoveredEndpointInfo;
 import com.google.android.gms.nearby.connection.DiscoveryOptions;
 import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback;
 import com.google.android.gms.nearby.connection.Payload;
-import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.Strategy;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 
 import de.lmu.msp.gettogether.Activities.AppLogicActivity;
+import de.lmu.msp.gettogether.DataBase.FileService;
+import de.lmu.msp.gettogether.DataBase.IFileService;
+import de.lmu.msp.gettogether.DataBase.IFileServiceBinder;
 import de.lmu.msp.gettogether.DataBase.LocalDataBase;
 import de.lmu.msp.gettogether.DistanceControl.CheckDistanceService;
 import de.lmu.msp.gettogether.DistanceControl.FrequentLocationService;
@@ -62,9 +64,11 @@ public class ConnectionManager extends Service {
     /**
      * A reference to the corresponding activity
      */
-    private static AppLogicActivity appLogicActivity;
+    private static AppLogicActivity appLogicActivity; // !! See warning .. memory leak ..
 
     private final IBinder binder = new ConnectionManagerBinder();
+    private ServiceConnection fileServiceConnection = new FileServiceConnection();
+    private IFileService fileService = null;
 
     @Nullable
     @Override
@@ -86,7 +90,7 @@ public class ConnectionManager extends Service {
     private final EndpointDiscoveryCallback endpointDiscoveryCallback =
             new EndpointDiscoveryCallback() {
                 @Override
-                public void onEndpointFound(final String endpointId, final DiscoveredEndpointInfo info) {
+                public void onEndpointFound(@NonNull String endpointId, @NonNull DiscoveredEndpointInfo info) {
                     Log.i(TAG, String.format("discovererOnEndpointFound(endpointId = %s,endpointName = %s)", endpointId, info.getEndpointName()));
                     ConnectionEndpoint connectionEndpoint = new ConnectionEndpoint(endpointId, info.getEndpointName());
                     //Create and define a new ConnectionEndpoint
@@ -99,7 +103,7 @@ public class ConnectionManager extends Service {
                 }
 
                 @Override
-                public void onEndpointLost(String endpointId) {
+                public void onEndpointLost(@NonNull String endpointId) {
                     Log.i(TAG, String.format("onEndpointLost(endpointId=%s)", endpointId));
                     ConnectionEndpoint connectionEndpoint = discoveredEndpoints.get(endpointId);
                     if (discoveredEndpoints.containsKey(endpointId))
@@ -119,7 +123,7 @@ public class ConnectionManager extends Service {
             new ConnectionLifecycleCallback() {
                 @Override
                 //We have received a connection request. Now both sides must either accept or reject the connection.
-                public void onConnectionInitiated(final String endpointId, final ConnectionInfo connectionInfo) {
+                public void onConnectionInitiated(@NonNull String endpointId, @NonNull ConnectionInfo connectionInfo) {
                     Log.i(TAG, String.format("onConnectionInitiated(endpointId=%s, endpointName=%s)",
                             endpointId, connectionInfo.getEndpointName()));
                     switch (AppLogicActivity.getUserRole().getRoleType()) {
@@ -152,7 +156,7 @@ public class ConnectionManager extends Service {
                 }
 
                 @Override
-                public void onConnectionResult(String endpointId, ConnectionResolution result) {
+                public void onConnectionResult(@NonNull String endpointId, @NonNull ConnectionResolution result) {
                     Log.i(TAG, String.format("onConnectionResponse(endpointId=%s, result=%s)", endpointId, result.getStatus()));
                     ConnectionEndpoint endpoint = discoveredEndpoints.get(endpointId);
                     switch (result.getStatus().getStatusCode()) {
@@ -198,10 +202,6 @@ public class ConnectionManager extends Service {
                                     }
                                 }
 
-                            } catch (UnsupportedEncodingException e) {
-                                e.printStackTrace();
-                            } catch (IOException e) {
-                                e.printStackTrace();
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -246,7 +246,7 @@ public class ConnectionManager extends Service {
                 }
 
                 @Override
-                public void onDisconnected(String endpointId) {
+                public void onDisconnected(@NonNull String endpointId) {
                     Log.i(TAG, "DISCONNECTED");
                     ConnectionEndpoint endpoint = discoveredEndpoints.get(endpointId);
                     // We've been disconnected from this endpoint. No more data can be
@@ -276,7 +276,7 @@ public class ConnectionManager extends Service {
         if (discoveredEndpoints.containsKey(endpoint.getId()))
             discoveredEndpoints.remove(endpoint.getId());
         //Clear in other classes
-        if (appLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR)
+        if (AppLogicActivity.getUserRole().getRoleType() == User.UserRole.SPECTATOR)
             appLogicActivity.getSelectPresenterFragment().removeEndpointFromAdapters(endpoint);
         appLogicActivity.getChatFragment().displaySystemNotification(
                 getResources().getString(R.string.chat_user_left, endpoint.getName()));
@@ -288,7 +288,11 @@ public class ConnectionManager extends Service {
     /**
      * Callback for payloads (data) sent from another device to us.
      */
-    private PayloadCallback payloadCallback;
+    private PayloadReceiver payloadReceiver;
+
+    public PayloadReceiver getPayloadReceiver() {
+        return payloadReceiver;
+    }
 
     /**
      * Handler to Nearby Connections.
@@ -312,6 +316,8 @@ public class ConnectionManager extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        Intent fileServiceIntent = new Intent(this, FileService.class);
+        bindService(fileServiceIntent, fileServiceConnection, Context.BIND_AUTO_CREATE);
         discoveredEndpoints = new HashMap<>();
         establishedConnections = new HashMap<>();
         pendingConnections = new HashMap<>();
@@ -329,9 +335,11 @@ public class ConnectionManager extends Service {
             @Override
             public void run() {
                 // a potentially  time consuming task
+                AdvertisingOptions.Builder builder = new AdvertisingOptions.Builder();
+                builder.setStrategy(STRATEGY);
                 connectionsClient.startAdvertising(
                         AppLogicActivity.getUserRole().getUserName(), serviceID, connectionLifecycleCallback,
-                        new AdvertisingOptions(STRATEGY)).addOnSuccessListener(
+                        builder.build()).addOnSuccessListener(
                         new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unusedResult) {
@@ -364,7 +372,9 @@ public class ConnectionManager extends Service {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                connectionsClient.startDiscovery(serviceID, endpointDiscoveryCallback, new DiscoveryOptions(STRATEGY)).addOnSuccessListener(
+                DiscoveryOptions.Builder builder = new DiscoveryOptions.Builder();
+                builder.setStrategy(STRATEGY);
+                connectionsClient.startDiscovery(serviceID, endpointDiscoveryCallback, builder.build()).addOnSuccessListener(
                         new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unusedResult) {
@@ -432,7 +442,7 @@ public class ConnectionManager extends Service {
             return;
         if (accept) {
             Log.i(TAG, "Connection ACCEPTED!");
-            connectionsClient.acceptConnection(endPoint.getId(), payloadCallback);
+            connectionsClient.acceptConnection(endPoint.getId(), payloadReceiver);
         } else {
             Log.i(TAG, "Connection REJECTED!");
             connectionsClient.rejectConnection(endPoint.getId());
@@ -498,11 +508,11 @@ public class ConnectionManager extends Service {
      **/
     public void setUpConnectionsClient(AppLogicActivity appLogicActivity) {
         Log.i(TAG, "Setting up connection client");
-        this.appLogicActivity = appLogicActivity;
+        ConnectionManager.appLogicActivity = appLogicActivity;
         this.connectionsClient = Nearby.getConnectionsClient(appLogicActivity);
         //Define Sender & Receiver
         payloadSender = new PayloadSender();
-        payloadCallback = new PayloadReceiver();
+        payloadReceiver = new PayloadReceiver();
     }
 
     public void disconnectFromEndpoint(String endpointID) {
@@ -542,7 +552,7 @@ public class ConnectionManager extends Service {
      */
     public void terminateConnection() {
         reset();
-        switch (appLogicActivity.getUserRole().getRoleType()) {
+        switch (AppLogicActivity.getUserRole().getRoleType()) {
             case SPECTATOR:
                 stopDiscovering();
                 break;
@@ -591,6 +601,22 @@ public class ConnectionManager extends Service {
             for (ServiceConnection s : appLogicActivity.serviceConnections) {
                 unbindService(s);
             }
+        }
+        unbindService(fileServiceConnection);
+    }
+
+    private class FileServiceConnection implements ServiceConnection {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            IFileServiceBinder binder = (IFileServiceBinder) service;
+            fileService = binder.getService();
+            getPayloadReceiver().register(fileService);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            getPayloadReceiver().unregister(fileService);
+            fileService = null;
         }
     }
 }
