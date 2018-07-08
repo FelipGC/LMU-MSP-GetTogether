@@ -11,15 +11,15 @@ import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import java.io.UnsupportedEncodingException;
 
 public class MessageReceiver extends PayloadCallback {
-    private final Iterable<OnMessageListener> messageListeners;
+    private final Iterable<IOnMessageListener> messageListeners;
     private IMessageDistributionService messageDistributionService;
 
-    MessageReceiver(Iterable<OnMessageListener> messageListeners) {
+    MessageReceiver(Iterable<IOnMessageListener> messageListeners) {
         this.messageListeners = messageListeners;
     }
 
     @Override
-    public void onPayloadReceived(@NonNull String s, @NonNull Payload payload) {
+    public void onPayloadReceived(@NonNull String endpointId, @NonNull Payload payload) {
         if (payload.getType() != Payload.Type.BYTES) {
             return;
         }
@@ -29,7 +29,7 @@ public class MessageReceiver extends PayloadCallback {
         }
         try {
             String message = new String(messageData, "UTF-8");
-            for (OnMessageListener listener :
+            for (IOnMessageListener listener :
                     messageListeners) {
                 listener.onMessage(message);
             }
@@ -42,7 +42,7 @@ public class MessageReceiver extends PayloadCallback {
     }
 
     @Override
-    public void onPayloadTransferUpdate(@NonNull String s,
+    public void onPayloadTransferUpdate(@NonNull String endpointId,
                                         @NonNull PayloadTransferUpdate payloadTransferUpdate) {
     }
 

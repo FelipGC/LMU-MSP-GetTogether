@@ -10,5 +10,4 @@ public interface IDocument {
     int getPageCount();
     Iterator<Bitmap> getPages();
     Uri getUri();
-    int getActualPageNr();
 }

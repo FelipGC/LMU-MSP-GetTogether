@@ -14,7 +14,7 @@ public class CombinedPayloadReceiver extends PayloadCallback {
     private final MessageReceiver messageReceiver;
     private final PayloadCallback streamReceiver;
 
-    public CombinedPayloadReceiver(List<OnMessageListener> messageListeners) {
+    public CombinedPayloadReceiver(List<IOnMessageListener> messageListeners) {
         fileReceiver = new FileReceiver(messageListeners);
         messageReceiver = new MessageReceiver(messageListeners);
         streamReceiver = new StreamReceiver(messageListeners);

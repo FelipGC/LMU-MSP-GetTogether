@@ -7,11 +7,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.google.android.gms.common.api.CommonStatusCodes;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.AppPreferences;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
 import com.google.android.gms.nearby.connection.ConnectionResolution;
-import com.google.android.gms.nearby.connection.ConnectionsStatusCodes;
 import com.google.android.gms.nearby.connection.DiscoveredEndpointInfo;
 import com.google.android.gms.nearby.connection.DiscoveryOptions;
 import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback;
@@ -128,13 +127,13 @@ public class NearbyDiscoveryService extends AbstractConnectionService implements
 
 
     @Override
-    public void listenDiscovery(EndpointDiscoveryCallback callback) {
+    public void register(EndpointDiscoveryCallback callback) {
         discoveryCallbacks.add(callback);
     }
 
     @Override
     public void requestConnection(final ConnectionEndpoint endpoint) {
-        connectionsClient.requestConnection(endpoint.getName(), endpoint.getId(), connectionLifecycleCallback)
+        connectionsClient.requestConnection(AppPreferences.getInstance().getUsername(), endpoint.getId(), connectionLifecycleCallback)
                 .addOnSuccessListener(
                         new OnSuccessListener<Void>() {
                             @Override
@@ -160,7 +159,7 @@ public class NearbyDiscoveryService extends AbstractConnectionService implements
         return new ArrayList<>(discoveredEndpoints.values());
     }
 
-    public class NearbyDiscoveryBinder extends Binder {
+    public class NearbyDiscoveryBinder extends Binder implements IServiceBinder {
         public IDiscoveryService getService() {
             return NearbyDiscoveryService.this;
         }

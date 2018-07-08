@@ -5,7 +5,7 @@ import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback;
 import java.util.Collection;
 
 public interface IDiscoveryService extends IService {
-    void listenDiscovery(EndpointDiscoveryCallback callback);
+    void register(EndpointDiscoveryCallback callback);
 
     void requestConnection(ConnectionEndpoint endpoint);
 

@@ -24,8 +24,6 @@ public class MainActivity extends BaseActivity {
 
     private static final String TAG = "MAIN_ACTIVITY";
 
-    private ImageButton presenter;
-    private ImageButton spectator;
     private DrawerLayout mDrawerLayout;
 
     @Override
@@ -34,13 +32,15 @@ public class MainActivity extends BaseActivity {
         super.onCreate(R.layout.activity_main);
 
         ActionBar actionbar = getSupportActionBar();
-        actionbar.setDisplayHomeAsUpEnabled(true);
-        actionbar.setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24px);
+        if (actionbar != null) {
+            actionbar.setDisplayHomeAsUpEnabled(true);
+            actionbar.setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24px);
+        }
         mDrawerLayout = findViewById(R.id.drawer_layout);
 
         //Views
-        presenter = findViewById(R.id.buttonPresenter);
-        spectator = findViewById(R.id.buttonSpectator);
+        ImageButton presenter = findViewById(R.id.buttonPresenter);
+        ImageButton spectator = findViewById(R.id.buttonSpectator);
 
         //Animations
         Animation logoMoveAnimation = AnimationUtils.loadAnimation(this, R.anim.pop_up_animation);

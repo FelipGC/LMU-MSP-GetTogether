@@ -16,7 +16,6 @@ public class RenderedPdfDocument implements IDocument {
     private final int pageCount;
     private final List<Bitmap> pages;
     private final Uri documentUri;
-    private int actualPageNr;
 
     private RenderedPdfDocument(PdfRenderer pdfRenderer, Uri documentUri) {
         this.documentUri = documentUri;
@@ -53,13 +52,7 @@ public class RenderedPdfDocument implements IDocument {
     }
 
     @Override
-    public int getActualPageNr() {
-        return actualPageNr;
-    }
-
-    @Override
     public Bitmap getPage(int pageNr) {
-        actualPageNr = pageNr;
         return pages.get(pageNr);
     }
 

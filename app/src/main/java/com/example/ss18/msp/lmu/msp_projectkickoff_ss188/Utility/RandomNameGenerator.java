@@ -29,15 +29,12 @@ public final class RandomNameGenerator {
      */
     private static String getRandomLineFromTheFile(InputStream file)
     {
-        Scanner s = new Scanner(file);
-        LinkedList list = new LinkedList();
-        try {
+        LinkedList<String> list = new LinkedList<>();
+        try (Scanner s = new Scanner(file)) {
             while (s.hasNextLine()) {
                 list.add(s.nextLine());
             }
-        } finally {
-            s.close();
         }
-        return (String) list.get(new Random().nextInt(list.size()));
+        return list.get(new Random().nextInt(list.size()));
     }
 }

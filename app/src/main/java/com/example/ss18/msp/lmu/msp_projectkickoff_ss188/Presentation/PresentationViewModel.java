@@ -11,27 +11,35 @@ import android.os.AsyncTask;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.AsyncTaskResult;
 
-public class PresentationViewModel extends ViewModel implements IDocumentViewer {
+public class PresentationViewModel extends ViewModel {
     private MutableLiveData<Bitmap> activePage;
+    private MutableLiveData<Integer> activePageNr;
     private MutableLiveData<Integer> message;
     private MutableLiveData<Boolean> showNextButton;
     private MutableLiveData<Boolean> showPreviousButton;
     private MutableLiveData<Boolean> showStopButton;
     private MutableLiveData<Boolean> showStartButton;
-    private IDocument document;
+    private MutableLiveData<IDocument> document;
+    private IDocumentLoadCallback documentLoadCallback = new DocumentLoadCallback();
 
     public PresentationViewModel() {
         super();
         activePage = new MutableLiveData<>();
+        activePageNr = new MutableLiveData<>();
         message = new MutableLiveData<>();
         showNextButton = new MutableLiveData<>();
         showPreviousButton = new MutableLiveData<>();
         showStartButton = new MutableLiveData<>();
         showStopButton = new MutableLiveData<>();
+        document = new MutableLiveData<>();
     }
 
     public LiveData<Bitmap> getActivePage() {
         return activePage;
+    }
+
+    public LiveData<Integer> getActivePageNr() {
+        return activePageNr;
     }
 
     public LiveData<Integer> getMessage() {
@@ -54,58 +62,85 @@ public class PresentationViewModel extends ViewModel implements IDocumentViewer 
         return showStartButton;
     }
 
+    public LiveData<IDocument> getDocument() {
+        return document;
+    }
+
+    private IDocument getInternalDocument() {
+        return document.getValue();
+    }
+
     public void loadDocument(Uri documentUri, ContentResolver contentResolver) {
-        AsyncTask<Uri, Void, AsyncTaskResult<IDocument>> loadDocumentTask = new LoadDocumentTask(this, contentResolver);
+        AsyncTask<Uri, Void, AsyncTaskResult<IDocument>> loadDocumentTask =
+                new LoadDocumentTask(documentLoadCallback, contentResolver);
         loadDocumentTask.execute(documentUri);
     }
 
-    @Override
-    public void onDocumentLoaded(IDocument document) {
-        this.document = document;
-        goToPage(0);
-        showStartButton.setValue(false);
-        showStopButton.setValue(true);
-    }
-
-    @Override
-    public void onDocumentLoadFailed() {
-        message.setValue(R.string.presentation_openDocumentErrorMessage);
-    }
-
-    private void goToPage(int pageNr) {
-        if (document == null) {
+    public void goToPage(int pageNr) {
+        if (getInternalDocument() == null) {
             return;
         }
-        if (pageNr >= document.getPageCount()) {
+        if (pageNr >= getInternalDocument().getPageCount()) {
             return;
         }
         if (pageNr < 0) {
             return;
         }
-        Bitmap page = document.getPage(pageNr);
-        activePage.setValue(page);
-        boolean showNextButton = pageNr != document.getPageCount() - 1;
-        this.showNextButton.setValue(showNextButton);
+        Bitmap page = getInternalDocument().getPage(pageNr);
+        boolean showNextButton = pageNr != getInternalDocument().getPageCount() - 1;
         boolean showPrevButton = pageNr != 0;
+        activePage.setValue(page);
+        activePageNr.setValue(pageNr);
+        this.showNextButton.setValue(showNextButton);
         this.showPreviousButton.setValue(showPrevButton);
     }
 
     public void stopPresentation() {
-        document = null;
+        document.setValue(null);
         activePage.setValue(null);
-        showNextButton.setValue(null);
-        showPreviousButton.setValue(null);
+        activePageNr.setValue(null);
+        showNextButton.setValue(false);
+        showPreviousButton.setValue(false);
         showStopButton.setValue(false);
         showStartButton.setValue(true);
     }
 
     public void goToNextPage() {
-        int nextPageNr = document.getActualPageNr() + 1;
+        if (document == null) {
+            return;
+        }
+        Integer activePageNr = getActivePageNr().getValue();
+        if (activePageNr == null) {
+            return;
+        }
+        int nextPageNr = activePageNr + 1;
         goToPage(nextPageNr);
     }
 
     public void gotToPreviousPage() {
-        int nextPageNr = document.getActualPageNr() - 1;
+        if (document == null) {
+            return;
+        }
+        Integer activePageNr = getActivePageNr().getValue();
+        if (activePageNr == null) {
+            return;
+        }
+        int nextPageNr = activePageNr - 1;
         goToPage(nextPageNr);
+    }
+
+    private class DocumentLoadCallback implements IDocumentLoadCallback {
+        @Override
+        public void onDocumentLoaded(IDocument document) {
+            PresentationViewModel.this.document.setValue(document);
+            goToPage(0);
+            showStartButton.setValue(false);
+            showStopButton.setValue(true);
+        }
+
+        @Override
+        public void onDocumentLoadFailed() {
+            message.setValue(R.string.presentation_openDocumentErrorMessage);
+        }
     }
 }

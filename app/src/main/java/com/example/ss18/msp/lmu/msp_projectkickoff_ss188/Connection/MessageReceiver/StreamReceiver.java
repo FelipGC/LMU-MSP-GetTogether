@@ -3,25 +3,24 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageRece
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 
-import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.IMessageDistributionService;
 import com.google.android.gms.nearby.connection.Payload;
 import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 
 public class StreamReceiver extends PayloadCallback {
 
-    private final Iterable<OnMessageListener> messageListeners;
+    private final Iterable<IOnMessageListener> messageListeners;
 
-    StreamReceiver(Iterable<OnMessageListener> messageListeners) {
+    StreamReceiver(Iterable<IOnMessageListener> messageListeners) {
         this.messageListeners = messageListeners;
     }
 
     @Override
-    public void onPayloadReceived(@NonNull String s, @NonNull Payload payload) {
+    public void onPayloadReceived(@NonNull String endpointId, @NonNull Payload payload) {
         if (payload.getType() != Payload.Type.STREAM) {
             return;
         }
-        for (OnMessageListener listener :
+        for (IOnMessageListener listener :
                 messageListeners) {
             Payload.Stream stream = payload.asStream();
             if (stream == null) {
@@ -33,7 +32,7 @@ public class StreamReceiver extends PayloadCallback {
     }
 
     @Override
-    public void onPayloadTransferUpdate(@NonNull String s,
+    public void onPayloadTransferUpdate(@NonNull String endpointId,
                                         @NonNull PayloadTransferUpdate payloadTransferUpdate) {
     }
 }

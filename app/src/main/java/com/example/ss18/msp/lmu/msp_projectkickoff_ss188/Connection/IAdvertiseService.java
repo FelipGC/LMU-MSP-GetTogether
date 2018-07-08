@@ -4,4 +4,5 @@ public interface IAdvertiseService extends IService {
     void acceptRequest(String endpointId);
 
     void rejectRequest(String endpointId);
+    String getNameOfEndpoint(String endpointId);
 }

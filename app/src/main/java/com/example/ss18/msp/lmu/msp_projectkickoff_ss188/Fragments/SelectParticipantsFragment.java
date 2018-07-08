@@ -77,19 +77,27 @@ public class SelectParticipantsFragment extends Fragment {
         return mainView;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateParticipants();
+    }
+
     public void updateParticipants(){
         IAdvertiseService advertiseService = ((AppLogicActivity)getActivity()).getAdvertiseService();
-
-        int connectedCount = advertiseService.getConnectedEndpoints().size();
-        int allCount = advertiseService.getPendingEndpoints().size() + connectedCount;
-
         TextView textView = mainView.findViewById(R.id.numberOfParticipants);
-        if(connectedCount==0 && allCount==0){
-            textView.setText(R.string.leer);
-        }else{
-            textView.setText(connectedCount + "|" + allCount);
-        }
 
+        if(advertiseService!=null){
+            int connectedCount = advertiseService.getConnectedEndpoints().size();
+            int allCount = advertiseService.getPendingEndpoints().size() + connectedCount;
+            if(connectedCount==0 && allCount==0){
+                textView.setText(R.string.leer);
+            }else{
+                textView.setText(connectedCount + "|" + allCount);
+            }
+        }else{
+            textView.setText(R.string.leer);
+        }
     }
 
     /**

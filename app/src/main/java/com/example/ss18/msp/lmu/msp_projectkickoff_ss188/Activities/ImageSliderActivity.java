@@ -15,15 +15,15 @@ import me.relex.circleindicator.CircleIndicator;
 public class ImageSliderActivity extends AppCompatActivity {
 
     public static final ArrayList<Uri> images = new ArrayList<>();
-    private static ViewPager viewPager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_slider);
 
-        viewPager = (ViewPager) findViewById(R.id.pager);
+        ViewPager viewPager = findViewById(R.id.pager);
         viewPager.setAdapter(new ImageSlideAdapter(this,images));
-        CircleIndicator indicator = (CircleIndicator) findViewById(R.id.indicator);
+        CircleIndicator indicator = findViewById(R.id.indicator);
         indicator.setViewPager(viewPager);
     }
 }

@@ -2,10 +2,19 @@ package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageRece
 
 import android.os.ParcelFileDescriptor;
 
-public interface OnMessageListener {
-    void onStreamReceived(ParcelFileDescriptor fileDescriptor);
+import java.io.File;
 
-    void onMessage(String message);
+public abstract class OnMessageListener implements IOnMessageListener {
 
-    void onFileReceived(ParcelFileDescriptor fileDescriptor, String filename);
+    @Override
+    public void onStreamReceived(ParcelFileDescriptor fileDescriptor) {
+    }
+
+    @Override
+    public void onMessage(String message) {
+    }
+
+    @Override
+    public void onFileReceived(File file, String filename) {
+    }
 }
