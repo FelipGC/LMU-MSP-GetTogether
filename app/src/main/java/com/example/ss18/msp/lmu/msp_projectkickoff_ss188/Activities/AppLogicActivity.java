@@ -1,6 +1,7 @@
 package com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
@@ -15,6 +16,13 @@ import android.widget.Toast;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.AbstractConnectionService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.ConnectionEndpoint;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.BaseMessage;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.ChatMessage;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.IMessageDistributionService;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.JsonMessageDistributionService;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.MessageDistributionBinder;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.OnMessageParsedCallback;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.SystemMessage;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.OldConnection.ConnectionManager;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.IAdvertiseService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.IDiscoveryService;
@@ -32,10 +40,12 @@ import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Presentation.Fragments.
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Users.User;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.AppContext;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Utility.NotificationUtility;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Voice.VoiceTransmission;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
 import com.google.android.gms.nearby.connection.ConnectionResolution;
+import com.google.android.gms.nearby.connection.ConnectionsStatusCodes;
 import com.google.android.gms.nearby.connection.DiscoveredEndpointInfo;
 import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback;
 
@@ -52,6 +62,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
 
     private IDiscoveryService discoveryService;
     private IAdvertiseService advertiseService;
+    private IMessageDistributionService distributionService;
 
     public IDiscoveryService getDiscoveryService() {
         return discoveryService;
@@ -59,6 +70,20 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
 
     public IAdvertiseService getAdvertiseService() {
         return advertiseService;
+    }
+
+    public IMessageDistributionService getDistributionService() {
+        return distributionService;
+    }
+
+    public AbstractConnectionService getConnectionService(){
+        if(discoveryService!=null){
+            return (AbstractConnectionService) discoveryService;
+        }
+        if(advertiseService!=null) {
+            return (AbstractConnectionService) advertiseService;
+        }
+        return null;
     }
 
     /**
@@ -71,7 +96,6 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
     private SelectParticipantsFragment selectParticipantsFragment;
     private InboxFragment inboxFragment;
     private ChatFragment chatFragment;
-    private TabPageAdapter tabPageAdapter;
     private final static VoiceTransmission voiceTransmission = new VoiceTransmission();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +115,7 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
         connectionManager.setUpConnectionsClient(this);
 
         //Set up tabs
-        tabPageAdapter = new TabPageAdapter(getSupportFragmentManager());
+        TabPageAdapter tabPageAdapter = new TabPageAdapter(getSupportFragmentManager());
         switch (getUserRole().getRoleType()) {
 
             case SPECTATOR:
@@ -115,6 +139,9 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
                 return;
 
         }
+        Intent intent = new Intent(this, JsonMessageDistributionService.class);
+        bindService(intent, distributionConnection, Context.BIND_AUTO_CREATE);
+
         ViewPager viewPager = findViewById(R.id.pager);
         viewPager.setAdapter(tabPageAdapter);
 
@@ -301,19 +328,53 @@ public class AppLogicActivity extends BaseActivity implements AppContext {
 
                 @Override
                 public void onConnectionResult(@NonNull String s, @NonNull ConnectionResolution connectionResolution) {
+                    switch (connectionResolution.getStatus().getStatusCode()){
+                        case ConnectionsStatusCodes.STATUS_OK:
+                            String name = advertiseService.getNameOfEndpoint(s);
+                            if(name != null){
+                                advertiseService.broadcastMessage((new SystemMessage(getString(R.string.chat_user_connected,name))).toJsonString());
+                            }
+                            break;
+                    }
                     selectParticipantsFragment.updateParticipants();
                 }
 
                 @Override
                 public void onDisconnected(@NonNull String s) {
+                    // does not work for now
+                    // presenter does not know name of leaving endpoint
+                    /*String name = advertiseService.getNameOfEndpoint(s);
+                    if(name != null) {
+                        advertiseService.broadcastMessage((new SystemMessage(getResources().getString(R.string.chat_user_disconnected, name))).toJsonString());
+                    }*/
                     selectParticipantsFragment.updateParticipants();
                 }
             });
         }
-
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.i(TAG, "ADVERTISE SERVICE DISCONNECTED");
+        }
+    };
+    private ServiceConnection distributionConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MessageDistributionBinder binder = (MessageDistributionBinder) service;
+            distributionService = binder.getService();
+            distributionService.register(new OnMessageParsedCallback() {
+                @Override
+                public void onMessageParsed(@NonNull BaseMessage message) {
+                    if(message.getClass() == ChatMessage.class){
+                        chatFragment.addReceivedMessage((ChatMessage) message);
+                        NotificationUtility.displayChatNotification(AppLogicActivity.this,((ChatMessage) message).getSender());
+                    }else if(message.getClass() == SystemMessage.class){
+                        chatFragment.displaySystemNotification((SystemMessage)message);
+                    }
+                }
+            });
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
         }
     };
 }

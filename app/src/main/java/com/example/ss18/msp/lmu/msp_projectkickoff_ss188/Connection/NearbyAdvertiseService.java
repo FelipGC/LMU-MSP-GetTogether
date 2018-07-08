@@ -8,8 +8,14 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Activities.AppLogicActivity;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.BaseMessage;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.SystemMessage;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.R;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
+import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
+import com.google.android.gms.nearby.connection.ConnectionResolution;
+import com.google.android.gms.nearby.connection.ConnectionsStatusCodes;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
@@ -49,9 +55,7 @@ public class NearbyAdvertiseService extends AbstractConnectionService implements
     }
 
     @Override
-    protected ConnectionLifecycleCallback initLifecycle() {
-        return null;
-    }
+    protected ConnectionLifecycleCallback initLifecycle() {return null;}
 
     @Override
     public void stopService() {
@@ -84,5 +88,16 @@ public class NearbyAdvertiseService extends AbstractConnectionService implements
         public IAdvertiseService getService() {
             return NearbyAdvertiseService.this;
         }
+    }
+
+    public String getNameOfEndpoint(String endpointId){
+        if(connectedEndpoints.containsKey(endpointId))
+            return connectedEndpoints.get(endpointId).getName();
+        if(shortlyDisconnected.containsKey(endpointId)) {
+            String name = shortlyDisconnected.get(endpointId);
+            shortlyDisconnected.remove(endpointId);
+            return name;
+        }
+        return null;
     }
 }

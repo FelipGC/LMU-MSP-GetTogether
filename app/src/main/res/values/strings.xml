@@ -64,6 +64,7 @@ Get Together "ist eine App, die eine einfache und komfortable Übertragung von D
     <string name="presentation_openPresentationRequestCode">1</string>
     <string name="presentation_tabName">Live Präsentation</string>
     <string name="presentation_imageContent">Die geladene Präsentation</string>
+    <string name="presentation_noPresentationAvailable">Zur Zeit ist keine Presentation verfügbar.</string>
     <string name="yes">Ja</string>
     <string name="no_name_entered">Ooooops keinen Namen?</string>
     <string name="generate_random_name">Du hast keinen Benutzernamen eingegeben. Möchtest du vielleicht einen zufälligen erstellen?</string>
@@ -72,5 +73,10 @@ Get Together "ist eine App, die eine einfache und komfortable Übertragung von D
     <string name="gps">GPS</string>
     <string name="sprechen">SPRECHEN</string>
     <string name="stupsen">STUPSEN</string>
-    <string name="presentation_noPresentationAvailable">Zur Zeit ist keine Presentation verfügbar.</string>
+
+    <string name="chat_notif_title">Neue Chat-Nachricht erhalten</string>
+    <string name="chat_notif_content">%1$s hat eine Nachricht geschickt.</string>
+    <string name="chat_user_connected">%1$s ist der Gruppe beigetreten.</string>
+    <string name="chat_user_disconnected">%1$s hat die Gruppe verlassen.</string>
+    <string name="save">Speichern</string>
 </resources>

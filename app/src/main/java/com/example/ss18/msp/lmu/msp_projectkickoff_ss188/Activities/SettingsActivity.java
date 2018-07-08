@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
@@ -44,10 +45,10 @@ public class SettingsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         super.onCreate(R.layout.activity_settings);
 
-        Button signUpButton = (Button) findViewById(R.id.btn_signup);
-        TextView settingsText = (TextView) findViewById(R.id.settings_text);
-        userImage = (ImageView) findViewById(R.id.user_image);
-        enteredUsername = (EditText) findViewById(R.id.enter_username);
+        Button signUpButton = findViewById(R.id.btn_signup);
+        TextView settingsText = findViewById(R.id.settings_text);
+        userImage = findViewById(R.id.user_image);
+        enteredUsername = findViewById(R.id.enter_username);
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -61,14 +62,19 @@ public class SettingsActivity extends BaseActivity {
         //on the activity menu
         Intent intent = getIntent();
         firstStart = intent.hasExtra("newUser") && intent.getBooleanExtra("newUser", false);
+        ActionBar supportActionBar = getSupportActionBar();
         if (firstStart) {
-            getSupportActionBar().setTitle(R.string.register_new);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-            getSupportActionBar().setDisplayShowHomeEnabled(false);
+            if (supportActionBar != null) {
+                supportActionBar.setTitle(R.string.register_new);
+                supportActionBar.setDisplayHomeAsUpEnabled(false);
+                supportActionBar.setDisplayShowHomeEnabled(false);
+            }
         } else {
             settingsText.setVisibility(View.GONE);
-            signUpButton.setText("Speichern");
-            getSupportActionBar().setTitle(R.string.settings_user);
+            signUpButton.setText(getString(R.string.save));
+            if (supportActionBar != null) {
+                supportActionBar.setTitle(R.string.settings_user);
+            }
             enteredUsername.setText(preferences.getUsername());
             userImage.setImageURI(preferences.getUserImage());
         }

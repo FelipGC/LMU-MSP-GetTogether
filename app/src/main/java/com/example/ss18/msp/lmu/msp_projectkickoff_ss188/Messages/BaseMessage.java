@@ -55,6 +55,9 @@ public class BaseMessage {
                 case PRESENTATION_STOP:
                     c = JsonPresentationStopMessage.class;
                     break;
+                case SYSTEM:
+                    c = SystemMessage.class;
+                    break;
                 case POKE:
                 case LOCATION:
                 default:

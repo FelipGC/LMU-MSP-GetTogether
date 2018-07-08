@@ -13,10 +13,13 @@ import android.util.Log;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageReceiver.CombinedPayloadReceiver;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.MessageReceiver.IOnMessageListener;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Connection.Messages.JsonFileDataMessage;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.AppPreferences;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.BaseMessage;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.ChatMessage;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.IMessageDistributionService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.JsonMessageDistributionService;
 import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.MessageDistributionBinder;
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.Messages.SystemMessage;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
@@ -37,12 +40,13 @@ import java.util.Map;
 
 public abstract class AbstractConnectionService extends Service implements IService {
     private final String TAG = "AConnectionService";
-    private final Map<String, ConnectionEndpoint> pendingEndpoints = new HashMap<>();
-    private final Map<String, ConnectionEndpoint> connectedEndpoints = new HashMap<>();
+    protected final Map<String, ConnectionEndpoint> pendingEndpoints = new HashMap<>();
+    protected final Map<String, ConnectionEndpoint> connectedEndpoints = new HashMap<>();
     private final List<ConnectionLifecycleCallback> lifecycleCallbacks = new ArrayList<>();
     private final List<IOnMessageListener> messageListeners = new ArrayList<>();
     protected CombinedPayloadReceiver payloadReceiver =
             new CombinedPayloadReceiver(messageListeners);
+
     protected ConnectionsClient connectionsClient;
     protected final String serviceID = "SERVICE_ID_NEARBY_CONNECTIONS";
     protected final Strategy STRATEGY = Strategy.P2P_CLUSTER;
@@ -119,19 +123,25 @@ public abstract class AbstractConnectionService extends Service implements IServ
 
                 @Override
                 public void onDisconnected(@NonNull String endpointId) {
-                    if (!connectedEndpoints.containsKey(endpointId)) {
-                        return;
-                    }
-                    connectedEndpoints.remove(endpointId);
-                    if (serviceSpecificLifecycleCallback != null) {
-                        serviceSpecificLifecycleCallback.onDisconnected(endpointId);
-                    }
-                    for (ConnectionLifecycleCallback callback :
-                            lifecycleCallbacks) {
-                        callback.onDisconnected(endpointId);
-                    }
+                    afterDisconnect(endpointId);
                 }
             };
+
+    protected Map<String, String> shortlyDisconnected = new HashMap<>();
+    private void afterDisconnect(String endpointId){
+        if (!connectedEndpoints.containsKey(endpointId)) {
+            return;
+        }
+        shortlyDisconnected.put(endpointId,connectedEndpoints.get(endpointId).getName());
+        connectedEndpoints.remove(endpointId);
+        if (serviceSpecificLifecycleCallback != null) {
+            serviceSpecificLifecycleCallback.onDisconnected(endpointId);
+        }
+        for (ConnectionLifecycleCallback callback :
+                lifecycleCallbacks) {
+            callback.onDisconnected(endpointId);
+        }
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -244,7 +254,7 @@ public abstract class AbstractConnectionService extends Service implements IServ
     public void onDestroy() {
         unbindService(messageDistributionServiceConnection);
         connectionsClient.stopAllEndpoints();
-        stopService(); // TODO @Laureen: Nötig, bzw. hinderlich für das am Leben halten des Service? Außerdem vllt eher stopSelf?
+        stopService();
     }
 
     protected boolean alreadyConnected(String endpointId) {

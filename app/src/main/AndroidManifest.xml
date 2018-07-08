@@ -39,6 +39,7 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".Activities.ImageSliderActivity"
             android:screenOrientation="portrait"/>
+        <activity android:name=".Activities.BaseActivity" />
 
         <service
             android:name=".DistanceControl.FrequentLocationService"

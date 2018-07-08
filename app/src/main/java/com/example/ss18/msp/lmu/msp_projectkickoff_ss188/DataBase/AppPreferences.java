@@ -19,6 +19,9 @@ public class AppPreferences {
         }
         return instance;
     }
+    public static AppPreferences getInstance(){
+        return instance;
+    }
 
     static final String PREF_USER = "preferences_username";
     static final String PREF_IMAGE = "preferences_image";

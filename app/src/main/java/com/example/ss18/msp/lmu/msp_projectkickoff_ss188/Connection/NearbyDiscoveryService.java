@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.example.ss18.msp.lmu.msp_projectkickoff_ss188.DataBase.AppPreferences;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
 import com.google.android.gms.nearby.connection.ConnectionResolution;
@@ -132,7 +133,7 @@ public class NearbyDiscoveryService extends AbstractConnectionService implements
 
     @Override
     public void requestConnection(final ConnectionEndpoint endpoint) {
-        connectionsClient.requestConnection(endpoint.getName(), endpoint.getId(), connectionLifecycleCallback)
+        connectionsClient.requestConnection(AppPreferences.getInstance().getUsername(), endpoint.getId(), connectionLifecycleCallback)
                 .addOnSuccessListener(
                         new OnSuccessListener<Void>() {
                             @Override
